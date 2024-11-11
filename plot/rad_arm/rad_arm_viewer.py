@@ -15,7 +15,7 @@ from pinocchio.visualize import MeshcatVisualizer
 # Create Robot for Meshcat Visualization
 # Build the robot models from the URDF file
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
-    cwd + "/robot_model/crab/rad_arm.urdf",  # Path to the URDF file
+    cwd + "/robot_model/crab/crab.urdf",  # Path to the URDF file
     cwd + "/robot_model/crab/",  # Path to the robot model directory
     pin.JointModelFreeFlyer(),  # Use a free-flyer joint model
 )
