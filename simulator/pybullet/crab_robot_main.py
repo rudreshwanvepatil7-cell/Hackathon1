@@ -237,7 +237,7 @@ if __name__ == "__main__":
     # useFixedBase=False)
     robot = pb.loadURDF(
         cwd + "/robot_model/crab/crab.urdf",
-        [0.0, 0.0, 0.45],
+        [0.0, 0.0, 0.5],
         [0, 0, 0, 1],
         useFixedBase=False,
     )
@@ -250,8 +250,8 @@ if __name__ == "__main__":
     # )
     cylinder_robot = pb.loadURDF(
         cwd + "/robot_model/cylinder.urdf",
-        [1.0, 1.0, 1.0],
-        [0, 0, 0.707, 0.707],
+        [5.0, 5.0, 5.0],
+        [0, 0.707, 0, 0.707],
         useFixedBase=False,
     )
 
