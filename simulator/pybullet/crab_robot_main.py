@@ -223,12 +223,12 @@ if __name__ == "__main__":
     ## robot spawn & initial kinematics and dynamics setting
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 0)
 
-    # robot = pb.loadURDF(cwd + "/robot_model/go2/go2_description.urdf",
-                        # [0., 0., 0.45], [0, 0, 0, 1],
-                        # useFixedBase=False) 
-    robot = pb.loadURDF(cwd + "/robot_model/rad_arm.urdf",
+    robot = pb.loadURDF(cwd + "/robot_model/go2/go2_description.urdf",
                         [0., 0., 0.45], [0, 0, 0, 1],
                         useFixedBase=False) 
+    # robot = pb.loadURDF(cwd + "/robot_model/rad_arm.urdf",
+    #                     [0., 0., 0.45], [0, 0, 0, 1],
+    #                     useFixedBase=False) 
 
     # cylinder_robot = pb.loadURDF(
     #     cwd + "/robot_model/cylinder.urdf",
