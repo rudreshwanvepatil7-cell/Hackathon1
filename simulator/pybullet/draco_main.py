@@ -347,12 +347,12 @@ if __name__ == "__main__":
         useFixedBase=0,
     )
 
-    cylinder_robot = pb.loadURDF(
-        cwd + "/robot_model/cylinder.urdf",
-        Config.INITIAL_CYLINDER_BASE_JOINT_POS,
-        Config.INITIAL_BASE_JOINT_QUAT,
-        useFixedBase=0,
-    )
+    # cylinder_robot = pb.loadURDF(
+    #     cwd + "/robot_model/cylinder.urdf",
+    #     Config.INITIAL_CYLINDER_BASE_JOINT_POS,
+    #     Config.INITIAL_BASE_JOINT_QUAT,
+    #     useFixedBase=0,
+    # )
 
 
     ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf",
