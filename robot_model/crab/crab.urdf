@@ -14,7 +14,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="2 3 0.5"/>
+        <box size="3 5 0.5"/>
       </geometry>
       <material name="Cyan">
         <color rgba="0 1.0 1.0 1.0"/>
@@ -23,16 +23,26 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <box size="2 3 0.5"/>
+        <box size="3 5 0.5"/>
       </geometry>
     </collision>
   </link>
   <!-- Call subassembly macros -->
   <link name="front_right_base_link"/>
-  <joint name="front_right_base_fix" type="fixed">
-    <origin rpy="0 0 0" xyz="1.0 1.5 0"/>
+  <joint name="front_right_hip_pitch" type="revolute">
+    <origin rpy="0 3.14 0" xyz="1.5 2.4 0"/>
     <parent link="body"/>
     <child link="front_right_base_link"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="0" lower="-1.57" upper="1.57" velocity="0"/>
+  </joint>
+  <link name="front_right_hip_link"/>
+  <joint name="front_right_hip_yaw" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="front_right_base_link"/>
+    <child link="front_right_hip_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="-1.57" upper="0" velocity="0"/>
   </joint>
   <link name="front_right_cluster_1_base_link">
     <inertial>
@@ -58,7 +68,7 @@
   </link>
   <joint name="front_right_cluster_1_base_fix" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="front_right_base_link"/>
+    <parent link="front_right_hip_link"/>
     <child link="front_right_cluster_1_base_link"/>
   </joint>
   <link name="front_right_cluster_1_proximal_link">
@@ -412,10 +422,20 @@
   </joint>
   <!-- Call subassembly macros -->
   <link name="front_left_base_link"/>
-  <joint name="front_left_base_fix" type="fixed">
-    <origin rpy="0 0 0" xyz="-1.0 1.5 0"/>
+  <joint name="front_left_hip_pitch" type="revolute">
+    <origin rpy="0 3.14 0" xyz="-1.5 2.4 0"/>
     <parent link="body"/>
     <child link="front_left_base_link"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="0" lower="-1.57" upper="1.57" velocity="0"/>
+  </joint>
+  <link name="front_left_hip_link"/>
+  <joint name="front_left_hip_yaw" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="front_left_base_link"/>
+    <child link="front_left_hip_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="0" upper="1.57" velocity="0"/>
   </joint>
   <link name="front_left_cluster_1_base_link">
     <inertial>
@@ -441,7 +461,7 @@
   </link>
   <joint name="front_left_cluster_1_base_fix" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="front_left_base_link"/>
+    <parent link="front_left_hip_link"/>
     <child link="front_left_cluster_1_base_link"/>
   </joint>
   <link name="front_left_cluster_1_proximal_link">
@@ -795,10 +815,20 @@
   </joint>
   <!-- Call subassembly macros -->
   <link name="back_right_base_link"/>
-  <joint name="back_right_base_fix" type="fixed">
-    <origin rpy="0 0 0" xyz="1.0 -1.5 0"/>
+  <joint name="back_right_hip_pitch" type="revolute">
+    <origin rpy="0 3.14 0" xyz="1.5 -2.4 0"/>
     <parent link="body"/>
     <child link="back_right_base_link"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="0" lower="-1.57" upper="1.57" velocity="0"/>
+  </joint>
+  <link name="back_right_hip_link"/>
+  <joint name="back_right_hip_yaw" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="back_right_base_link"/>
+    <child link="back_right_hip_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="-1.57" upper="0" velocity="0"/>
   </joint>
   <link name="back_right_cluster_1_base_link">
     <inertial>
@@ -824,7 +854,7 @@
   </link>
   <joint name="back_right_cluster_1_base_fix" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="back_right_base_link"/>
+    <parent link="back_right_hip_link"/>
     <child link="back_right_cluster_1_base_link"/>
   </joint>
   <link name="back_right_cluster_1_proximal_link">
@@ -1178,10 +1208,20 @@
   </joint>
   <!-- Call subassembly macros -->
   <link name="back_left_base_link"/>
-  <joint name="back_left_base_fix" type="fixed">
-    <origin rpy="0 0 0" xyz="-1.0 -1.5 0"/>
+  <joint name="back_left_hip_pitch" type="revolute">
+    <origin rpy="0 3.14 0" xyz="-1.5 -2.4 0"/>
     <parent link="body"/>
     <child link="back_left_base_link"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="0" lower="-1.57" upper="1.57" velocity="0"/>
+  </joint>
+  <link name="back_left_hip_link"/>
+  <joint name="back_left_hip_yaw" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="back_left_base_link"/>
+    <child link="back_left_hip_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="0" lower="0" upper="1.57" velocity="0"/>
   </joint>
   <link name="back_left_cluster_1_base_link">
     <inertial>
@@ -1207,7 +1247,7 @@
   </link>
   <joint name="back_left_cluster_1_base_fix" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <parent link="back_left_base_link"/>
+    <parent link="back_left_hip_link"/>
     <child link="back_left_cluster_1_base_link"/>
   </joint>
   <link name="back_left_cluster_1_proximal_link">
@@ -1557,6 +1597,19 @@
     <origin rpy="0 0 0" xyz="0 0 0.082551"/>
     <parent link="back_left_cluster_3_wrist_link"/>
     <child link="back_left_cluster_3_end_link"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <link name="imu">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="1.5 2.5 0.25"/>
+    <parent link="body"/>
+    <child link="imu"/>
     <axis xyz="0 0 0"/>
   </joint>
 </robot>

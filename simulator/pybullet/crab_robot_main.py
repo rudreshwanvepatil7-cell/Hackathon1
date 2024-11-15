@@ -1,21 +1,25 @@
 import pybullet as pb
 import os
 import sys
+import numpy as np
+import signal
+import shutil
+import cv2
 
 cwd = os.getcwd()
 sys.path.append(cwd)
 sys.path.append(cwd + "/build/lib")  # include pybind module
 
-from config.go2.sim.pybullet.wbic.pybullet_params import *
-from util.python_utils import pybullet_util
-from util.python_utils import util
-from util.python_utils import liegroup
+from config.crab.sim.pybullet.wbic.pybullet_params import (  # noqa: E402
+    CrabLinkIdx,
+    CrabJointIdx,
+    Config,
+)
+from util.python_utils import pybullet_util  # noqa: E402
+from util.python_utils import util  # noqa: E402
+from util.python_utils import liegroup  # noqa: E402
 
-import signal
-import shutil
-import cv2
-
-import go2_interface_py
+import crab_interface_py  # noqa: E402
 
 if Config.MEASURE_COMPUTATION_TIME:
     from pytictoc import TicToc
@@ -23,94 +27,102 @@ if Config.MEASURE_COMPUTATION_TIME:
 
 def get_sensor_data_from_pybullet(robot):
     # follow pinocchio robotsystem urdf reading convention
-    joint_pos, joint_vel = np.zeros(12), np.zeros(12)
+    joint_pos, joint_vel = np.zeros(36), np.zeros(36)
 
-    imu_frame_quat = np.array(pb.getLinkState(robot, Go2LinkIdx.imu, 1, 1)[1])
-
-    # Front left
-    joint_pos[0] = pb.getJointState(robot, Go2JointIdx.FL_hip_joint)[0]
-    joint_pos[1] = pb.getJointState(robot, Go2JointIdx.FL_thigh_joint)[0]
-    joint_pos[2] = pb.getJointState(robot, Go2JointIdx.FL_calf_joint)[0]
-    # Front right
-    joint_pos[3] = pb.getJointState(robot, Go2JointIdx.FR_hip_joint)[0]
-    joint_pos[4] = pb.getJointState(robot, Go2JointIdx.FR_thigh_joint)[0]
-    joint_pos[5] = pb.getJointState(robot, Go2JointIdx.FR_calf_joint)[0]
-    # Rear left
-    joint_pos[6] = pb.getJointState(robot, Go2JointIdx.RL_hip_joint)[0]
-    joint_pos[7] = pb.getJointState(robot, Go2JointIdx.RL_thigh_joint)[0]
-    joint_pos[8] = pb.getJointState(robot, Go2JointIdx.RL_calf_joint)[0]
-    # Rear right
-    joint_pos[9] = pb.getJointState(robot, Go2JointIdx.RR_hip_joint)[0]
-    joint_pos[10] = pb.getJointState(robot, Go2JointIdx.RR_thigh_joint)[0]
-    joint_pos[11] = pb.getJointState(robot, Go2JointIdx.RR_calf_joint)[0]
-
-    imu_ang_vel = np.array(pb.getLinkState(robot, Go2LinkIdx.imu, 1, 1)[7])
-
+    imu_frame_quat = np.array(pb.getLinkState(robot, CrabLinkIdx.imu, 1, 1)[1])
+    imu_ang_vel = np.array(pb.getLinkState(robot, CrabLinkIdx.imu, 1, 1)[7])
     imu_dvel = pybullet_util.simulate_dVel_data(
-        robot, Go2LinkIdx.imu, previous_torso_velocity
+        robot, CrabLinkIdx.imu, previous_torso_velocity
     )
 
-    # Front left
-    joint_vel[0] = pb.getJointState(robot, Go2JointIdx.FL_hip_joint)[1]
-    joint_vel[1] = pb.getJointState(robot, Go2JointIdx.FL_thigh_joint)[1]
-    joint_vel[2] = pb.getJointState(robot, Go2JointIdx.FL_calf_joint)[1]
     # Front right
-    joint_vel[3] = pb.getJointState(robot, Go2JointIdx.FR_hip_joint)[1]
-    joint_vel[4] = pb.getJointState(robot, Go2JointIdx.FR_thigh_joint)[1]
-    joint_vel[5] = pb.getJointState(robot, Go2JointIdx.FR_calf_joint)[1]
-    # Rear left
-    joint_vel[6] = pb.getJointState(robot, Go2JointIdx.RL_hip_joint)[1]
-    joint_vel[7] = pb.getJointState(robot, Go2JointIdx.RL_thigh_joint)[1]
-    joint_vel[8] = pb.getJointState(robot, Go2JointIdx.RL_calf_joint)[1]
+    joint_pos[0] = pb.getJointState(robot, CrabJointIdx.FR_hip_pitch)[0]
+    joint_pos[1] = pb.getJointState(robot, CrabJointIdx.FR_hip_yaw)[0]
+    joint_pos[2] = pb.getJointState(robot, CrabJointIdx.FR_upperlowerthigh_roll)[0]
+    joint_pos[3] = pb.getJointState(robot, CrabJointIdx.FR_upperlowerthigh_pitch)[0]
+    joint_pos[4] = pb.getJointState(robot, CrabJointIdx.FR_thighcalf_roll)[0]
+    joint_pos[5] = pb.getJointState(robot, CrabJointIdx.FR_thighcalf_pitch)[0]
+    joint_pos[6] = pb.getJointState(robot, CrabJointIdx.FR_upperlowercalf_roll)[0]
+    joint_pos[7] = pb.getJointState(robot, CrabJointIdx.FR_upperlowercalf_pitch)[0]
+    joint_pos[8] = pb.getJointState(robot, CrabJointIdx.FR_wrist_joint)[0]
+
+    # Front left
+    joint_pos[9] = pb.getJointState(robot, CrabJointIdx.FL_hip_pitch)[0]
+    joint_pos[10] = pb.getJointState(robot, CrabJointIdx.FL_hip_yaw)[0]
+    joint_pos[11] = pb.getJointState(robot, CrabJointIdx.FL_upperlowerthigh_roll)[0]
+    joint_pos[12] = pb.getJointState(robot, CrabJointIdx.FL_upperlowerthigh_pitch)[0]
+    joint_pos[13] = pb.getJointState(robot, CrabJointIdx.FL_thighcalf_roll)[0]
+    joint_pos[14] = pb.getJointState(robot, CrabJointIdx.FL_thighcalf_pitch)[0]
+    joint_pos[15] = pb.getJointState(robot, CrabJointIdx.FL_upperlowercalf_roll)[0]
+    joint_pos[16] = pb.getJointState(robot, CrabJointIdx.FL_upperlowercalf_pitch)[0]
+    joint_pos[17] = pb.getJointState(robot, CrabJointIdx.FL_wrist_joint)[0]
+
     # Rear right
-    joint_vel[9] = pb.getJointState(robot, Go2JointIdx.RR_hip_joint)[1]
-    joint_vel[10] = pb.getJointState(robot, Go2JointIdx.RR_thigh_joint)[1]
-    joint_vel[11] = pb.getJointState(robot, Go2JointIdx.RR_calf_joint)[1]
+    joint_pos[18] = pb.getJointState(robot, CrabJointIdx.RR_hip_pitch)[0]
+    joint_pos[19] = pb.getJointState(robot, CrabJointIdx.RR_hip_yaw)[0]
+    joint_pos[20] = pb.getJointState(robot, CrabJointIdx.RR_upperlowerthigh_roll)[0]
+    joint_pos[21] = pb.getJointState(robot, CrabJointIdx.RR_upperlowerthigh_pitch)[0]
+    joint_pos[22] = pb.getJointState(robot, CrabJointIdx.RR_thighcalf_roll)[0]
+    joint_pos[23] = pb.getJointState(robot, CrabJointIdx.RR_thighcalf_pitch)[0]
+    joint_pos[24] = pb.getJointState(robot, CrabJointIdx.RR_upperlowercalf_roll)[0]
+    joint_pos[25] = pb.getJointState(robot, CrabJointIdx.RR_upperlowercalf_pitch)[0]
+    joint_pos[26] = pb.getJointState(robot, CrabJointIdx.RR_wrist_joint)[0]
+
+    # Rear left
+    joint_pos[27] = pb.getJointState(robot, CrabJointIdx.RL_hip_pitch)[0]
+    joint_pos[28] = pb.getJointState(robot, CrabJointIdx.RL_hip_yaw)[0]
+    joint_pos[29] = pb.getJointState(robot, CrabJointIdx.RL_upperlowerthigh_roll)[0]
+    joint_pos[30] = pb.getJointState(robot, CrabJointIdx.RL_upperlowerthigh_pitch)[0]
+    joint_pos[31] = pb.getJointState(robot, CrabJointIdx.RL_thighcalf_roll)[0]
+    joint_pos[32] = pb.getJointState(robot, CrabJointIdx.RL_thighcalf_pitch)[0]
+    joint_pos[33] = pb.getJointState(robot, CrabJointIdx.RL_upperlowercalf_roll)[0]
+    joint_pos[34] = pb.getJointState(robot, CrabJointIdx.RL_upperlowercalf_pitch)[0]
+    joint_pos[35] = pb.getJointState(robot, CrabJointIdx.RL_wrist_joint)[0]
 
     # normal force measured on each foot
-    FL_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=Go2LinkIdx.FL_foot)
-    for contact in contacts:
-        # add z-component on all points of contact
-        FL_normal_force += contact[9]
-
     FR_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=Go2LinkIdx.FR_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=CrabLinkIdx.FR_foot)
     for contact in contacts:
         # add z-component on all points of contact
         FR_normal_force += contact[9]
 
-    RL_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=Go2LinkIdx.RL_foot)
+    FL_normal_force = 0
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=CrabLinkIdx.FL_foot)
     for contact in contacts:
         # add z-component on all points of contact
-        RL_normal_force += contact[9]
+        FL_normal_force += contact[9]
 
     RR_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=Go2LinkIdx.RR_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=CrabLinkIdx.RR_foot)
     for contact in contacts:
         # add z-component on all points of contact
         RR_normal_force += contact[9]
 
+    RL_normal_force = 0
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=CrabLinkIdx.RL_foot)
+    for contact in contacts:
+        # add z-component on all points of contact
+        RL_normal_force += contact[9]
+
     # Determine foot contact states based on the z-coordinate of the foot link
-    b_FL_foot_contact = (
-        True
-        if pb.getLinkState(robot, Go2LinkIdx.FL_foot, 1, 1)[0][2] <= 0.05
-        else False
-    )
     b_FR_foot_contact = (
         True
-        if pb.getLinkState(robot, Go2LinkIdx.FR_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, CrabLinkIdx.FR_foot, 1, 1)[0][2] <= 0.05
         else False
     )
-    b_RL_foot_contact = (
+    b_FL_foot_contact = (
         True
-        if pb.getLinkState(robot, Go2LinkIdx.RL_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, CrabLinkIdx.FL_foot, 1, 1)[0][2] <= 0.05
         else False
     )
     b_RR_foot_contact = (
         True
-        if pb.getLinkState(robot, Go2LinkIdx.RR_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, CrabLinkIdx.RR_foot, 1, 1)[0][2] <= 0.05
+        else False
+    )
+    b_RL_foot_contact = (
+        True
+        if pb.getLinkState(robot, CrabLinkIdx.RL_foot, 1, 1)[0][2] <= 0.05
         else False
     )
 
@@ -134,61 +146,146 @@ def get_sensor_data_from_pybullet(robot):
 def apply_control_input_to_pybullet(robot, command):
     mode = pb.TORQUE_CONTROL
 
-    # Front left
-    pb.setJointMotorControl2(
-        robot, Go2JointIdx.FL_hip_joint, controlMode=mode, force=command[0]
-    )
-    pb.setJointMotorControl2(
-        robot, Go2JointIdx.FL_thigh_joint, controlMode=mode, force=command[1]
-    )
-    pb.setJointMotorControl2(
-        robot, Go2JointIdx.FL_calf_joint, controlMode=mode, force=command[2]
-    )
     # Front right
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.FR_hip_joint, controlMode=mode, force=command[3]
+        robot, CrabJointIdx.FR_hip_pitch, controlMode=mode, force=command[0]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.FR_thigh_joint, controlMode=mode, force=command[4]
+        robot, CrabJointIdx.FR_hip_yaw, controlMode=mode, force=command[1]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.FR_calf_joint, controlMode=mode, force=command[5]
-    )
-    # Rear left
-    pb.setJointMotorControl2(
-        robot, Go2JointIdx.RL_hip_joint, controlMode=mode, force=command[6]
+        robot, CrabJointIdx.FR_upperlowerthigh_roll, controlMode=mode, force=command[2]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RL_thigh_joint, controlMode=mode, force=command[7]
+        robot, CrabJointIdx.FR_upperlowerthigh_pitch, controlMode=mode, force=command[3]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RL_calf_joint, controlMode=mode, force=command[8]
+        robot, CrabJointIdx.FR_thighcalf_roll, controlMode=mode, force=command[4]
     )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FR_thighcalf_pitch, controlMode=mode, force=command[5]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FR_upperlowercalf_roll, controlMode=mode, force=command[6]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FR_upperlowercalf_pitch, controlMode=mode, force=command[7]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FR_wrist_joint, controlMode=mode, force=command[8]
+    )
+
+    # Front left
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FL_hip_pitch, controlMode=mode, force=command[9]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FL_hip_yaw, controlMode=mode, force=command[10]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FL_upperlowerthigh_roll, controlMode=mode, force=command[11]
+    )
+    pb.setJointMotorControl2(
+        robot,
+        CrabJointIdx.FL_upperlowerthigh_pitch,
+        controlMode=mode,
+        force=command[12],
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FL_thighcalf_roll, controlMode=mode, force=command[13]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FL_thighcalf_pitch, controlMode=mode, force=command[14]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FL_upperlowercalf_roll, controlMode=mode, force=command[15]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FL_upperlowercalf_pitch, controlMode=mode, force=command[16]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.FL_wrist_joint, controlMode=mode, force=command[17]
+    )
+
     # Rear right
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RR_hip_joint, controlMode=mode, force=command[9]
+        robot, CrabJointIdx.RR_hip_pitch, controlMode=mode, force=command[18]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RR_thigh_joint, controlMode=mode, force=command[10]
+        robot, CrabJointIdx.RR_hip_yaw, controlMode=mode, force=command[19]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RR_calf_joint, controlMode=mode, force=command[11]
+        robot, CrabJointIdx.RR_upperlowerthigh_roll, controlMode=mode, force=command[20]
+    )
+    pb.setJointMotorControl2(
+        robot,
+        CrabJointIdx.RR_upperlowerthigh_pitch,
+        controlMode=mode,
+        force=command[21],
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RR_thighcalf_roll, controlMode=mode, force=command[22]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RR_thighcalf_pitch, controlMode=mode, force=command[23]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RR_upperlowercalf_roll, controlMode=mode, force=command[24]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RR_upperlowercalf_pitch, controlMode=mode, force=command[25]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RR_wrist_joint, controlMode=mode, force=command[26]
+    )
+
+    # Rear left
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RL_hip_pitch, controlMode=mode, force=command[27]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RL_hip_yaw, controlMode=mode, force=command[28]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RL_upperlowerthigh_roll, controlMode=mode, force=command[29]
+    )
+    pb.setJointMotorControl2(
+        robot,
+        CrabJointIdx.RL_upperlowerthigh_pitch,
+        controlMode=mode,
+        force=command[30],
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RL_thighcalf_roll, controlMode=mode, force=command[31]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RL_thighcalf_pitch, controlMode=mode, force=command[32]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RL_upperlowercalf_roll, controlMode=mode, force=command[33]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RL_upperlowercalf_pitch, controlMode=mode, force=command[34]
+    )
+    pb.setJointMotorControl2(
+        robot, CrabJointIdx.RL_wrist_joint, controlMode=mode, force=command[35]
     )
 
 
 def set_init_config_pybullet_robot(robot):
-    knee_angle = 45
-    pb.resetJointState(robot, Go2JointIdx.FL_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, Go2JointIdx.FL_calf_joint, np.radians(-knee_angle), 0.0)
+    # knee_angle = 45
+    # pb.resetJointState(robot, CrabJointIdx.FL_thigh_joint, np.radians(knee_angle), 0.0)
+    # pb.resetJointState(robot, CrabJointIdx.FL_calf_joint, np.radians(-knee_angle), 0.0)
 
-    pb.resetJointState(robot, Go2JointIdx.FR_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, Go2JointIdx.FR_calf_joint, np.radians(-knee_angle), 0.0)
+    # pb.resetJointState(robot, CrabJointIdx.FR_thigh_joint, np.radians(knee_angle), 0.0)
+    # pb.resetJointState(robot, CrabJointIdx.FR_calf_joint, np.radians(-knee_angle), 0.0)
 
-    pb.resetJointState(robot, Go2JointIdx.RL_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, Go2JointIdx.RL_calf_joint, np.radians(-knee_angle), 0.0)
+    # pb.resetJointState(robot, CrabJointIdx.RL_thigh_joint, np.radians(knee_angle), 0.0)
+    # pb.resetJointState(robot, CrabJointIdx.RL_calf_joint, np.radians(-knee_angle), 0.0)
 
-    pb.resetJointState(robot, Go2JointIdx.RR_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, Go2JointIdx.RR_calf_joint, np.radians(-knee_angle), 0.0)
+    # pb.resetJointState(robot, CrabJointIdx.RR_thigh_joint, np.radians(knee_angle), 0.0)
+    # pb.resetJointState(robot, CrabJointIdx.RR_calf_joint, np.radians(-knee_angle), 0.0)
+    pass
 
 
 def signal_handler(signal, frame):
@@ -232,28 +329,19 @@ if __name__ == "__main__":
     ## robot spawn & initial kinematics and dynamics setting
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 0)
 
-    # robot = pb.loadURDF(cwd + "/robot_model/go2/go2_description.urdf",
-    # [0., 0., 0.45], [0, 0, 0, 1],
-    # useFixedBase=False)
     robot = pb.loadURDF(
         cwd + "/robot_model/crab/crab.urdf",
-        [0.0, 0.0, 0.45],
+        [0.0, 0.0, 7.0],
         [0, 0, 0, 1],
         useFixedBase=False,
     )
 
     # cylinder_robot = pb.loadURDF(
     #     cwd + "/robot_model/cylinder.urdf",
-    #     Config.INITIAL_CYLINDER_BASE_JOINT_POS,
-    #     Config.INITIAL_CYLINDER_BASE_JOINT_QUAT,
-    #     useFixedBase=0,
+    #     [1.0, 1.0, 1.0],
+    #     [0, 0, 0.707, 0.707],
+    #     useFixedBase=False,
     # )
-    cylinder_robot = pb.loadURDF(
-        cwd + "/robot_model/cylinder.urdf",
-        [1.0, 1.0, 1.0],
-        [0, 0, 0.707, 0.707],
-        useFixedBase=False,
-    )
 
     ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
@@ -292,9 +380,9 @@ if __name__ == "__main__":
     )
 
     # TODO: pnc interface, sensor_data, command class
-    rpc_go2_interface = go2_interface_py.Go2Interface()
-    rpc_go2_sensor_data = go2_interface_py.Go2SensorData()
-    rpc_go2_command = go2_interface_py.Go2Command()
+    rpc_crab_interface = crab_interface_py.CrabInterface()
+    rpc_crab_sensor_data = crab_interface_py.CrabSensorData()
+    rpc_crab_command = crab_interface_py.CrabCommand()
 
     # Run Simulation
     dt = Config.CONTROLLER_DT
@@ -307,7 +395,7 @@ if __name__ == "__main__":
         compuation_cal_list = []
 
     if Config.VIDEO_RECORD:
-        video_dir = "video/go2"
+        video_dir = "video/crab"
         if os.path.exists(video_dir):
             shutil.rmtree(video_dir)
         os.makedirs(video_dir)
@@ -364,10 +452,10 @@ if __name__ == "__main__":
         base_joint_lin_vel = twist_basejoint_in_world[3:6]
 
         # pass debugged data to rpc interface (for ground truth estimation)
-        rpc_go2_sensor_data.base_joint_pos_ = base_joint_pos
-        rpc_go2_sensor_data.base_joint_quat_ = base_joint_quat
-        rpc_go2_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
-        rpc_go2_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
+        rpc_crab_sensor_data.base_joint_pos_ = base_joint_pos
+        rpc_crab_sensor_data.base_joint_quat_ = base_joint_quat
+        rpc_crab_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
+        rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
 
         ############################################################
         # Get Keyboard Event
@@ -396,42 +484,44 @@ if __name__ == "__main__":
         ) = get_sensor_data_from_pybullet(robot)
 
         ## copy sensor data to rpc sensor data class
-        rpc_go2_sensor_data.imu_frame_quat_ = imu_frame_quat
-        rpc_go2_sensor_data.imu_ang_vel_ = imu_ang_vel
-        rpc_go2_sensor_data.imu_dvel_ = imu_dvel
-        rpc_go2_sensor_data.imu_lin_acc_ = imu_dvel / dt
-        rpc_go2_sensor_data.joint_pos_ = joint_pos
-        rpc_go2_sensor_data.joint_vel_ = joint_vel
-        rpc_go2_sensor_data.b_FL_foot_contact_ = b_FL_foot_contact
-        rpc_go2_sensor_data.b_FR_foot_contact_ = b_FR_foot_contact
-        rpc_go2_sensor_data.b_RL_foot_contact_ = b_RL_foot_contact
-        rpc_go2_sensor_data.b_RR_foot_contact_ = b_RR_foot_contact
-        rpc_go2_sensor_data.FL_normal_force_ = FL_normal_force
-        rpc_go2_sensor_data.FR_normal_force_ = FR_normal_force
-        rpc_go2_sensor_data.RL_normal_force_ = RL_normal_force
-        rpc_go2_sensor_data.RR_normal_force_ = RR_normal_force
+        rpc_crab_sensor_data.imu_frame_quat_ = imu_frame_quat
+        rpc_crab_sensor_data.imu_ang_vel_ = imu_ang_vel
+        rpc_crab_sensor_data.imu_dvel_ = imu_dvel
+        rpc_crab_sensor_data.imu_lin_acc_ = imu_dvel / dt
+        rpc_crab_sensor_data.joint_pos_ = joint_pos
+        rpc_crab_sensor_data.joint_vel_ = joint_vel
+        rpc_crab_sensor_data.b_FL_foot_contact_ = b_FL_foot_contact
+        rpc_crab_sensor_data.b_FR_foot_contact_ = b_FR_foot_contact
+        rpc_crab_sensor_data.b_RL_foot_contact_ = b_RL_foot_contact
+        rpc_crab_sensor_data.b_RR_foot_contact_ = b_RR_foot_contact
+        rpc_crab_sensor_data.FL_normal_force_ = FL_normal_force
+        rpc_crab_sensor_data.FR_normal_force_ = FR_normal_force
+        rpc_crab_sensor_data.RL_normal_force_ = RL_normal_force
+        rpc_crab_sensor_data.RR_normal_force_ = RR_normal_force
         ############################################################
         ##compute control command
         ############################################################
         if Config.MEASURE_COMPUTATION_TIME:
             timer.tic()
 
-        rpc_go2_interface.GetCommand(rpc_go2_sensor_data, rpc_go2_command)
+        rpc_crab_interface.GetCommand(rpc_crab_sensor_data, rpc_crab_command)
 
         if Config.MEASURE_COMPUTATION_TIME:
             comp_time = timer.tocvalue()
             compuation_cal_list.append(comp_time)
 
         # copy command data from rpc command class
-        rpc_trq_command = rpc_go2_command.joint_trq_cmd_
-        rpc_joint_pos_command = rpc_go2_command.joint_pos_cmd_
-        rpc_joint_vel_command = rpc_go2_command.joint_vel_cmd_
+        rpc_trq_command = rpc_crab_command.joint_trq_cmd_
+        rpc_joint_pos_command = rpc_crab_command.joint_pos_cmd_
+        rpc_joint_vel_command = rpc_crab_command.joint_vel_cmd_
 
         # apply command to pybullet robot
         apply_control_input_to_pybullet(robot, rpc_trq_command)
 
         # save current torso velocity for next iteration
-        previous_torso_velocity = pybullet_util.get_link_vel(robot, Go2LinkIdx.imu)[3:6]
+        previous_torso_velocity = pybullet_util.get_link_vel(robot, CrabLinkIdx.imu)[
+            3:6
+        ]
 
         ############################################################
         # Save Image file

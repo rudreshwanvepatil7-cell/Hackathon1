@@ -1,6 +1,6 @@
 import os
 import sys
-import pinocchio as pin 
+import pinocchio as pin
 import time
 
 cwd = os.getcwd()
@@ -12,8 +12,8 @@ from pinocchio.visualize import MeshcatVisualizer
 
 # Create Robot for Meshcat Visualization
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
-    cwd + "/robot_model/rad_arm/rad_arm.urdf",
-    cwd + "/robot_model/rad_arm/",
+    cwd + "/robot_model/crab/crab.urdf",
+    cwd + "/robot_model/crab/",
     pin.JointModelFreeFlyer(),
 )
 viz = MeshcatVisualizer(model, collision_model, visual_model)

@@ -1,0 +1,2 @@
+pybind11_add_module(crab_interface_py crab_interface_pybind_pin.cpp)
+target_link_libraries(crab_interface_py PUBLIC rpc-crab-controller)
