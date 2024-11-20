@@ -120,7 +120,7 @@ void DracoInterruptHandler::Process() {
 
     if (b_button_eight) {
       std::cout << "-----------------------------------" << std::endl;
-      std::cout << "button 8 pressed: Do Forward Walking " << std::endl;
+      std::cout << "(ctrl_arch_) button 8 pressed: Do Forward Walking " << std::endl;
       std::cout << "-----------------------------------" << std::endl;
       if (ctrl_arch_->locostate() == draco_states::kDoubleSupportBalance) {
         ctrl_arch_->dcm_tm_->ForwardWalkMode();
@@ -250,7 +250,7 @@ void DracoInterruptHandler::Process() {
 
     if (b_button_eight) {
       std::cout << "-----------------------------------" << std::endl;
-      std::cout << "button 8 pressed: Do Forward Walking " << std::endl;
+      std::cout << "(wbic_) button 8 pressed: Do Forward Walking " << std::endl;
       std::cout << "-----------------------------------" << std::endl;
       if (ctrl_arch_wbic_->locostate() ==
           draco_states_wbic::kDoubleSupportBalance) {

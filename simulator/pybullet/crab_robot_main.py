@@ -237,8 +237,8 @@ if __name__ == "__main__":
     # useFixedBase=False)
     robot = pb.loadURDF(
         cwd + "/robot_model/crab/crab.urdf",
-        [0.0, 0.0, 6.0],
-        [1.0, 0, 0, 0],
+        [0.0, 0.0, 2.0],
+        [0, 0, 0, 1],
         useFixedBase=False,
     )
 
@@ -248,12 +248,12 @@ if __name__ == "__main__":
     #     Config.INITIAL_CYLINDER_BASE_JOINT_QUAT,
     #     useFixedBase=0,
     # )
-    # cylinder_robot = pb.loadURDF(
-    #     cwd + "/robot_model/cylinder.urdf",
-    #     [2.5, 5.0, 2.5],
-    #     [0, 0.707, 0, 0.707],
-    #     useFixedBase=False,
-    # )
+    cylinder_robot = pb.loadURDF(
+        cwd + "/robot_model/cylinder.urdf",
+        [2.5, 5.0, 2.5],
+        [0, 0.707, 0, 0.707],
+        useFixedBase=False,
+    )
 
     ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
