@@ -48,7 +48,7 @@
     </collision>
   </link>
   <!-- Call subassembly macros -->
-  <link name="lidar_link">
+  <link name="top_lidar_link">
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -57,16 +57,30 @@
       <material name="grey"/>
     </visual>
   </link>
+  <link name="bottom_lidar_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.25"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
   <link name="base_footprint"/>
   <joint name="base_joint" type="fixed">
     <parent link="base_footprint"/>
     <child link="base_link"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
-  <joint name="lidar_base_joint" type="fixed">
+  <joint name="top_lidar_base_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="lidar_link"/>
-    <origin rpy="0 0 0" xyz="0 0 0.25"/>
+    <child link="top_lidar_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0.3"/>
+  </joint>
+  <joint name="bottom_lidar_base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="bottom_lidar_link"/>
+    <origin rpy="0 0 0" xyz="0 0 -0.3"/>
   </joint>
   <!-- Call subassembly macros -->
   <link name="back__sensor_link">
@@ -1701,5 +1715,89 @@
     <parent link="back_left__cluster_3_wrist_link"/>
     <child link="back_left__cluster_3_end_link"/>
     <axis xyz="0 0 0"/>
+  </joint>
+  <!-- Call subassembly macros -->
+  <link name="back_left__foot_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="back_left__cluster_3_wrist_link_foot_joint" type="fixed">
+    <parent link="back_left__cluster_3_wrist_link"/>
+    <child link="back_left__foot_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0.15"/>
+  </joint>
+  <!-- Call subassembly macros -->
+  <link name="back_right__foot_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="back_right__cluster_3_wrist_link_foot_joint" type="fixed">
+    <parent link="back_right__cluster_3_wrist_link"/>
+    <child link="back_right__foot_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0.15"/>
+  </joint>
+  <!-- Call subassembly macros -->
+  <link name="front_left__foot_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="front_left__cluster_3_wrist_link_foot_joint" type="fixed">
+    <parent link="front_left__cluster_3_wrist_link"/>
+    <child link="front_left__foot_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0.15"/>
+  </joint>
+  <!-- Call subassembly macros -->
+  <link name="front_right__foot_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.1"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="front_right__cluster_3_wrist_link_foot_joint" type="fixed">
+    <parent link="front_right__cluster_3_wrist_link"/>
+    <child link="front_right__foot_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0.15"/>
   </joint>
 </robot>
