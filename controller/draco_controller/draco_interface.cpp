@@ -59,6 +59,7 @@ DracoInterface::DracoInterface() : Interface() {
 
   // initialize controller
   if (wbc_type_ == "ihwbc") {
+    std::cout << "[DracoInterface] Initializing ihwbc controller..." << std::endl;
     ctrl_arch_ = new DracoControlArchitecture(robot_, cfg_);
     interrupt_handler_ = new DracoInterruptHandler(
         static_cast<DracoControlArchitecture *>(ctrl_arch_));
