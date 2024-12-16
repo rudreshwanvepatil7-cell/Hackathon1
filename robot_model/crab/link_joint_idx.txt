@@ -1,0 +1,195 @@
+MotionThreadFunc thread started
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: top_lidar_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: bottom_lidar_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: base_footprint
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: back__sensor_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: left__sensor_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: right__sensor_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: front_right__sensor_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: front_left__sensor_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: front_right__base_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: front_right__cluster_3_end_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: front_left__base_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: front_left__cluster_3_end_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: back_right__base_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: back_right__cluster_3_end_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: back_left__base_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: back_left__cluster_3_end_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: back_left__foot_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: back_right__foot_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: front_left__foot_link
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
+b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+
+b3Printf: front_right__foot_link
+ven = Mesa
+ven = Mesa
+Link index: 0, Link name: base_link
+Link index: 1, Link name: top_lidar_link
+Link index: 2, Link name: bottom_lidar_link
+Link index: 3, Link name: back__sensor_link
+Link index: 4, Link name: left__sensor_link
+Link index: 5, Link name: right__sensor_link
+Link index: 6, Link name: front_right__sensor_link
+Link index: 7, Link name: front_left__sensor_link
+Link index: 8, Link name: front_right__base_link
+Link index: 9, Link name: front_right__cluster_1_base_link
+Link index: 10, Link name: front_right__cluster_1_proximal_link
+Link index: 11, Link name: front_right__cluster_1_distal_link
+Link index: 12, Link name: front_right__cluster_1_end_link
+Link index: 13, Link name: front_right__cluster_2_base_link
+Link index: 14, Link name: front_right__cluster_2_proximal_link
+Link index: 15, Link name: front_right__cluster_2_distal_link
+Link index: 16, Link name: front_right__cluster_2_end_link
+Link index: 17, Link name: front_right__cluster_3_base_link
+Link index: 18, Link name: front_right__cluster_3_proximal_link
+Link index: 19, Link name: front_right__cluster_3_distal_link
+Link index: 20, Link name: front_right__cluster_3_mid_link
+Link index: 21, Link name: front_right__cluster_3_wrist_link
+Link index: 22, Link name: front_right__cluster_3_end_link
+Link index: 23, Link name: front_right__foot_link
+Link index: 24, Link name: front_left__base_link
+Link index: 25, Link name: front_left__cluster_1_base_link
+Link index: 26, Link name: front_left__cluster_1_proximal_link
+Link index: 27, Link name: front_left__cluster_1_distal_link
+Link index: 28, Link name: front_left__cluster_1_end_link
+Link index: 29, Link name: front_left__cluster_2_base_link
+Link index: 30, Link name: front_left__cluster_2_proximal_link
+Link index: 31, Link name: front_left__cluster_2_distal_link
+Link index: 32, Link name: front_left__cluster_2_end_link
+Link index: 33, Link name: front_left__cluster_3_base_link
+Link index: 34, Link name: front_left__cluster_3_proximal_link
+Link index: 35, Link name: front_left__cluster_3_distal_link
+Link index: 36, Link name: front_left__cluster_3_mid_link
+Link index: 37, Link name: front_left__cluster_3_wrist_link
+Link index: 38, Link name: front_left__cluster_3_end_link
+Link index: 39, Link name: front_left__foot_link
+Link index: 40, Link name: back_right__base_link
+Link index: 41, Link name: back_right__cluster_1_base_link
+Link index: 42, Link name: back_right__cluster_1_proximal_link
+Link index: 43, Link name: back_right__cluster_1_distal_link
+Link index: 44, Link name: back_right__cluster_1_end_link
+Link index: 45, Link name: back_right__cluster_2_base_link
+Link index: 46, Link name: back_right__cluster_2_proximal_link
+Link index: 47, Link name: back_right__cluster_2_distal_link
+Link index: 48, Link name: back_right__cluster_2_end_link
+Link index: 49, Link name: back_right__cluster_3_base_link
+Link index: 50, Link name: back_right__cluster_3_proximal_link
+Link index: 51, Link name: back_right__cluster_3_distal_link
+Link index: 52, Link name: back_right__cluster_3_mid_link
+Link index: 53, Link name: back_right__cluster_3_wrist_link
+Link index: 54, Link name: back_right__cluster_3_end_link
+Link index: 55, Link name: back_right__foot_link
+Link index: 56, Link name: back_left__base_link
+Link index: 57, Link name: back_left__cluster_1_base_link
+Link index: 58, Link name: back_left__cluster_1_proximal_link
+Link index: 59, Link name: back_left__cluster_1_distal_link
+Link index: 60, Link name: back_left__cluster_1_end_link
+Link index: 61, Link name: back_left__cluster_2_base_link
+Link index: 62, Link name: back_left__cluster_2_proximal_link
+Link index: 63, Link name: back_left__cluster_2_distal_link
+Link index: 64, Link name: back_left__cluster_2_end_link
+Link index: 65, Link name: back_left__cluster_3_base_link
+Link index: 66, Link name: back_left__cluster_3_proximal_link
+Link index: 67, Link name: back_left__cluster_3_distal_link
+Link index: 68, Link name: back_left__cluster_3_mid_link
+Link index: 69, Link name: back_left__cluster_3_wrist_link
+Link index: 70, Link name: back_left__cluster_3_end_link
+Link index: 71, Link name: back_left__foot_link 

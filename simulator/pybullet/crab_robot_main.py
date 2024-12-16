@@ -21,11 +21,12 @@ if Config.MEASURE_COMPUTATION_TIME:
     from pytictoc import TicToc
 
 
-def get_sensor_data_from_pybullet(robot):
+def get_sensor_data_from_pybullet(robot): 
+    
     # follow pinocchio robotsystem urdf reading convention
     joint_pos, joint_vel = np.zeros(12), np.zeros(12)
 
-    imu_frame_quat = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[1])
+    # imu_frame_quat = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[1])
 
     # Front left
     joint_pos[0] = pb.getJointState(robot, crab_joint_idx.FL_hip_joint)[0]
@@ -47,11 +48,11 @@ def get_sensor_data_from_pybullet(robot):
     joint_pos[10] = pb.getJointState(robot, crab_joint_idx.RR_thigh_joint)[0]
     joint_pos[11] = pb.getJointState(robot, crab_joint_idx.RR_calf_joint)[0]
 
-    imu_ang_vel = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[7])
+    # imu_ang_vel = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[7])
 
-    imu_dvel = pybullet_util.simulate_dVel_data(
-        robot, crab_link_idx.imu, previous_torso_velocity
-    )
+    # imu_dvel = pybullet_util.simulate_dVel_data(
+    #     robot, crab_link_idx.imu, previous_torso_velocity
+    # )
 
     # Front left
     joint_vel[0] = pb.getJointState(robot, crab_joint_idx.FL_hip_joint)[1]
@@ -75,25 +76,25 @@ def get_sensor_data_from_pybullet(robot):
 
     # normal force measured on each foot
     FL_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.FL_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.front_left__foot_link)
     for contact in contacts:
         # add z-component on all points of contact
         FL_normal_force += contact[9]
 
     FR_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.FR_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.front_right__foot_link)
     for contact in contacts:
         # add z-component on all points of contact
         FR_normal_force += contact[9]
 
     RL_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.RL_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.back_left__foot_link)
     for contact in contacts:
         # add z-component on all points of contact
         RL_normal_force += contact[9]
 
     RR_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.RR_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.back_right__foot_link)
     for contact in contacts:
         # add z-component on all points of contact
         RR_normal_force += contact[9]
@@ -101,29 +102,29 @@ def get_sensor_data_from_pybullet(robot):
     # Determine foot contact states based on the z-coordinate of the foot link
     b_FL_foot_contact = (
         True
-        if pb.getLinkState(robot, crab_link_idx.FL_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, crab_link_idx.front_left__foot_link, 1, 1)[0][2] <= 0.05
         else False
     )
     b_FR_foot_contact = (
         True
-        if pb.getLinkState(robot, crab_link_idx.FR_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, crab_link_idx.front_right__foot_link, 1, 1)[0][2] <= 0.05
         else False
     )
     b_RL_foot_contact = (
         True
-        if pb.getLinkState(robot, crab_link_idx.RL_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, crab_link_idx.back_left__foot_link, 1, 1)[0][2] <= 0.05
         else False
     )
     b_RR_foot_contact = (
         True
-        if pb.getLinkState(robot, crab_link_idx.RR_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, crab_link_idx.back_right__foot_link, 1, 1)[0][2] <= 0.05
         else False
     )
 
     return (
-        imu_frame_quat,
-        imu_ang_vel,
-        imu_dvel,
+        # imu_frame_quat,
+        # imu_ang_vel,
+        # imu_dvel,
         joint_pos,
         joint_vel,
         b_FL_foot_contact,
@@ -386,9 +387,9 @@ if __name__ == "__main__":
         # Get Sensor Data
         ############################################################
         (
-            imu_frame_quat,
-            imu_ang_vel,
-            imu_dvel,
+            # imu_frame_quat,
+            # imu_ang_vel,
+            # imu_dvel,
             joint_pos,
             joint_vel,
             b_FL_foot_contact,
@@ -402,10 +403,10 @@ if __name__ == "__main__":
         ) = get_sensor_data_from_pybullet(robot)
 
         ## copy sensor data to rpc sensor data class
-        rpc_go2_sensor_data.imu_frame_quat_ = imu_frame_quat
-        rpc_go2_sensor_data.imu_ang_vel_ = imu_ang_vel
-        rpc_go2_sensor_data.imu_dvel_ = imu_dvel
-        rpc_go2_sensor_data.imu_lin_acc_ = imu_dvel / dt
+        # rpc_go2_sensor_data.imu_frame_quat_ = imu_frame_quat
+        # rpc_go2_sensor_data.imu_ang_vel_ = imu_ang_vel
+        # rpc_go2_sensor_data.imu_dvel_ = imu_dvel
+        # rpc_go2_sensor_data.imu_lin_acc_ = imu_dvel / dt
         rpc_go2_sensor_data.joint_pos_ = joint_pos
         rpc_go2_sensor_data.joint_vel_ = joint_vel
         rpc_go2_sensor_data.b_FL_foot_contact_ = b_FL_foot_contact
@@ -437,7 +438,8 @@ if __name__ == "__main__":
         apply_control_input_to_pybullet(robot, rpc_trq_command)
 
         # save current torso velocity for next iteration
-        previous_torso_velocity = pybullet_util.get_link_vel(robot, crab_link_idx.imu)[3:6]
+        # previous_torso_velocity = pybullet_util.get_link_vel(robot, crab_link_idx.imu)[3:6]
+        previous_torso_velocity = pybullet_util.get_link_vel(robot, crab_link_idx.base_link)[3:6]
 
         ############################################################
         # Save Image file
