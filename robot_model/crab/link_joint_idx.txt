@@ -1,195 +1,147 @@
-MotionThreadFunc thread started
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
+# LINKS 
+base_link = 0
+top_lidar_link = 1
+bottom_lidar_link = 2
+back__sensor_link = 3
+left__sensor_link = 4
+right__sensor_link = 5
+front_right__sensor_link = 6
+front_left__sensor_link = 7
+front_right__base_link = 8
+front_right__cluster_1_base_link = 9
+front_right__cluster_1_proximal_link = 10
+front_right__cluster_1_distal_link = 11
+front_right__cluster_1_end_link = 12
+front_right__cluster_2_base_link = 13
+front_right__cluster_2_proximal_link = 14
+front_right__cluster_2_distal_link = 15
+front_right__cluster_2_end_link = 16
+front_right__cluster_3_base_link = 17
+front_right__cluster_3_proximal_link = 18
+front_right__cluster_3_distal_link = 19
+front_right__cluster_3_mid_link = 20
+front_right__cluster_3_wrist_link = 21
+front_right__cluster_3_end_link = 22
+front_right__foot_link = 23
+front_left__base_link = 24
+front_left__cluster_1_base_link = 25
+front_left__cluster_1_proximal_link = 26
+front_left__cluster_1_distal_link = 27
+front_left__cluster_1_end_link = 28
+front_left__cluster_2_base_link = 29
+front_left__cluster_2_proximal_link = 30
+front_left__cluster_2_distal_link = 31
+front_left__cluster_2_end_link = 32
+front_left__cluster_3_base_link = 33
+front_left__cluster_3_proximal_link = 34
+front_left__cluster_3_distal_link = 35
+front_left__cluster_3_mid_link = 36
+front_left__cluster_3_wrist_link = 37
+front_left__cluster_3_end_link = 38
+front_left__foot_link = 39
+back_right__base_link = 40
+back_right__cluster_1_base_link = 41
+back_right__cluster_1_proximal_link = 42
+back_right__cluster_1_distal_link = 43
+back_right__cluster_1_end_link = 44
+back_right__cluster_2_base_link = 45
+back_right__cluster_2_proximal_link = 46
+back_right__cluster_2_distal_link = 47
+back_right__cluster_2_end_link = 48
+back_right__cluster_3_base_link = 49
+back_right__cluster_3_proximal_link = 50
+back_right__cluster_3_distal_link = 51
+back_right__cluster_3_mid_link = 52
+back_right__cluster_3_wrist_link = 53
+back_right__cluster_3_end_link = 54
+back_right__foot_link = 55
+back_left__base_link = 56
+back_left__cluster_1_base_link = 57
+back_left__cluster_1_proximal_link = 58
+back_left__cluster_1_distal_link = 59
+back_left__cluster_1_end_link = 60
+back_left__cluster_2_base_link = 61
+back_left__cluster_2_proximal_link = 62
+back_left__cluster_2_distal_link = 63
+back_left__cluster_2_end_link = 64
+back_left__cluster_3_base_link = 65
+back_left__cluster_3_proximal_link = 66
+back_left__cluster_3_distal_link = 67
+back_left__cluster_3_mid_link = 68
+back_left__cluster_3_wrist_link = 69
+back_left__cluster_3_end_link = 70
+back_left__foot_link = 71
 
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: top_lidar_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: bottom_lidar_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: base_footprint
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: back__sensor_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: left__sensor_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: right__sensor_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: front_right__sensor_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: front_left__sensor_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: front_right__base_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: front_right__cluster_3_end_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: front_left__base_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: front_left__cluster_3_end_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: back_right__base_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: back_right__cluster_3_end_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: back_left__base_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: back_left__cluster_3_end_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: back_left__foot_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: back_right__foot_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: front_left__foot_link
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: No inertial data for link, using mass=1, localinertiadiagonal = 1,1,1, identity local inertial frame
-b3Printf: b3Warning[examples/Importers/ImportURDFDemo/BulletUrdfImporter.cpp,126]:
-
-b3Printf: front_right__foot_link
-ven = Mesa
-ven = Mesa
-Link index: 0, Link name: base_link
-Link index: 1, Link name: top_lidar_link
-Link index: 2, Link name: bottom_lidar_link
-Link index: 3, Link name: back__sensor_link
-Link index: 4, Link name: left__sensor_link
-Link index: 5, Link name: right__sensor_link
-Link index: 6, Link name: front_right__sensor_link
-Link index: 7, Link name: front_left__sensor_link
-Link index: 8, Link name: front_right__base_link
-Link index: 9, Link name: front_right__cluster_1_base_link
-Link index: 10, Link name: front_right__cluster_1_proximal_link
-Link index: 11, Link name: front_right__cluster_1_distal_link
-Link index: 12, Link name: front_right__cluster_1_end_link
-Link index: 13, Link name: front_right__cluster_2_base_link
-Link index: 14, Link name: front_right__cluster_2_proximal_link
-Link index: 15, Link name: front_right__cluster_2_distal_link
-Link index: 16, Link name: front_right__cluster_2_end_link
-Link index: 17, Link name: front_right__cluster_3_base_link
-Link index: 18, Link name: front_right__cluster_3_proximal_link
-Link index: 19, Link name: front_right__cluster_3_distal_link
-Link index: 20, Link name: front_right__cluster_3_mid_link
-Link index: 21, Link name: front_right__cluster_3_wrist_link
-Link index: 22, Link name: front_right__cluster_3_end_link
-Link index: 23, Link name: front_right__foot_link
-Link index: 24, Link name: front_left__base_link
-Link index: 25, Link name: front_left__cluster_1_base_link
-Link index: 26, Link name: front_left__cluster_1_proximal_link
-Link index: 27, Link name: front_left__cluster_1_distal_link
-Link index: 28, Link name: front_left__cluster_1_end_link
-Link index: 29, Link name: front_left__cluster_2_base_link
-Link index: 30, Link name: front_left__cluster_2_proximal_link
-Link index: 31, Link name: front_left__cluster_2_distal_link
-Link index: 32, Link name: front_left__cluster_2_end_link
-Link index: 33, Link name: front_left__cluster_3_base_link
-Link index: 34, Link name: front_left__cluster_3_proximal_link
-Link index: 35, Link name: front_left__cluster_3_distal_link
-Link index: 36, Link name: front_left__cluster_3_mid_link
-Link index: 37, Link name: front_left__cluster_3_wrist_link
-Link index: 38, Link name: front_left__cluster_3_end_link
-Link index: 39, Link name: front_left__foot_link
-Link index: 40, Link name: back_right__base_link
-Link index: 41, Link name: back_right__cluster_1_base_link
-Link index: 42, Link name: back_right__cluster_1_proximal_link
-Link index: 43, Link name: back_right__cluster_1_distal_link
-Link index: 44, Link name: back_right__cluster_1_end_link
-Link index: 45, Link name: back_right__cluster_2_base_link
-Link index: 46, Link name: back_right__cluster_2_proximal_link
-Link index: 47, Link name: back_right__cluster_2_distal_link
-Link index: 48, Link name: back_right__cluster_2_end_link
-Link index: 49, Link name: back_right__cluster_3_base_link
-Link index: 50, Link name: back_right__cluster_3_proximal_link
-Link index: 51, Link name: back_right__cluster_3_distal_link
-Link index: 52, Link name: back_right__cluster_3_mid_link
-Link index: 53, Link name: back_right__cluster_3_wrist_link
-Link index: 54, Link name: back_right__cluster_3_end_link
-Link index: 55, Link name: back_right__foot_link
-Link index: 56, Link name: back_left__base_link
-Link index: 57, Link name: back_left__cluster_1_base_link
-Link index: 58, Link name: back_left__cluster_1_proximal_link
-Link index: 59, Link name: back_left__cluster_1_distal_link
-Link index: 60, Link name: back_left__cluster_1_end_link
-Link index: 61, Link name: back_left__cluster_2_base_link
-Link index: 62, Link name: back_left__cluster_2_proximal_link
-Link index: 63, Link name: back_left__cluster_2_distal_link
-Link index: 64, Link name: back_left__cluster_2_end_link
-Link index: 65, Link name: back_left__cluster_3_base_link
-Link index: 66, Link name: back_left__cluster_3_proximal_link
-Link index: 67, Link name: back_left__cluster_3_distal_link
-Link index: 68, Link name: back_left__cluster_3_mid_link
-Link index: 69, Link name: back_left__cluster_3_wrist_link
-Link index: 70, Link name: back_left__cluster_3_end_link
-Link index: 71, Link name: back_left__foot_link 
+# JOINTS 
+base_joint = 0
+top_lidar_base_joint = 1
+bottom_lidar_base_joint = 2
+base_link_back__sensor_joint = 3
+base_link_left__sensor_joint = 4
+base_link_right__sensor_joint = 5
+base_link_front_right__sensor_joint = 6
+base_link_front_left__sensor_joint = 7
+base_link_front_right__joint = 8
+front_right__cluster_1_base_fix = 9
+front_right__cluster_1_roll = 10
+front_right__cluster_1_pitch = 11
+front_right__cluster_1_end_joint = 12
+front_right__cluster_2_base_fix = 13
+front_right__cluster_2_roll = 14
+front_right__cluster_2_pitch = 15
+front_right__cluster_2_end_joint = 16
+front_right__cluster_3_base_fix = 17
+front_right__cluster_3_roll = 18
+front_right__cluster_3_pitch = 19
+front_right__cluster_3_mid_joint = 20
+front_right__cluster_3_wrist = 21
+front_right__cluster_3_end_joint = 22
+front_right__cluster_3_wrist_link_foot_joint = 23
+base_link_front_left__joint = 24
+front_left__cluster_1_base_fix = 25
+front_left__cluster_1_roll = 26
+front_left__cluster_1_pitch = 27
+front_left__cluster_1_end_joint = 28
+front_left__cluster_2_base_fix = 29
+front_left__cluster_2_roll = 30
+front_left__cluster_2_pitch = 31
+front_left__cluster_2_end_joint = 32
+front_left__cluster_3_base_fix = 33
+front_left__cluster_3_roll = 34
+front_left__cluster_3_pitch = 35
+front_left__cluster_3_mid_joint = 36
+front_left__cluster_3_wrist = 37
+front_left__cluster_3_end_joint = 38
+front_left__cluster_3_wrist_link_foot_joint = 39
+base_link_back_right__joint = 40
+back_right__cluster_1_base_fix = 41
+back_right__cluster_1_roll = 42
+back_right__cluster_1_pitch = 43
+back_right__cluster_1_end_joint = 44
+back_right__cluster_2_base_fix = 45
+back_right__cluster_2_roll = 46
+back_right__cluster_2_pitch = 47
+back_right__cluster_2_end_joint = 48
+back_right__cluster_3_base_fix = 49
+back_right__cluster_3_roll = 50
+back_right__cluster_3_pitch = 51
+back_right__cluster_3_mid_joint = 52
+back_right__cluster_3_wrist = 53
+back_right__cluster_3_end_joint = 54
+back_right__cluster_3_wrist_link_foot_joint = 55
+base_link_back_left__joint = 56
+back_left__cluster_1_base_fix = 57
+back_left__cluster_1_roll = 58
+back_left__cluster_1_pitch = 59
+back_left__cluster_1_end_joint = 60
+back_left__cluster_2_base_fix = 61
+back_left__cluster_2_roll = 62
+back_left__cluster_2_pitch = 63
+back_left__cluster_2_end_joint = 64
+back_left__cluster_3_base_fix = 65
+back_left__cluster_3_roll = 66
+back_left__cluster_3_pitch = 67
+back_left__cluster_3_mid_joint = 68
+back_left__cluster_3_wrist = 69
+back_left__cluster_3_end_joint = 70
+back_left__cluster_3_wrist_link_foot_joint = 71

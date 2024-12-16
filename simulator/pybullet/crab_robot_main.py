@@ -76,25 +76,37 @@ def get_sensor_data_from_pybullet(robot):
 
     # normal force measured on each foot
     FL_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.front_left__foot_link)
+    contacts = pb.getContactPoints(
+        bodyA = robot, 
+        linkIndexA = crab_link_idx.front_left__foot_link
+        )
     for contact in contacts:
         # add z-component on all points of contact
         FL_normal_force += contact[9]
 
     FR_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.front_right__foot_link)
+    contacts = pb.getContactPoints(
+        bodyA = robot, 
+        linkIndexA = crab_link_idx.front_right__foot_link
+        )
     for contact in contacts:
         # add z-component on all points of contact
         FR_normal_force += contact[9]
 
     RL_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.back_left__foot_link)
+    contacts = pb.getContactPoints(
+        bodyA = robot, 
+        linkIndexA = crab_link_idx.back_left__foot_link
+        )
     for contact in contacts:
         # add z-component on all points of contact
         RL_normal_force += contact[9]
 
     RR_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.back_right__foot_link)
+    contacts = pb.getContactPoints(
+        bodyA = robot, 
+        linkIndexA = crab_link_idx.back_right__foot_link
+        )
     for contact in contacts:
         # add z-component on all points of contact
         RR_normal_force += contact[9]
@@ -306,7 +318,7 @@ if __name__ == "__main__":
     # Run Simulation
     dt = Config.CONTROLLER_DT
     count = 0
-    jpg_count = 0
+    jpg_count = 0 
 
     ## simulation options
     if Config.MEASURE_COMPUTATION_TIME:

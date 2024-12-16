@@ -21,7 +21,7 @@ robot = pb.loadURDF(
 )
 
 # # Print link names and their indices
-# num_joints = pb.getNumJoints(robot)
+num_joints = pb.getNumJoints(robot)
 # for i in range(num_joints):
 #     link_name = pb.getJointInfo(robot, i)[12].decode('utf-8')
 #     print(f"Link index: {i}, Link name: {link_name}") 
