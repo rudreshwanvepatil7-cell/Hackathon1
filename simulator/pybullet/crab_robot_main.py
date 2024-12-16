@@ -6,7 +6,7 @@ cwd = os.getcwd()
 sys.path.append(cwd)
 sys.path.append(cwd + "/build/lib")  # include pybind module
 
-from config.go2.sim.pybullet.wbic.pybullet_params import *
+from config.crab.sim.pybullet.wbic.pybullet_params import *
 from util.python_utils import pybullet_util
 from util.python_utils import util
 from util.python_utils import liegroup
@@ -15,7 +15,7 @@ import signal
 import shutil
 import cv2
 
-import go2_interface_py
+import go2_interface_py 
 
 if Config.MEASURE_COMPUTATION_TIME:
     from pytictoc import TicToc
@@ -25,69 +25,75 @@ def get_sensor_data_from_pybullet(robot):
     # follow pinocchio robotsystem urdf reading convention
     joint_pos, joint_vel = np.zeros(12), np.zeros(12)
 
-    imu_frame_quat = np.array(pb.getLinkState(robot, Go2LinkIdx.imu, 1, 1)[1])
+    imu_frame_quat = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[1])
 
     # Front left
-    joint_pos[0] = pb.getJointState(robot, Go2JointIdx.FL_hip_joint)[0]
-    joint_pos[1] = pb.getJointState(robot, Go2JointIdx.FL_thigh_joint)[0]
-    joint_pos[2] = pb.getJointState(robot, Go2JointIdx.FL_calf_joint)[0]
+    joint_pos[0] = pb.getJointState(robot, crab_joint_idx.FL_hip_joint)[0]
+    joint_pos[1] = pb.getJointState(robot, crab_joint_idx.FL_thigh_joint)[0]
+    joint_pos[2] = pb.getJointState(robot, crab_joint_idx.FL_calf_joint)[0]
+    
     # Front right
-    joint_pos[3] = pb.getJointState(robot, Go2JointIdx.FR_hip_joint)[0]
-    joint_pos[4] = pb.getJointState(robot, Go2JointIdx.FR_thigh_joint)[0]
-    joint_pos[5] = pb.getJointState(robot, Go2JointIdx.FR_calf_joint)[0]
+    joint_pos[3] = pb.getJointState(robot, crab_joint_idx.FR_hip_joint)[0]
+    joint_pos[4] = pb.getJointState(robot, crab_joint_idx.FR_thigh_joint)[0]
+    joint_pos[5] = pb.getJointState(robot, crab_joint_idx.FR_calf_joint)[0]
+    
     # Rear left
-    joint_pos[6] = pb.getJointState(robot, Go2JointIdx.RL_hip_joint)[0]
-    joint_pos[7] = pb.getJointState(robot, Go2JointIdx.RL_thigh_joint)[0]
-    joint_pos[8] = pb.getJointState(robot, Go2JointIdx.RL_calf_joint)[0]
+    joint_pos[6] = pb.getJointState(robot, crab_joint_idx.RL_hip_joint)[0]
+    joint_pos[7] = pb.getJointState(robot, crab_joint_idx.RL_thigh_joint)[0]
+    joint_pos[8] = pb.getJointState(robot, crab_joint_idx.RL_calf_joint)[0]
+    
     # Rear right
-    joint_pos[9] = pb.getJointState(robot, Go2JointIdx.RR_hip_joint)[0]
-    joint_pos[10] = pb.getJointState(robot, Go2JointIdx.RR_thigh_joint)[0]
-    joint_pos[11] = pb.getJointState(robot, Go2JointIdx.RR_calf_joint)[0]
+    joint_pos[9] = pb.getJointState(robot, crab_joint_idx.RR_hip_joint)[0]
+    joint_pos[10] = pb.getJointState(robot, crab_joint_idx.RR_thigh_joint)[0]
+    joint_pos[11] = pb.getJointState(robot, crab_joint_idx.RR_calf_joint)[0]
 
-    imu_ang_vel = np.array(pb.getLinkState(robot, Go2LinkIdx.imu, 1, 1)[7])
+    imu_ang_vel = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[7])
 
     imu_dvel = pybullet_util.simulate_dVel_data(
-        robot, Go2LinkIdx.imu, previous_torso_velocity
+        robot, crab_link_idx.imu, previous_torso_velocity
     )
 
     # Front left
-    joint_vel[0] = pb.getJointState(robot, Go2JointIdx.FL_hip_joint)[1]
-    joint_vel[1] = pb.getJointState(robot, Go2JointIdx.FL_thigh_joint)[1]
-    joint_vel[2] = pb.getJointState(robot, Go2JointIdx.FL_calf_joint)[1]
+    joint_vel[0] = pb.getJointState(robot, crab_joint_idx.FL_hip_joint)[1]
+    joint_vel[1] = pb.getJointState(robot, crab_joint_idx.FL_thigh_joint)[1]
+    joint_vel[2] = pb.getJointState(robot, crab_joint_idx.FL_calf_joint)[1]
+    
     # Front right
-    joint_vel[3] = pb.getJointState(robot, Go2JointIdx.FR_hip_joint)[1]
-    joint_vel[4] = pb.getJointState(robot, Go2JointIdx.FR_thigh_joint)[1]
-    joint_vel[5] = pb.getJointState(robot, Go2JointIdx.FR_calf_joint)[1]
+    joint_vel[3] = pb.getJointState(robot, crab_joint_idx.FR_hip_joint)[1]
+    joint_vel[4] = pb.getJointState(robot, crab_joint_idx.FR_thigh_joint)[1]
+    joint_vel[5] = pb.getJointState(robot, crab_joint_idx.FR_calf_joint)[1]
+    
     # Rear left
-    joint_vel[6] = pb.getJointState(robot, Go2JointIdx.RL_hip_joint)[1]
-    joint_vel[7] = pb.getJointState(robot, Go2JointIdx.RL_thigh_joint)[1]
-    joint_vel[8] = pb.getJointState(robot, Go2JointIdx.RL_calf_joint)[1]
+    joint_vel[6] = pb.getJointState(robot, crab_joint_idx.RL_hip_joint)[1]
+    joint_vel[7] = pb.getJointState(robot, crab_joint_idx.RL_thigh_joint)[1]
+    joint_vel[8] = pb.getJointState(robot, crab_joint_idx.RL_calf_joint)[1]
+    
     # Rear right
-    joint_vel[9] = pb.getJointState(robot, Go2JointIdx.RR_hip_joint)[1]
-    joint_vel[10] = pb.getJointState(robot, Go2JointIdx.RR_thigh_joint)[1]
-    joint_vel[11] = pb.getJointState(robot, Go2JointIdx.RR_calf_joint)[1]
+    joint_vel[9] = pb.getJointState(robot, crab_joint_idx.RR_hip_joint)[1]
+    joint_vel[10] = pb.getJointState(robot, crab_joint_idx.RR_thigh_joint)[1]
+    joint_vel[11] = pb.getJointState(robot, crab_joint_idx.RR_calf_joint)[1] 
 
     # normal force measured on each foot
     FL_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=Go2LinkIdx.FL_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.FL_foot)
     for contact in contacts:
         # add z-component on all points of contact
         FL_normal_force += contact[9]
 
     FR_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=Go2LinkIdx.FR_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.FR_foot)
     for contact in contacts:
         # add z-component on all points of contact
         FR_normal_force += contact[9]
 
     RL_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=Go2LinkIdx.RL_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.RL_foot)
     for contact in contacts:
         # add z-component on all points of contact
         RL_normal_force += contact[9]
 
     RR_normal_force = 0
-    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=Go2LinkIdx.RR_foot)
+    contacts = pb.getContactPoints(bodyA=robot, linkIndexA=crab_link_idx.RR_foot)
     for contact in contacts:
         # add z-component on all points of contact
         RR_normal_force += contact[9]
@@ -95,22 +101,22 @@ def get_sensor_data_from_pybullet(robot):
     # Determine foot contact states based on the z-coordinate of the foot link
     b_FL_foot_contact = (
         True
-        if pb.getLinkState(robot, Go2LinkIdx.FL_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, crab_link_idx.FL_foot, 1, 1)[0][2] <= 0.05
         else False
     )
     b_FR_foot_contact = (
         True
-        if pb.getLinkState(robot, Go2LinkIdx.FR_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, crab_link_idx.FR_foot, 1, 1)[0][2] <= 0.05
         else False
     )
     b_RL_foot_contact = (
         True
-        if pb.getLinkState(robot, Go2LinkIdx.RL_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, crab_link_idx.RL_foot, 1, 1)[0][2] <= 0.05
         else False
     )
     b_RR_foot_contact = (
         True
-        if pb.getLinkState(robot, Go2LinkIdx.RR_foot, 1, 1)[0][2] <= 0.05
+        if pb.getLinkState(robot, crab_link_idx.RR_foot, 1, 1)[0][2] <= 0.05
         else False
     )
 
@@ -136,59 +142,59 @@ def apply_control_input_to_pybullet(robot, command):
 
     # Front left
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.FL_hip_joint, controlMode=mode, force=command[0]
+        robot, crab_joint_idx.FL_hip_joint, controlMode=mode, force=command[0]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.FL_thigh_joint, controlMode=mode, force=command[1]
+        robot, crab_joint_idx.FL_thigh_joint, controlMode=mode, force=command[1]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.FL_calf_joint, controlMode=mode, force=command[2]
+        robot, crab_joint_idx.FL_calf_joint, controlMode=mode, force=command[2]
     )
     # Front right
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.FR_hip_joint, controlMode=mode, force=command[3]
+        robot, crab_joint_idx.FR_hip_joint, controlMode=mode, force=command[3]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.FR_thigh_joint, controlMode=mode, force=command[4]
+        robot, crab_joint_idx.FR_thigh_joint, controlMode=mode, force=command[4]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.FR_calf_joint, controlMode=mode, force=command[5]
+        robot, crab_joint_idx.FR_calf_joint, controlMode=mode, force=command[5]
     )
     # Rear left
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RL_hip_joint, controlMode=mode, force=command[6]
+        robot, crab_joint_idx.RL_hip_joint, controlMode=mode, force=command[6]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RL_thigh_joint, controlMode=mode, force=command[7]
+        robot, crab_joint_idx.RL_thigh_joint, controlMode=mode, force=command[7]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RL_calf_joint, controlMode=mode, force=command[8]
+        robot, crab_joint_idx.RL_calf_joint, controlMode=mode, force=command[8]
     )
     # Rear right
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RR_hip_joint, controlMode=mode, force=command[9]
+        robot, crab_joint_idx.RR_hip_joint, controlMode=mode, force=command[9]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RR_thigh_joint, controlMode=mode, force=command[10]
+        robot, crab_joint_idx.RR_thigh_joint, controlMode=mode, force=command[10]
     )
     pb.setJointMotorControl2(
-        robot, Go2JointIdx.RR_calf_joint, controlMode=mode, force=command[11]
+        robot, crab_joint_idx.RR_calf_joint, controlMode=mode, force=command[11]
     )
 
 
 def set_init_config_pybullet_robot(robot):
     knee_angle = 45
-    pb.resetJointState(robot, Go2JointIdx.FL_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, Go2JointIdx.FL_calf_joint, np.radians(-knee_angle), 0.0)
+    pb.resetJointState(robot, crab_joint_idx.FL_thigh_joint, np.radians(knee_angle), 0.0)
+    pb.resetJointState(robot, crab_joint_idx.FL_calf_joint, np.radians(-knee_angle), 0.0)
 
-    pb.resetJointState(robot, Go2JointIdx.FR_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, Go2JointIdx.FR_calf_joint, np.radians(-knee_angle), 0.0)
+    pb.resetJointState(robot, crab_joint_idx.FR_thigh_joint, np.radians(knee_angle), 0.0)
+    pb.resetJointState(robot, crab_joint_idx.FR_calf_joint, np.radians(-knee_angle), 0.0)
 
-    pb.resetJointState(robot, Go2JointIdx.RL_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, Go2JointIdx.RL_calf_joint, np.radians(-knee_angle), 0.0)
+    pb.resetJointState(robot, crab_joint_idx.RL_thigh_joint, np.radians(knee_angle), 0.0)
+    pb.resetJointState(robot, crab_joint_idx.RL_calf_joint, np.radians(-knee_angle), 0.0)
 
-    pb.resetJointState(robot, Go2JointIdx.RR_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, Go2JointIdx.RR_calf_joint, np.radians(-knee_angle), 0.0)
+    pb.resetJointState(robot, crab_joint_idx.RR_thigh_joint, np.radians(knee_angle), 0.0)
+    pb.resetJointState(robot, crab_joint_idx.RR_calf_joint, np.radians(-knee_angle), 0.0)
 
 
 def signal_handler(signal, frame):
@@ -431,7 +437,7 @@ if __name__ == "__main__":
         apply_control_input_to_pybullet(robot, rpc_trq_command)
 
         # save current torso velocity for next iteration
-        previous_torso_velocity = pybullet_util.get_link_vel(robot, Go2LinkIdx.imu)[3:6]
+        previous_torso_velocity = pybullet_util.get_link_vel(robot, crab_link_idx.imu)[3:6]
 
         ############################################################
         # Save Image file
