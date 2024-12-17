@@ -234,18 +234,44 @@ def apply_control_input_to_pybullet(robot, command):
 # ---------------------------------- 
 
 def set_init_config_pybullet_robot(robot):
+    
     knee_angle = 45
-    pb.resetJointState(robot, crab_joint_idx.FL_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, crab_joint_idx.FL_calf_joint, np.radians(-knee_angle), 0.0)
-
-    pb.resetJointState(robot, crab_joint_idx.FR_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, crab_joint_idx.FR_calf_joint, np.radians(-knee_angle), 0.0)
-
-    pb.resetJointState(robot, crab_joint_idx.RL_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, crab_joint_idx.RL_calf_joint, np.radians(-knee_angle), 0.0)
-
-    pb.resetJointState(robot, crab_joint_idx.RR_thigh_joint, np.radians(knee_angle), 0.0)
-    pb.resetJointState(robot, crab_joint_idx.RR_calf_joint, np.radians(-knee_angle), 0.0)
+    
+    # FRONT LEFT 
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_1_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_1_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_2_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_2_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_3_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_3_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_3_wrist, np.radians(-knee_angle), 0.0) 
+    
+    # FRONT RIGHT 
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_1_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_1_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_2_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_2_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_3_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_3_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_3_wrist, np.radians(-knee_angle), 0.0) 
+    
+    # REAR LEFT 
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_1_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_1_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_2_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_2_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_3_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_3_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_3_wrist, np.radians(-knee_angle), 0.0) 
+    
+    # REAR RIGHT 
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_1_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_1_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_2_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_2_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_3_roll, np.radians(knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_3_pitch, np.radians(-knee_angle), 0.0) 
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_3_wrist, np.radians(-knee_angle), 0.0) 
 
 # ---------------------------------- 
 
