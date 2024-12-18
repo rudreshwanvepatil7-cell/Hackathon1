@@ -1,18 +1,18 @@
 #include "configuration.hpp"
 #include "controller/robot_system/pinocchio_robot_system.hpp"
 
-// #include "controller/draco_controller/draco_kf_state_estimator.hpp"
-// #include "controller/draco_controller/draco_state_estimator.hpp"
+// #include "controller/crab_controller/crab_kf_state_estimator.hpp"
+// #include "controller/crab_controller/crab_state_estimator.hpp"
 
-// #include "controller/draco_controller/draco_control_architecture.hpp"
-// #include "controller/draco_controller/draco_control_architecture_wbic.hpp"
+// #include "controller/crab_controller/crab_control_architecture.hpp"
+// #include "controller/crab_controller/crab_control_architecture_wbic.hpp"
 #include "controller/crab_controller/crab_interface.hpp"
-// #include "controller/draco_controller/draco_interrupt_handler.hpp"
-// #include "controller/draco_controller/draco_state_provider.hpp"
-// #include "controller/draco_controller/draco_task_gain_handler.hpp"
+// #include "controller/crab_controller/crab_interrupt_handler.hpp"
+// #include "controller/crab_controller/crab_state_provider.hpp"
+// #include "controller/crab_controller/crab_task_gain_handler.hpp"
 
 #if B_USE_ZMQ
-// #include "controller/draco_controller/draco_data_manager.hpp"
+// #include "controller/crab_controller/crab_data_manager.hpp"
 #endif
 
 crabInterface::crabInterface() : Interface() {
@@ -22,7 +22,7 @@ crabInterface::crabInterface() : Interface() {
   util::ColorPrint(color::kBoldRed, border);
   util::PrettyConstructor(0, "crabInterface");
 
-  // sp_ = DracoStateProvider::GetStateProvider();
+  // sp_ = crabStateProvider::GetStateProvider();
 
   // initialize robot model
   robot_ =
@@ -37,9 +37,9 @@ crabInterface::crabInterface() : Interface() {
 
   // initialize state estimator
   // if (state_estimator_type_ == "default")
-  // se_ = new DracoStateEstimator(robot_, cfg_);
+  // se_ = new crabStateEstimator(robot_, cfg_);
   // else if (state_estimator_type_ == "kf")
-  // se_ = new DracoKFStateEstimator(robot_, cfg_);
+  // se_ = new crabKFStateEstimator(robot_, cfg_);
   // else {
   // std::cout
   //<< "[crabInterface] Please check the state estimator type in pnc.yaml"
@@ -49,17 +49,17 @@ crabInterface::crabInterface() : Interface() {
 
   // initialize controller
   // if (wbc_type_ == "ihwbc") {
-  // ctrl_arch_ = new DracoControlArchitecture(robot_, cfg_);
-  // interrupt_handler_ = new DracoInterruptHandler(
-  // static_cast<DracoControlArchitecture *>(ctrl_arch_));
-  // task_gain_handler_ = new DracoTaskGainHandler(
-  // static_cast<DracoControlArchitecture *>(ctrl_arch_));
+  // ctrl_arch_ = new crabControlArchitecture(robot_, cfg_);
+  // interrupt_handler_ = new crabInterruptHandler(
+  // static_cast<crabControlArchitecture *>(ctrl_arch_));
+  // task_gain_handler_ = new crabTaskGainHandler(
+  // static_cast<crabControlArchitecture *>(ctrl_arch_));
   //} else if (wbc_type_ == "wbic") {
-  // ctrl_arch_ = new DracoControlArchitecture_WBIC(robot_, cfg_);
-  // interrupt_handler_ = new DracoInterruptHandler(
-  // static_cast<DracoControlArchitecture_WBIC *>(ctrl_arch_));
-  // task_gain_handler_ = new DracoTaskGainHandler(
-  // static_cast<DracoControlArchitecture_WBIC *>(ctrl_arch_));
+  // ctrl_arch_ = new crabControlArchitecture_WBIC(robot_, cfg_);
+  // interrupt_handler_ = new crabInterruptHandler(
+  // static_cast<crabControlArchitecture_WBIC *>(ctrl_arch_));
+  // task_gain_handler_ = new crabTaskGainHandler(
+  // static_cast<crabControlArchitecture_WBIC *>(ctrl_arch_));
   //} else {
   // assert(false);
   //}
@@ -79,16 +79,16 @@ void crabInterface::GetCommand(void *sensor_data, void *command_data) {
   // sp_->state_ = ctrl_arch_->locostate();
   // sp_->prev_state_ = ctrl_arch_->prev_locostate();
 
-  crabSensorData *draco_sensor_data = static_cast<crabSensorData *>(sensor_data);
-  crabCommand *draco_command = static_cast<crabCommand *>(command_data);
+  crabSensorData *crab_sensor_data = static_cast<crabSensorData *>(sensor_data);
+  crabCommand *crab_command = static_cast<crabCommand *>(command_data);
 
   // estimate states
   // if (b_cheater_mode_)
-  // se_->UpdateGroundTruthSensorData(draco_sensor_data);
+  // se_->UpdateGroundTruthSensorData(crab_sensor_data);
   // else {
-  // sp_->state_ == draco_states::kInitialize
-  //? se_->Initialize(draco_sensor_data)
-  //: se_->Update(draco_sensor_data);
+  // sp_->state_ == crab_states::kInitialize
+  //? se_->Initialize(crab_sensor_data)
+  //: se_->Update(crab_sensor_data);
   //}
 
   // process interrupt & task gains
@@ -98,7 +98,7 @@ void crabInterface::GetCommand(void *sensor_data, void *command_data) {
   // task_gain_handler_->Process();
 
   // get control command
-  // ctrl_arch_->GetCommand(draco_command);
+  // ctrl_arch_->GetCommand(crab_command);
 
 #if B_USE_ZMQ
 //  if (sp_->count_ % sp_->data_save_freq_ == 0) {
@@ -123,7 +123,7 @@ void crabInterface::_SetParameters() {
   // try {
   // select test environment
   // YAML::Node interface_cfg =
-  // YAML::LoadFile(THIS_COM "config/draco/INTERFACE.yaml");
+  // YAML::LoadFile(THIS_COM "config/crab/INTERFACE.yaml");
   // std::string test_env_name =
   // util::ReadParameter<std::string>(interface_cfg, "test_env_name");
   // std::cout << "============================================" << '\n';
@@ -140,21 +140,21 @@ void crabInterface::_SetParameters() {
   // if (test_env_name == "mujoco") {
   // if (wbc_type_ == "ihwbc")
   // cfg_ =
-  // YAML::LoadFile(THIS_COM "config/draco/sim/mujoco/ihwbc/pnc.yaml");
+  // YAML::LoadFile(THIS_COM "config/crab/sim/mujoco/ihwbc/pnc.yaml");
   // else if (wbc_type_ == "wbic")
-  // cfg_ = YAML::LoadFile(THIS_COM "config/draco/sim/mujoco/wbic/pnc.yaml");
+  // cfg_ = YAML::LoadFile(THIS_COM "config/crab/sim/mujoco/wbic/pnc.yaml");
   //} else if (test_env_name == "pybullet") {
   // if (wbc_type_ == "ihwbc")
   // cfg_ =
-  // YAML::LoadFile(THIS_COM "config/draco/sim/pybullet/ihwbc/pnc.yaml");
+  // YAML::LoadFile(THIS_COM "config/crab/sim/pybullet/ihwbc/pnc.yaml");
   // if (wbc_type_ == "wbic")
   // cfg_ =
-  // YAML::LoadFile(THIS_COM "config/draco/sim/pybullet/wbic/pnc.yaml");
+  // YAML::LoadFile(THIS_COM "config/crab/sim/pybullet/wbic/pnc.yaml");
   //} else if (test_env_name == "hw") {
   // if (wbc_type_ == "ihwbc")
-  // cfg_ = YAML::LoadFile(THIS_COM "config/draco/hw/ihwbc/pnc.yaml");
+  // cfg_ = YAML::LoadFile(THIS_COM "config/crab/hw/ihwbc/pnc.yaml");
   // if (wbc_type_ == "wbic")
-  // cfg_ = YAML::LoadFile(THIS_COM "config/draco/hw/wbic/pnc.yaml");
+  // cfg_ = YAML::LoadFile(THIS_COM "config/crab/hw/wbic/pnc.yaml");
   //} else {
   // assert(false);
   //}
@@ -172,11 +172,11 @@ void crabInterface::_SetParameters() {
   // select stance foot side
   // int stance_foot = util::ReadParameter<int>(cfg_, "stance_foot");
   // if (stance_foot == 0) {
-  // sp_->stance_foot_ = draco_link::l_foot_contact;
-  // sp_->prev_stance_foot_ = draco_link::l_foot_contact;
+  // sp_->stance_foot_ = crab_link::l_foot_contact;
+  // sp_->prev_stance_foot_ = crab_link::l_foot_contact;
   //} else if (stance_foot == 1) {
-  // sp_->stance_foot_ = draco_link::r_foot_contact;
-  // sp_->prev_stance_foot_ = draco_link::r_foot_contact;
+  // sp_->stance_foot_ = crab_link::r_foot_contact;
+  // sp_->prev_stance_foot_ = crab_link::r_foot_contact;
   //} else {
   // assert(false);
   //}
