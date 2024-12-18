@@ -31,7 +31,7 @@ def get_sensor_data_from_pybullet(robot):
     # follow pinocchio robotsystem urdf reading convention
     joint_pos, joint_vel = np.zeros(28), np.zeros(28)
 
-    # imu_frame_quat = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[1]) 
+    imu_frame_quat = np.array(pb.getLinkState(robot, crab_link_idx.base_link, 1, 1)[1]) 
 
     # Front left  
     joint_pos[0] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_roll)[0]
@@ -69,11 +69,11 @@ def get_sensor_data_from_pybullet(robot):
     joint_pos[26] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_pitch)[0]
     joint_pos[27] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_wrist)[0] 
 
-    # imu_ang_vel = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[7])
+    imu_ang_vel = np.array(pb.getLinkState(robot, crab_link_idx.base_link, 1, 1)[7])
 
-    # imu_dvel = pybullet_util.simulate_dVel_data(
-    #     robot, crab_link_idx.imu, previous_torso_velocity
-    # )
+    imu_dvel = pybullet_util.simulate_dVel_data(
+        robot, crab_link_idx.base_link, previous_torso_velocity
+    )
     
     # Front left  
     joint_vel[0] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_roll)[1]
@@ -171,9 +171,9 @@ def get_sensor_data_from_pybullet(robot):
     )
 
     return (
-        # imu_frame_quat,
-        # imu_ang_vel,
-        # imu_dvel,
+        imu_frame_quat,
+        imu_ang_vel,
+        imu_dvel,
         joint_pos,
         joint_vel,
         b_FL_foot_contact,
@@ -567,9 +567,9 @@ if __name__ == "__main__":
         # Get Sensor Data
         ############################################################
         (
-            # imu_frame_quat,
-            # imu_ang_vel,
-            # imu_dvel,
+            imu_frame_quat,
+            imu_ang_vel,
+            imu_dvel,
             joint_pos,
             joint_vel,
             b_FL_foot_contact,
@@ -583,10 +583,10 @@ if __name__ == "__main__":
         ) = get_sensor_data_from_pybullet(robot)
 
         ## copy sensor data to rpc sensor data class
-        # rpc_go2_sensor_data.imu_frame_quat_ = imu_frame_quat
-        # rpc_go2_sensor_data.imu_ang_vel_ = imu_ang_vel
-        # rpc_go2_sensor_data.imu_dvel_ = imu_dvel
-        # rpc_go2_sensor_data.imu_lin_acc_ = imu_dvel / dt
+        rpc_go2_sensor_data.imu_frame_quat_ = imu_frame_quat
+        rpc_go2_sensor_data.imu_ang_vel_ = imu_ang_vel
+        rpc_go2_sensor_data.imu_dvel_ = imu_dvel
+        rpc_go2_sensor_data.imu_lin_acc_ = imu_dvel / dt
         rpc_go2_sensor_data.joint_pos_ = joint_pos
         rpc_go2_sensor_data.joint_vel_ = joint_vel
         rpc_go2_sensor_data.b_FL_foot_contact_ = b_FL_foot_contact
