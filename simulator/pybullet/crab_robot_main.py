@@ -31,7 +31,7 @@ def get_sensor_data_from_pybullet(robot):
     # follow pinocchio robotsystem urdf reading convention
     joint_pos, joint_vel = np.zeros(28), np.zeros(28)
 
-    # imu_frame_quat = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[1])
+    # imu_frame_quat = np.array(pb.getLinkState(robot, crab_link_idx.imu, 1, 1)[1]) 
 
     # Front left  
     joint_pos[0] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_roll)[0]
