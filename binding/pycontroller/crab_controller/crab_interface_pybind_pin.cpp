@@ -25,9 +25,8 @@ PYBIND11_MODULE(crab_interface_py, m) {
       .def(py::init<>())
       .def("GetCommand", &Interface::GetCommand);
 
-  py::class_<crabInterface, Interface>(m, "crabInterface")
-      .def(py::init<>())
-      .def_readwrite("interrupt_", &crabInterface::interrupt_handler_);
+  py::class_<crabInterface, Interface>(m, "crabInterface").def(py::init<>());
+  //.def_readwrite("interrupt_", &crabInterface::interrupt_handler_);
 
   py::class_<crabSensorData>(m, "crabSensorData")
       .def(py::init<>())
@@ -35,18 +34,21 @@ PYBIND11_MODULE(crab_interface_py, m) {
       .def_readwrite("imu_ang_vel_", &crabSensorData::imu_ang_vel_)
       .def_readwrite("joint_pos_", &crabSensorData::joint_pos_)
       .def_readwrite("joint_vel_", &crabSensorData::joint_vel_)
-      .def_readwrite("b_lf_contact_", &crabSensorData::b_lf_contact_)
-      .def_readwrite("b_rf_contact_", &crabSensorData::b_rf_contact_)
-      .def_readwrite("lf_contact_normal_", &crabSensorData::lf_contact_normal_)
-      .def_readwrite("rf_contact_normal_", &crabSensorData::rf_contact_normal_)
+      .def_readwrite("b_FL_foot_contact_", &crabSensorData::b_FL_foot_contact_)
+      .def_readwrite("b_FR_foot_contact_", &crabSensorData::b_FR_foot_contact_)
+      .def_readwrite("b_RL_foot_contact_", &crabSensorData::b_RL_foot_contact_)
+      .def_readwrite("b_RR_foot_contact_", &crabSensorData::b_RR_foot_contact_)
+      .def_readwrite("FL_normal_force_", &crabSensorData::FL_normal_force_)
+      .def_readwrite("FR_normal_force_", &crabSensorData::FR_normal_force_)
+      .def_readwrite("RL_normal_force_", &crabSensorData::RL_normal_force_)
+      .def_readwrite("RR_normal_force_", &crabSensorData::RR_normal_force_)
       .def_readwrite("imu_dvel_", &crabSensorData::imu_dvel_)
       .def_readwrite("imu_lin_acc_", &crabSensorData::imu_lin_acc_)
 
       // Debug
       .def_readwrite("base_joint_pos_", &crabSensorData::base_joint_pos_)
       .def_readwrite("base_joint_quat_", &crabSensorData::base_joint_quat_)
-      .def_readwrite("base_joint_lin_vel_",
-                     &crabSensorData::base_joint_lin_vel_)
+      .def_readwrite("base_joint_lin_vel_", &crabSensorData::base_joint_lin_vel_)
       .def_readwrite("base_joint_ang_vel_",
                      &crabSensorData::base_joint_ang_vel_);
 

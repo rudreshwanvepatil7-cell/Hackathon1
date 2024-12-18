@@ -26,7 +26,7 @@ crabInterface::crabInterface() : Interface() {
 
   // initialize robot model
   robot_ =
-      new PinocchioRobotSystem(THIS_COM "robot_model/crab/crab_description.urdf",
+      new PinocchioRobotSystem(THIS_COM "robot_model/crab/crab.urdf",
                                THIS_COM "robot_model/crab", false, false);
 
   // TODO:set locomotion control point

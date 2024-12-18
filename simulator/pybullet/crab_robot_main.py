@@ -15,8 +15,8 @@ import signal
 import shutil
 import cv2
 
-import go2_interface_py 
-# import crab_interface_py  
+# import go2_interface_py 
+import crab_interface_py  
 
 import pdb 
 
@@ -477,9 +477,9 @@ if __name__ == "__main__":
     )
 
     # TODO: pnc interface, sensor_data, command class
-    rpc_go2_interface = go2_interface_py.Go2Interface()
-    rpc_go2_sensor_data = go2_interface_py.Go2SensorData()
-    rpc_go2_command = go2_interface_py.Go2Command()
+    rpc_crab_interface = crab_interface_py.crabInterface()
+    rpc_crab_sensor_data = crab_interface_py.crabSensorData()
+    rpc_crab_command = crab_interface_py.crabCommand()
 
     # Run Simulation
     dt = Config.CONTROLLER_DT
@@ -492,7 +492,7 @@ if __name__ == "__main__":
         compuation_cal_list = []
 
     if Config.VIDEO_RECORD:
-        video_dir = "video/go2"
+        video_dir = "video/crab"
         if os.path.exists(video_dir):
             shutil.rmtree(video_dir)
         os.makedirs(video_dir)
@@ -551,10 +551,10 @@ if __name__ == "__main__":
         # pdb.set_trace() 
 
         # pass debugged data to rpc interface (for ground truth estimation)
-        rpc_go2_sensor_data.base_joint_pos_ = base_joint_pos
-        rpc_go2_sensor_data.base_joint_quat_ = base_joint_quat
-        rpc_go2_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
-        rpc_go2_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
+        rpc_crab_sensor_data.base_joint_pos_ = base_joint_pos
+        rpc_crab_sensor_data.base_joint_quat_ = base_joint_quat
+        rpc_crab_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
+        rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
 
         ############################################################
         # Get Keyboard Event
@@ -583,36 +583,36 @@ if __name__ == "__main__":
         ) = get_sensor_data_from_pybullet(robot)
 
         ## copy sensor data to rpc sensor data class
-        rpc_go2_sensor_data.imu_frame_quat_ = imu_frame_quat
-        rpc_go2_sensor_data.imu_ang_vel_ = imu_ang_vel
-        rpc_go2_sensor_data.imu_dvel_ = imu_dvel
-        rpc_go2_sensor_data.imu_lin_acc_ = imu_dvel / dt
-        rpc_go2_sensor_data.joint_pos_ = joint_pos
-        rpc_go2_sensor_data.joint_vel_ = joint_vel
-        rpc_go2_sensor_data.b_FL_foot_contact_ = b_FL_foot_contact
-        rpc_go2_sensor_data.b_FR_foot_contact_ = b_FR_foot_contact
-        rpc_go2_sensor_data.b_RL_foot_contact_ = b_RL_foot_contact
-        rpc_go2_sensor_data.b_RR_foot_contact_ = b_RR_foot_contact
-        rpc_go2_sensor_data.FL_normal_force_ = FL_normal_force
-        rpc_go2_sensor_data.FR_normal_force_ = FR_normal_force
-        rpc_go2_sensor_data.RL_normal_force_ = RL_normal_force
-        rpc_go2_sensor_data.RR_normal_force_ = RR_normal_force
+        rpc_crab_sensor_data.imu_frame_quat_ = imu_frame_quat
+        rpc_crab_sensor_data.imu_ang_vel_ = imu_ang_vel
+        rpc_crab_sensor_data.imu_dvel_ = imu_dvel
+        rpc_crab_sensor_data.imu_lin_acc_ = imu_dvel / dt
+        rpc_crab_sensor_data.joint_pos_ = joint_pos
+        rpc_crab_sensor_data.joint_vel_ = joint_vel
+        rpc_crab_sensor_data.b_FL_foot_contact_ = b_FL_foot_contact
+        rpc_crab_sensor_data.b_FR_foot_contact_ = b_FR_foot_contact
+        rpc_crab_sensor_data.b_RL_foot_contact_ = b_RL_foot_contact
+        rpc_crab_sensor_data.b_RR_foot_contact_ = b_RR_foot_contact
+        rpc_crab_sensor_data.FL_normal_force_ = FL_normal_force
+        rpc_crab_sensor_data.FR_normal_force_ = FR_normal_force
+        rpc_crab_sensor_data.RL_normal_force_ = RL_normal_force
+        rpc_crab_sensor_data.RR_normal_force_ = RR_normal_force
         ############################################################
         ##compute control command
         ############################################################
         if Config.MEASURE_COMPUTATION_TIME:
             timer.tic()
 
-        rpc_go2_interface.GetCommand(rpc_go2_sensor_data, rpc_go2_command)
+        rpc_crab_interface.GetCommand(rpc_crab_sensor_data, rpc_crab_command)
 
         if Config.MEASURE_COMPUTATION_TIME:
             comp_time = timer.tocvalue()
             compuation_cal_list.append(comp_time)
 
         # copy command data from rpc command class
-        rpc_trq_command = rpc_go2_command.joint_trq_cmd_
-        rpc_joint_pos_command = rpc_go2_command.joint_pos_cmd_
-        rpc_joint_vel_command = rpc_go2_command.joint_vel_cmd_ 
+        rpc_trq_command = rpc_crab_command.joint_trq_cmd_
+        rpc_joint_pos_command = rpc_crab_command.joint_pos_cmd_
+        rpc_joint_vel_command = rpc_crab_command.joint_vel_cmd_ 
         
         # print("rpc_trq_command: ", rpc_trq_command) 
         # command = rpc_trq_command 
