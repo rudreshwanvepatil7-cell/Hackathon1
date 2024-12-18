@@ -16,6 +16,7 @@ import shutil
 import cv2
 
 import go2_interface_py 
+# import crab_interface_py  
 
 import pdb 
 
@@ -188,47 +189,100 @@ def get_sensor_data_from_pybullet(robot):
 # ---------------------------------- 
 
 def apply_control_input_to_pybullet(robot, command):
-    mode = pb.TORQUE_CONTROL
-
-    # Front left
+    mode = pb.TORQUE_CONTROL 
+    
+    pdb.set_trace() 
+    
+    # FRONT LEFT 
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.front_right__cluster_1_roll, controlMode=mode, force=command[0]
+        robot, crab_joint_idx.front_left__cluster_1_roll, controlMode=mode, force=command[0] 
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.front_left__cluster_1_pitch, controlMode=mode, force=command[1] 
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.front_left__cluster_2_roll, controlMode=mode, force=command[2]
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.front_left__cluster_2_pitch, controlMode=mode, force=command[3]
     )
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.FL_thigh_joint, controlMode=mode, force=command[1]
+        robot, crab_joint_idx.front_left__cluster_3_roll, controlMode=mode, force=command[4]
     )
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.FL_calf_joint, controlMode=mode, force=command[2]
-    )
-    # Front right
-    pb.setJointMotorControl2(
-        robot, crab_joint_idx.FR_hip_joint, controlMode=mode, force=command[3]
+        robot, crab_joint_idx.front_left__cluster_3_pitch, controlMode=mode, force=command[5]
     )
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.FR_thigh_joint, controlMode=mode, force=command[4]
+        robot, crab_joint_idx.front_left__cluster_3_wrist, controlMode=mode, force=command[6]
+    )
+    
+    # FRONT RIGHT 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.front_right__cluster_1_roll, controlMode=mode, force=command[7] 
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.front_right__cluster_1_pitch, controlMode=mode, force=command[8] 
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.front_right__cluster_2_roll, controlMode=mode, force=command[9]
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.front_right__cluster_2_pitch, controlMode=mode, force=command[10]
     )
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.FR_calf_joint, controlMode=mode, force=command[5]
-    )
-    # Rear left
-    pb.setJointMotorControl2(
-        robot, crab_joint_idx.RL_hip_joint, controlMode=mode, force=command[6]
+        robot, crab_joint_idx.front_right__cluster_3_roll, controlMode=mode, force=command[11]
     )
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.RL_thigh_joint, controlMode=mode, force=command[7]
+        robot, crab_joint_idx.front_right__cluster_3_pitch, controlMode=mode, force=command[12]
     )
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.RL_calf_joint, controlMode=mode, force=command[8]
+        robot, crab_joint_idx.front_right__cluster_3_wrist, controlMode=mode, force=command[13]
     )
-    # Rear right
+    
+    # BACK LEFT 
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.RR_hip_joint, controlMode=mode, force=command[9]
+        robot, crab_joint_idx.back_left__cluster_1_roll, controlMode=mode, force=command[14] 
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_left__cluster_1_pitch, controlMode=mode, force=command[15] 
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_left__cluster_2_roll, controlMode=mode, force=command[16]
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_left__cluster_2_pitch, controlMode=mode, force=command[17]
     )
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.RR_thigh_joint, controlMode=mode, force=command[10]
+        robot, crab_joint_idx.back_left__cluster_3_roll, controlMode=mode, force=command[18]
     )
     pb.setJointMotorControl2(
-        robot, crab_joint_idx.RR_calf_joint, controlMode=mode, force=command[11]
+        robot, crab_joint_idx.back_left__cluster_3_pitch, controlMode=mode, force=command[19]
+    )
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_left__cluster_3_wrist, controlMode=mode, force=command[20]
+    )
+    
+    # BACK RIGHT 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_right__cluster_1_roll, controlMode=mode, force=command[21] 
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_right__cluster_1_pitch, controlMode=mode, force=command[22] 
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_right__cluster_2_roll, controlMode=mode, force=command[23]
+    ) 
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_right__cluster_2_pitch, controlMode=mode, force=command[24]
+    )
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_right__cluster_3_roll, controlMode=mode, force=command[25]
+    )
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_right__cluster_3_pitch, controlMode=mode, force=command[26]
+    )
+    pb.setJointMotorControl2(
+        robot, crab_joint_idx.back_right__cluster_3_wrist, controlMode=mode, force=command[27]
     )
 
 # ---------------------------------- 
@@ -448,7 +502,7 @@ if __name__ == "__main__":
         base_joint_ang_vel = twist_basejoint_in_world[0:3]
         base_joint_lin_vel = twist_basejoint_in_world[3:6] 
         
-        pdb.set_trace() 
+        # pdb.set_trace() 
 
         # pass debugged data to rpc interface (for ground truth estimation)
         rpc_go2_sensor_data.base_joint_pos_ = base_joint_pos
@@ -512,7 +566,11 @@ if __name__ == "__main__":
         # copy command data from rpc command class
         rpc_trq_command = rpc_go2_command.joint_trq_cmd_
         rpc_joint_pos_command = rpc_go2_command.joint_pos_cmd_
-        rpc_joint_vel_command = rpc_go2_command.joint_vel_cmd_
+        rpc_joint_vel_command = rpc_go2_command.joint_vel_cmd_ 
+        
+        print("rpc_trq_command: ", rpc_trq_command) 
+        command = rpc_trq_command 
+        pdb.set_trace() 
 
         # apply command to pybullet robot
         apply_control_input_to_pybullet(robot, rpc_trq_command)
