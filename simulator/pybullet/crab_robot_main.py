@@ -80,7 +80,14 @@ if __name__ == "__main__":
         [0.0, 0.0, 5.0],
         [0, 0, 0, 1],
         useFixedBase=False,
-    )
+    ) 
+    
+    # Set the initial linear velocity
+    initial_linear_velocity = [1.0, 0.0, 0.0]  # Example: 1 m/s along the x-axis
+    initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
+
+    pb.resetBaseVelocity(robot, linearVelocity=initial_linear_velocity, angularVelocity=initial_angular_velocity)
+
 
     # cylinder_robot = pb.loadURDF(
     #     cwd + "/robot_model/cylinder.urdf",
@@ -88,12 +95,12 @@ if __name__ == "__main__":
     #     Config.INITIAL_CYLINDER_BASE_JOINT_QUAT,
     #     useFixedBase=0,
     # )
-    # cylinder_robot = pb.loadURDF(
-    #     cwd + "/robot_model/cylinder.urdf",
-    #     [2.5, 5.0, 2.5],
-    #     [0, 0.707, 0, 0.707],
-    #     useFixedBase=False,
-    # )
+    cylinder_robot = pb.loadURDF(
+        cwd + "/robot_model/cylinder.urdf",
+        [2.5, 5.0, 2.5],
+        [0, 0.707, 0, 0.707],
+        useFixedBase=False,
+    )
 
     ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
@@ -112,7 +119,7 @@ if __name__ == "__main__":
         Config.PRINT_ROBOT_INFO,
     )
     # robot initial config setting
-    set_init_config_pybullet_robot(robot)
+    set_init_config_pybullet_robot(robot) 
 
     # robot joint and link dynamics setting
     pybullet_util.set_joint_friction(robot, joint_id_dict, 0)
@@ -275,9 +282,13 @@ if __name__ == "__main__":
         rpc_trq_command = rpc_crab_command.joint_trq_cmd_
         rpc_joint_pos_command = rpc_crab_command.joint_pos_cmd_
         rpc_joint_vel_command = rpc_crab_command.joint_vel_cmd_ 
+        
+        # pdb.set_trace() 
 
         # apply command to pybullet robot
         apply_control_input_to_pybullet(robot, rpc_trq_command)
+        
+        # pdb.set_trace() 
 
         # save current torso velocity for next iteration
         previous_torso_velocity = pybullet_util.get_link_vel(robot, crab_link_idx.base_link)[3:6]

@@ -17,6 +17,8 @@ import shutil
 import cv2
 import draco_interface_py
 
+import pdb 
+
 if Config.MEASURE_COMPUTATION_TIME:
     from pytictoc import TicToc
 
@@ -589,6 +591,8 @@ if __name__ == "__main__":
         rpc_trq_command = rpc_draco_command.joint_trq_cmd_
         rpc_joint_pos_command = rpc_draco_command.joint_pos_cmd_
         rpc_joint_vel_command = rpc_draco_command.joint_vel_cmd_
+        
+        pdb.set_trace() 
 
         # apply command to pybullet robot
         apply_control_input_to_pybullet(draco_humanoid, rpc_trq_command)
