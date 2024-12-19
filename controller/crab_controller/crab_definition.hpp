@@ -110,5 +110,5 @@ constexpr int front_right__cluster_3_wrist = 28;
 
 namespace crab {
 constexpr int n_qdot = 18;
-constexpr int n_adof = 12;
+constexpr int n_adof = 28;
 } // namespace crab
