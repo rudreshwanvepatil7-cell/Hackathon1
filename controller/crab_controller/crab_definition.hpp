@@ -31,18 +31,34 @@ constexpr int radar = 58;
 } // namespace crab_link
 
 namespace crab_joint {
-constexpr int FL_hip_joint = 0;
-constexpr int FL_thigh_joint = 1;
-constexpr int FL_calf_joint = 2;
-constexpr int FR_hip_joint = 3;
-constexpr int FR_thigh_joint = 4;
-constexpr int FR_calf_joint = 5;
-constexpr int RL_hip_joint = 6;
-constexpr int RL_thigh_joint = 7;
-constexpr int RL_calf_joint = 8;
-constexpr int RR_hip_joint = 9;
-constexpr int RR_thigh_joint = 10;
-constexpr int RR_calf_joint = 11;
+constexpr int back_left__cluster_1_roll = 1;
+constexpr int back_left__cluster_1_pitch = 2;
+constexpr int back_left__cluster_2_roll = 3;
+constexpr int back_left__cluster_2_pitch = 4;
+constexpr int back_left__cluster_3_roll = 5;
+constexpr int back_left__cluster_3_pitch = 6;
+constexpr int back_left__cluster_3_wrist = 7;
+constexpr int back_right__cluster_1_roll = 8;
+constexpr int back_right__cluster_1_pitch = 9;
+constexpr int back_right__cluster_2_roll = 10;
+constexpr int back_right__cluster_2_pitch = 11;
+constexpr int back_right__cluster_3_roll = 12;
+constexpr int back_right__cluster_3_pitch = 13;
+constexpr int back_right__cluster_3_wrist = 14;
+constexpr int front_left__cluster_1_roll = 15;
+constexpr int front_left__cluster_1_pitch = 16;
+constexpr int front_left__cluster_2_roll = 17;
+constexpr int front_left__cluster_2_pitch = 18;
+constexpr int front_left__cluster_3_roll = 19;
+constexpr int front_left__cluster_3_pitch = 20;
+constexpr int front_left__cluster_3_wrist = 21;
+constexpr int front_right__cluster_1_roll = 22;
+constexpr int front_right__cluster_1_pitch = 23;
+constexpr int front_right__cluster_2_roll = 24;
+constexpr int front_right__cluster_2_pitch = 25;
+constexpr int front_right__cluster_3_roll = 26;
+constexpr int front_right__cluster_3_pitch = 27;
+constexpr int front_right__cluster_3_wrist = 28;
 } // namespace crab_joint
 
 namespace crab {

@@ -2,7 +2,7 @@
 # PYBULLET 
 # ---------------------------------- 
 
-ink index: 0, Link name: base_link
+Link index: 0, Link name: base_link
 Link index: 1, Link name: top_lidar_link
 Link index: 2, Link name: bottom_lidar_link
 Link index: 3, Link name: back__sensor_link
