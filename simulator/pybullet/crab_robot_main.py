@@ -580,9 +580,9 @@ if __name__ == "__main__":
         rpc_joint_pos_command = rpc_crab_command.joint_pos_cmd_
         rpc_joint_vel_command = rpc_crab_command.joint_vel_cmd_ 
         
-        print("rpc_trq_command: ", rpc_trq_command) 
-        command = rpc_trq_command 
-        pdb.set_trace() 
+        # print("rpc_trq_command: ", rpc_trq_command) 
+        # command = rpc_trq_command 
+        # pdb.set_trace() 
 
         # apply command to pybullet robot
         apply_control_input_to_pybullet(robot, rpc_trq_command)
