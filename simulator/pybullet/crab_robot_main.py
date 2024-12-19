@@ -7,7 +7,6 @@ sys.path.append(cwd)
 sys.path.append(cwd + "/build/lib")  # include pybind module
 
 from config.crab.sim.pybullet.wbic.pybullet_params import *
-from config.crab.sim.pybullet.wbic.pybullet_functions import *
 from util.python_utils import pybullet_util
 from util.python_utils import util
 from util.python_utils import liegroup
@@ -20,6 +19,9 @@ import cv2
 import crab_interface_py  
 
 import pdb 
+
+# moved some functions to simulator.pybullet.crab_pybullet_fns 
+from simulator.pybullet.crab_pybullet_fns import *
 
 # ---------------------------------- 
 # ---------------------------------- 
