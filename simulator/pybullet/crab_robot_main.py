@@ -161,11 +161,11 @@ if __name__ == "__main__":
         # ---------------------------------- 
         
         base_pos, base_ori = pb.getBasePositionAndOrientation(robot)
-        # pb.resetDebugVisualizerCamera(cameraDistance=1.5,
-        #                               cameraYaw=120,
-        #                               cameraPitch=-30,
-        #                               cameraTargetPosition=base_pos +
-        #                               np.array([0.5, 0.3, -base_pos[2] + 0.5]))
+        pb.resetDebugVisualizerCamera(cameraDistance=10.5,
+                                      cameraYaw=120,
+                                      cameraPitch=-30,
+                                      cameraTargetPosition=base_pos +
+                                      np.array([0.5, 0.3, -base_pos[2] + 0.5]))
         
         # ---------------------------------- 
         # Debugging 
