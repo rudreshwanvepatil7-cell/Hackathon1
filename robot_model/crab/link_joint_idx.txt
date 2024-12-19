@@ -2,30 +2,30 @@
 # PYBULLET 
 # ---------------------------------- 
 
-Link index: 0, Link name: base_link
-Link index: 1, Link name: top_lidar_link
-Link index: 2, Link name: bottom_lidar_link
-Link index: 3, Link name: back__sensor_link
-Link index: 4, Link name: left__sensor_link
-Link index: 5, Link name: right__sensor_link
-Link index: 6, Link name: front_right__sensor_link
-Link index: 7, Link name: front_left__sensor_link
-Link index: 8, Link name: front_right__base_link
-Link index: 9, Link name: front_right__cluster_1_base_link
-Link index: 10, Link name: front_right__cluster_1_proximal_link
-Link index: 11, Link name: front_right__cluster_1_distal_link
-Link index: 12, Link name: front_right__cluster_1_end_link
-Link index: 13, Link name: front_right__cluster_2_base_link
-Link index: 14, Link name: front_right__cluster_2_proximal_link
-Link index: 15, Link name: front_right__cluster_2_distal_link
-Link index: 16, Link name: front_right__cluster_2_end_link
-Link index: 17, Link name: front_right__cluster_3_base_link
-Link index: 18, Link name: front_right__cluster_3_proximal_link
-Link index: 19, Link name: front_right__cluster_3_distal_link
-Link index: 20, Link name: front_right__cluster_3_mid_link
-Link index: 21, Link name: front_right__cluster_3_wrist_link
-Link index: 22, Link name: front_right__cluster_3_end_link
-Link index: 23, Link name: front_right__foot_link
+Link index: 0, Link name: base_link * 
+Link index: 1, Link name: top_lidar_link * 
+Link index: 2, Link name: bottom_lidar_link * 
+Link index: 3, Link name: back__sensor_link * 
+Link index: 4, Link name: left__sensor_link * 
+Link index: 5, Link name: right__sensor_link * 
+Link index: 6, Link name: front_right__sensor_link * 
+Link index: 7, Link name: front_left__sensor_link * 
+Link index: 8, Link name: front_right__base_link * 
+Link index: 9, Link name: front_right__cluster_1_base_link * 
+Link index: 10, Link name: front_right__cluster_1_proximal_link * 
+Link index: 11, Link name: front_right__cluster_1_distal_link * 
+Link index: 12, Link name: front_right__cluster_1_end_link * 
+Link index: 13, Link name: front_right__cluster_2_base_link * 
+Link index: 14, Link name: front_right__cluster_2_proximal_link * 
+Link index: 15, Link name: front_right__cluster_2_distal_link * 
+Link index: 16, Link name: front_right__cluster_2_end_link * 
+Link index: 17, Link name: front_right__cluster_3_base_link * 
+Link index: 18, Link name: front_right__cluster_3_proximal_link * 
+Link index: 19, Link name: front_right__cluster_3_distal_link * 
+Link index: 20, Link name: front_right__cluster_3_mid_link * 
+Link index: 21, Link name: front_right__cluster_3_wrist_link * 
+Link index: 22, Link name: front_right__cluster_3_end_link * 
+Link index: 23, Link name: front_right__foot_link * 
 Link index: 24, Link name: front_left__base_link
 Link index: 25, Link name: front_left__cluster_1_base_link
 Link index: 26, Link name: front_left__cluster_1_proximal_link
