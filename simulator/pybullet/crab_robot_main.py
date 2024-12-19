@@ -55,6 +55,7 @@ signal.signal(signal.SIGINT, signal_handler)
 # ---------------------------------- 
 
 if __name__ == "__main__":
+    
     ## connect pybullet sim server
     pb.connect(pb.GUI)
     pb.configureDebugVisualizer(pb.COV_ENABLE_GUI, 0)
@@ -65,6 +66,7 @@ if __name__ == "__main__":
         cameraPitch=-30,
         cameraTargetPosition=[0, 0, 0.3],
     )
+    
     ## sim physics setting
     pb.setPhysicsEngineParameter(
         fixedTimeStep=Config.CONTROLLER_DT, numSubSteps=Config.N_SUBSTEP
@@ -74,20 +76,19 @@ if __name__ == "__main__":
     ## robot spawn & initial kinematics and dynamics setting
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 0)
 
-    ## LOAD ROBOT 
+    ## LOAD ROBOT
     robot = pb.loadURDF(
         cwd + "/robot_model/crab/crab.urdf",
-        [0.0, 0.0, 5.0],
+        [0.0, -10.0, 10.0],
         [0, 0, 0, 1],
         useFixedBase=False,
     ) 
     
     # Set the initial linear velocity
-    initial_linear_velocity = [1.0, 0.0, 0.0]  # Example: 1 m/s along the x-axis
+    initial_linear_velocity = [0.0, 0.5, -0.5]  # Example: 1 m/s along the x-axis
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
     pb.resetBaseVelocity(robot, linearVelocity=initial_linear_velocity, angularVelocity=initial_angular_velocity)
-
 
     # cylinder_robot = pb.loadURDF(
     #     cwd + "/robot_model/cylinder.urdf",
@@ -97,7 +98,7 @@ if __name__ == "__main__":
     # )
     cylinder_robot = pb.loadURDF(
         cwd + "/robot_model/cylinder.urdf",
-        [2.5, 5.0, 2.5],
+        [0.0, 0.0, 2.5],
         [0, 0.707, 0, 0.707],
         useFixedBase=False,
     )
@@ -169,7 +170,7 @@ if __name__ == "__main__":
         # ---------------------------------- 
         
         base_pos, base_ori = pb.getBasePositionAndOrientation(robot)
-        pb.resetDebugVisualizerCamera(cameraDistance=10.5,
+        pb.resetDebugVisualizerCamera(cameraDistance=15.0,
                                       cameraYaw=120,
                                       cameraPitch=-30,
                                       cameraTargetPosition=base_pos +
