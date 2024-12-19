@@ -11,15 +11,8 @@ from util.python_utils import pybullet_util
 from util.python_utils import util
 from util.python_utils import liegroup
 
-# import signal
-# import shutil
-# import cv2
-
-# # import go2_interface_py 
-# import crab_interface_py  
-
-# import pdb 
-
+# ---------------------------------- 
+# functions to interact with pybullet 
 # ---------------------------------- 
 
 def get_sensor_data_from_pybullet(robot, previous_torso_velocity): 

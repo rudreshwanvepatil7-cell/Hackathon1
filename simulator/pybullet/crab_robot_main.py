@@ -24,12 +24,11 @@ import pdb
 from simulator.pybullet.crab_pybullet_fns import *
 
 # ---------------------------------- 
+# sim functions 
 # ---------------------------------- 
 
 if Config.MEASURE_COMPUTATION_TIME:
     from pytictoc import TicToc
-
-# ---------------------------------- 
 
 def signal_handler(signal, frame):
     if Config.MEASURE_COMPUTATION_TIME:
@@ -49,9 +48,11 @@ def signal_handler(signal, frame):
     pb.disconnect()
     sys.exit(0)
 
-# ---------------------------------- 
-
 signal.signal(signal.SIGINT, signal_handler)
+
+# ---------------------------------- 
+# main simulation loop 
+# ---------------------------------- 
 
 if __name__ == "__main__":
     ## connect pybullet sim server
