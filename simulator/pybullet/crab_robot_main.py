@@ -60,16 +60,17 @@ if __name__ == "__main__":
     pb.connect(pb.GUI)
     pb.configureDebugVisualizer(pb.COV_ENABLE_GUI, 0)
 
+    base_pos = [0.0, -10.0, 10.0] 
     pb.resetDebugVisualizerCamera(
-        cameraDistance=1.5,
-        cameraYaw=120,
-        cameraPitch=-30,
-        cameraTargetPosition=[0, 0, 0.3],
+        cameraDistance          = 12.5,
+        cameraYaw               = 120,
+        cameraPitch             = -45,
+        cameraTargetPosition    = base_pos + np.array([0.5, 0.3, -base_pos[2] + 0.5]),
     )
     
     ## sim physics setting
     pb.setPhysicsEngineParameter(
-        fixedTimeStep=Config.CONTROLLER_DT, numSubSteps=Config.N_SUBSTEP
+        fixedTimeStep = Config.CONTROLLER_DT, numSubSteps = Config.N_SUBSTEP
     )
     pb.setGravity(0, 0, 0)
 
@@ -79,16 +80,18 @@ if __name__ == "__main__":
     ## LOAD ROBOT
     robot = pb.loadURDF(
         cwd + "/robot_model/crab/crab.urdf",
-        [0.0, -10.0, 10.0],
+        base_pos,
         [0, 0, 0, 1],
         useFixedBase=False,
     ) 
     
     # Set the initial linear velocity
-    initial_linear_velocity = [0.0, 0.5, -0.5]  # Example: 1 m/s along the x-axis
+    initial_linear_velocity  = [0.0, 0.25, -0.25]  # Example: 1 m/s along the x-axis
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
-    pb.resetBaseVelocity(robot, linearVelocity=initial_linear_velocity, angularVelocity=initial_angular_velocity)
+    pb.resetBaseVelocity(robot, 
+                         linearVelocity  = initial_linear_velocity, 
+                         angularVelocity = initial_angular_velocity)
 
     # cylinder_robot = pb.loadURDF(
     #     cwd + "/robot_model/cylinder.urdf",
@@ -103,8 +106,17 @@ if __name__ == "__main__":
         useFixedBase=False,
     )
 
-    ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
+    # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
+    # Create a large black plane to simulate a black background
+    plane_shape = pb.createCollisionShape(pb.GEOM_PLANE)
+    plane_visual = pb.createVisualShape(pb.GEOM_PLANE, rgbaColor=[0, 0, 0, 1])
+    plane = pb.createMultiBody(0, plane_shape, plane_visual)
+
+    # Position the plane far away to act as a background
+    pb.resetBasePositionAndOrientation(plane, [0, 0, -100], [0, 0, 0, 1])
+
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
+    
     (
         n_q,
         n_v,
@@ -170,9 +182,9 @@ if __name__ == "__main__":
         # ---------------------------------- 
         
         base_pos, base_ori = pb.getBasePositionAndOrientation(robot)
-        pb.resetDebugVisualizerCamera(cameraDistance=15.0,
+        pb.resetDebugVisualizerCamera(cameraDistance=12.5,
                                       cameraYaw=120,
-                                      cameraPitch=-30,
+                                      cameraPitch=-45,
                                       cameraTargetPosition=base_pos +
                                       np.array([0.5, 0.3, -base_pos[2] + 0.5]))
         
@@ -284,6 +296,7 @@ if __name__ == "__main__":
         rpc_joint_pos_command = rpc_crab_command.joint_pos_cmd_
         rpc_joint_vel_command = rpc_crab_command.joint_vel_cmd_ 
         
+        rpc_trq_command = np.ones(28) * 0.15
         # pdb.set_trace() 
 
         # apply command to pybullet robot
