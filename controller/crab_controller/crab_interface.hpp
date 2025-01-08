@@ -7,6 +7,7 @@
 #include "controller/interface.hpp"
 
 class StateEstimator;
+class CrabStateProvider;
 
 class crabSensorData {
 public:
@@ -22,7 +23,7 @@ public:
         RR_normal_force_(0.), base_joint_pos_(Eigen::Vector3d::Zero()),
         base_joint_quat_(0, 0, 0, 1),
         base_joint_lin_vel_(Eigen::Vector3d::Zero()),
-        base_joint_ang_vel_(Eigen::Vector3d::Zero()){};
+        base_joint_ang_vel_(Eigen::Vector3d::Zero()) {};
   virtual ~crabSensorData() = default;
 
   Eigen::Vector4d imu_frame_quat_; // x, y, z, w order
@@ -52,7 +53,7 @@ public:
   crabCommand()
       : joint_pos_cmd_(Eigen::VectorXd::Zero(crab::n_adof)),
         joint_vel_cmd_(Eigen::VectorXd::Zero(crab::n_adof)),
-        joint_trq_cmd_(Eigen::VectorXd::Zero(crab::n_adof)){};
+        joint_trq_cmd_(Eigen::VectorXd::Zero(crab::n_adof)) {};
   virtual ~crabCommand() = default;
 
   Eigen::VectorXd joint_pos_cmd_;
@@ -71,7 +72,7 @@ public:
 
 private:
   StateEstimator *se_;
-  // crabStateProvider *sp_;
+  CrabStateProvider *sp_;
   void _SafeCommand(crabSensorData *data, crabCommand *command);
   void _SetParameters() override;
 

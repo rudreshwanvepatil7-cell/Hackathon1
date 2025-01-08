@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package crab;
+
+message pnc_msg {
+  float time = 1;
+  uint32 phase = 2;
+
+  repeated float est_base_joint_pos = 3;
+  repeated float est_base_joint_ori = 4;
+
+  repeated float joint_positions = 5;
+
+  repeated float des_com_pos = 6;
+  repeated float act_com_pos = 7;
+
+  repeated float lfoot_pos = 8;
+  repeated float rfoot_pos = 9;
+
+  repeated float lfoot_ori = 10;
+  repeated float rfoot_ori = 11;
+
+  repeated float lfoot_rf_cmd = 12;
+  repeated float rfoot_rf_cmd = 13;
+
+  repeated float com_xy_weight = 14;
+  repeated float com_xy_kp = 15;
+  repeated float com_xy_kd = 16;
+  repeated float com_xy_ki = 17;
+
+  float com_z_weight = 18;
+  float com_z_kp = 19;
+  float com_z_kd = 20;
+
+  repeated float torso_ori_weight = 21;
+  repeated float torso_ori_kp = 22;
+  repeated float torso_ori_kd = 23;
+
+  repeated float lf_pos_weight = 24;
+  repeated float lf_pos_kp = 25;
+  repeated float lf_pos_kd = 26;
+
+  repeated float rf_pos_weight = 27;
+  repeated float rf_pos_kp = 28;
+  repeated float rf_pos_kd = 29;
+
+  repeated float lf_ori_weight = 30;
+  repeated float lf_ori_kp = 31;
+  repeated float lf_ori_kd = 32;
+
+  repeated float rf_ori_weight = 33;
+  repeated float rf_ori_kp = 34;
+  repeated float rf_ori_kd = 35;
+
+  bool b_lfoot = 36;
+  bool b_rfoot = 37;
+
+  repeated float quat_world_local = 38;
+}

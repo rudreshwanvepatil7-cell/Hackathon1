@@ -23,13 +23,13 @@ set(INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME})
 option(PYTHON_BINDING "use pybind11" ON)
 
 option(BUILD_WITH_PINOCCHIO "compile with PINOCCHIO" ON)
-option(BUILD_WITH_MUJOCO "compile with mujoco" ON)
+option(BUILD_WITH_MUJOCO "compile with mujoco" OFF)
 option(BUILD_WITH_DART "compile with DART" OFF)
 
 option(BUILD_WITH_PROXQP "compile with ProxQP" OFF)
 
 option(BUILD_WITH_MATLOGGER "compile with MatLogger2" OFF)
-option(BUILD_WITH_ZMQ_PROTOBUF "compile with zmq and protobuf" OFF)
+option(BUILD_WITH_ZMQ_PROTOBUF "compile with zmq and protobuf" ON)
 
 option(BUILD_WITH_FOXGLOVE "compile with foxglove" OFF)
 
