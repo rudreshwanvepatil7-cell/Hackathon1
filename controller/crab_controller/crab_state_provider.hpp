@@ -28,6 +28,8 @@ public:
   int state_;
   int prev_state_;
 
+  bool b_use_base_height_;
+  double des_com_height_;
   int planning_id_;
 
   std::vector<int> floating_base_jidx_;

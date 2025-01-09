@@ -2,13 +2,12 @@
 
 #include "controller/filter/digital_filters.hpp"
 
-#include "controller/crab_controller/crab_definition.hpp"
 #include "controller/crab_controller/crab_interface.hpp"
 #include "controller/crab_controller/crab_state_estimator.hpp"
 #include "controller/crab_controller/crab_state_provider.hpp"
 
 #if B_USE_ZMQ
-#include "controller/draco_controller/crab_data_manager.hpp"
+#include "controller/crab_controller/crab_data_manager.hpp"
 #endif
 
 #include <string>
@@ -23,9 +22,9 @@ CrabStateEstimator::CrabStateEstimator(PinocchioRobotSystem *robot,
 
   sp_ = CrabStateProvider::GetStateProvider();
 
-  // assume start with double support
-  sp_->b_lf_contact_ = true;
-  sp_->b_rf_contact_ = true;
+  // assume starts floating in space
+  sp_->b_lf_contact_ = false;
+  sp_->b_rf_contact_ = false;
 
   // TODO change according to actual IMU position and orientation
   R_imu_base_com_ = robot_->GetLinkIsometry(crab_link::base_link).linear();

@@ -4,6 +4,7 @@
 #include "controller/crab_controller/crab_state_provider.hpp"
 #include "controller/robot_system/pinocchio_robot_system.hpp"
 #include "controller/whole_body_controller/managers/end_effector_trajectory_manager.hpp"
+#include "planner/locomotion/dcm_planner/foot_step.hpp"
 
 Land::Land(const StateId state_id, PinocchioRobotSystem *robot,
            CrabControlArchitecture *ctrl_arch)
@@ -57,10 +58,7 @@ void Land::LastVisit() {
   sp_->rot_world_local_ = torso_iso.linear();
 }
 
-StateId Land::GetNextState() {
-  if (b_com_swaying_)
-    return crab_states::kLand;
-}
+StateId Land::GetNextState() {}
 
 void Land::SetParameters(const YAML::Node &node) {
   try {

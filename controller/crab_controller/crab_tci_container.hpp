@@ -9,7 +9,7 @@ public:
   CrabTCIContainer(PinocchioRobotSystem *robot, const YAML::Node &cfg);
   virtual ~CrabTCIContainer();
 
-  QPParams *qp_params_;
+  //  QPParams *qp_params_;
 
 private:
   Task *jpos_task_;

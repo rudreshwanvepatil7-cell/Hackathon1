@@ -46,7 +46,6 @@ public:
 private:
   CrabController *controller_;
   CrabStateProvider *sp_;
-  DCMPlanner *dcm_planner_;
 
 #if B_USE_FOXGLOVE
   std::unordered_map<std::string, int *> param_map_int_;

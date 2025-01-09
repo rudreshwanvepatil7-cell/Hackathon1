@@ -28,8 +28,11 @@ CrabStateProvider::CrabStateProvider() {
 
   com_vel_est_.setZero();
 
-  state_ = 1;      // crab_states::kInitialize or crab_states::wbic::kInitialize
-  prev_state_ = 1; // crab_states::kInitialize or crab_states::wbic::kInitialize
+  state_ = 1;      // crab_states::kInitialize
+  prev_state_ = 1; // crab_states::kInitialize
+
+  b_use_base_height_ = false;
+  des_com_height_ = 0.;
 
   planning_id_ = 0;
 

@@ -4,7 +4,7 @@
 #include "controller/crab_controller/crab_controller.hpp"
 #include "controller/crab_controller/crab_definition.hpp"
 #include "controller/crab_controller/crab_state_machines/initialize.hpp"
-#include "controller/crab_controller/crab_state_machines/single_support_swing.hpp"
+#include "controller/crab_controller/crab_state_machines/land.hpp"
 #include "controller/crab_controller/crab_state_provider.hpp"
 #include "controller/crab_controller/crab_tci_container.hpp"
 #include "controller/whole_body_controller/managers/end_effector_trajectory_manager.hpp"
@@ -38,10 +38,8 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
   //=============================================================
   // initialize task, contact, controller, planner
   //=============================================================
-  tci_container_ = new DracoTCIContainer(robot_, cfg);
-  controller_ = new DracoController(tci_container_, robot_, cfg);
-
-  dcm_planner_ = new DCMPlanner();
+  tci_container_ = new CrabTCIContainer(robot_, cfg);
+  controller_ = new CrabController(tci_container_, robot_, cfg);
 
   //=============================================================
   // trajectory Managers
@@ -140,19 +138,6 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
       new TaskHierarchyManager(tci_container_->task_map_["rh_ori_task"],
                                weight_at_teleop_triggered, weight_at_initial);
 
-  // initialize dynamics manager
-  double max_rf_z;
-  util::ReadParameter(cfg["wbc"]["contact"], "max_rf_z", max_rf_z);
-  lf_max_normal_froce_tm_ = new MaxNormalForceTrajectoryManager(
-      tci_container_->contact_map_["lf_contact"], max_rf_z);
-  rf_max_normal_froce_tm_ = new MaxNormalForceTrajectoryManager(
-      tci_container_->contact_map_["rf_contact"], max_rf_z);
-
-  lf_force_tm_ = new ForceTrajectoryManager(
-      tci_container_->force_task_map_["lf_force_task"], robot_);
-  rf_force_tm_ = new ForceTrajectoryManager(
-      tci_container_->force_task_map_["rf_force_task"], robot_);
-
   //=============================================================
   // attach Foxglove Clients to control parameters
   //=============================================================
@@ -179,16 +164,8 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
       cfg);
 
   locomotion_state_machine_container_[crab_states::kLand] =
-      new DoubleSupportStandUp(crab_states::kLand, robot_, this);
-  locomotion_state_machine_container_[draco_states::kLand]->SetParameters(cfg);
-
-#if B_USE_TELEOP
-  // Manipulation
-  manipulation_state_machine_container_[draco_states::kTeleopManipulation] =
-      new TeleopManipulation(draco_states::kTeleopManipulation, robot_, this);
-  manipulation_state_machine_container_[draco_states::kTeleopManipulation]
-      ->SetParameters(cfg);
-#endif
+      new Land(crab_states::kLand, robot_, this);
+  locomotion_state_machine_container_[crab_states::kLand]->SetParameters(cfg);
 }
 
 CrabControlArchitecture::~CrabControlArchitecture() {
@@ -207,8 +184,8 @@ CrabControlArchitecture::~CrabControlArchitecture() {
   delete rf_ori_hm_;
 
   // state machines
-  delete locomotion_state_machine_container_[draco_states::kInitialize];
-  delete locomotion_state_machine_container_[draco_states::kLand];
+  delete locomotion_state_machine_container_[crab_states::kInitialize];
+  delete locomotion_state_machine_container_[crab_states::kLand];
 
 #if B_USE_FOXGLOVE
   delete param_subscriber_;
@@ -219,6 +196,8 @@ void CrabControlArchitecture::GetCommand(void *command) {
   if (b_loco_state_first_visit_) {
     locomotion_state_machine_container_[loco_state_]->FirstVisit();
     b_loco_state_first_visit_ = false;
+    std::cout << "[Crab Control Architecture] GetCommand first visit"
+              << std::endl;
   }
 
 #if B_USE_FOXGLOVE
@@ -227,8 +206,10 @@ void CrabControlArchitecture::GetCommand(void *command) {
 
   // desired trajectory update in state machine
   locomotion_state_machine_container_[loco_state_]->OneStep();
+  std::cout << "[Crab Control Architecture] GetCommand one step" << std::endl;
   // get control command
   controller_->GetCommand(command);
+  std::cout << "[Crab Control Architecture] GetCommand controller" << std::endl;
 
   if (locomotion_state_machine_container_[loco_state_]->EndOfState()) {
     locomotion_state_machine_container_[loco_state_]->LastVisit();

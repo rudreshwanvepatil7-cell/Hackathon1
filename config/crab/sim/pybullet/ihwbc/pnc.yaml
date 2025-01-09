@@ -99,27 +99,10 @@ wbc:
       base_kp : [100.]
       base_kd : [5.] # x, y will be ignored
 
-    cam_task:
-      weight : [0., 0., 0.]
-      kd : [0., 0., 0.]
-
-    wbo_task:
-      weight : [0., 0., 0.]
-      kp : [0.0, 0.0, 1.0]
-      kd : [0.0, 0.0, 2.0]
-
     torso_ori_task:
       weight : [100., 100., 10.]
       kp : [200., 200., 100.]
       kd : [14., 14., 10.]
-
-    upper_body_task:
-      ## l_shoulder_fe(0), l_shoulder_aa(1), l_shoulder_ie(2), l_elbow_fe(3), l_wrist_ps_(4),
-      ## l_wrist_pitch(5), neck_pitch(6), r_shoulder_fe(7), r_shoulder_aa(8), r_shoulder_ie(9),
-      ## r_shoulder_ie(10), r_elbow_fe(11), r_wrist_ps(12), r_wrist_pitch(13)
-      weight : [40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40.]
-      kp : [100., 100., 100., 50., 40., 40., 100., 100., 100., 100., 50., 40., 40.]
-      kd : [8., 8., 8., 3., 2., 2., 10., 8., 8., 8., 3., 2., 2.]
 
     hand_pos_task:
       weight : [0., 0., 0.]
@@ -144,9 +127,6 @@ wbc:
       weight_at_swing : [5000., 5000., 5000.]
       kp : [80., 80., 80.]
       kd : [4., 4., 4.]
-
-    foot_rf_task:
-      weight : [0., 0., 0., 1e-8, 1e-8, 5e-10] ## trq, force order
 
   contact:
     max_rf_z: 400.
@@ -181,9 +161,36 @@ state_machine:
       b_only_joint_pos_control: false
       wait_time: 2.
 
-    stand_up:
+    land:
       standup_duration: 1.
       target_com_height: 0.658
       target_base_height: 0.90
 
       rf_z_max_interp_duration: 0.1
+
+dcm_walking:
+  #t_additional_init_trans: 0.
+  #t_contact_trans: 0.45
+  #t_swing: 0.55
+  #percentage_settle: 0.9
+  #alpha_ds: 0.5
+
+  t_additional_init_trans: 0.4
+  t_contact_trans: 1.2
+  t_swing: 0.8
+  percentage_settle: 0.9
+  alpha_ds: 0.5
+
+  #t_additional_init_trans: 0.4
+  #t_contact_trans: 1.6
+  #t_swing: 0.8
+  #percentage_settle: 0.9
+  #alpha_ds: 0.5
+
+  nominal_footwidth: 0.2425
+  nominal_forward_step: 0.1
+  nominal_backward_step: -0.1
+  nominal_turn_radians: 0.3
+  nominal_strafe_distance: 0.05
+  n_steps: 1
+  first_swing_leg: 1 ## 0: left leg ## 1: right leg

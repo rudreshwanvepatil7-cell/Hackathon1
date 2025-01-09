@@ -7,7 +7,7 @@ class Config(object):
 
     INITIAL_BASE_JOINT_POS = [0, 0, 0.35]
     INITIAL_BASE_JOINT_QUAT = [0, 0, 0, 1]
-    INITIAL_CYLINDER_BASE_JOINT_POS = [-1., -1., 0.55]
+    INITIAL_CYLINDER_BASE_JOINT_POS = [-1.0, -1.0, 0.55]
     INITIAL_CYLINDER_BASE_JOINT_QUAT = [0.707, 0, 0, 0.707]
 
     PRINT_ROBOT_INFO = True
@@ -98,14 +98,14 @@ class crab_link_idx(object):
     back_left__foot_link = 71
 
 
-class crab_joint_idx(object): 
-    front_right__cluster_1_roll = 10        # this one shows up in rviz 
-    front_right__cluster_1_pitch = 11       # also shows up in rviz 
-    front_right__cluster_2_roll = 14        # this one shows up in rviz 
-    front_right__cluster_2_pitch = 15       # also shows up in rviz 
-    front_right__cluster_3_roll = 18        # this one shows up in rviz 
-    front_right__cluster_3_pitch = 19       # also shows up in rviz 
-    front_right__cluster_3_wrist = 21       # this one shows up in rviz 
+class crab_joint_idx(object):
+    front_right__cluster_1_roll = 10  # this one shows up in rviz
+    front_right__cluster_1_pitch = 11  # also shows up in rviz
+    front_right__cluster_2_roll = 14  # this one shows up in rviz
+    front_right__cluster_2_pitch = 15  # also shows up in rviz
+    front_right__cluster_3_roll = 18  # this one shows up in rviz
+    front_right__cluster_3_pitch = 19  # also shows up in rviz
+    front_right__cluster_3_wrist = 21  # this one shows up in rviz
     front_left__cluster_1_roll = 26
     front_left__cluster_1_pitch = 27
     front_left__cluster_2_roll = 30
@@ -132,12 +132,65 @@ class crab_joint_idx(object):
 class joint_gains(object):
     # kp = 5. * np.ones(27)
     # kd = 0. * np.ones(27)
-    kp = np.array([
-        10, 10, 10, 10, 10, 10, 10, 5, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10,
-        10, 10, 5, 5, 5, 5, 5, 5
-    ])
-    kd = np.array([
-        0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.001, 0.001, 0.001, 0.001,
-        0.001, 0.001, 0.01, 0.01, 0.001, 0.01, 0.01, 0.01, 0.01, 0.01, 0.001,
-        0.001, 0.001, 0.001, 0.001, 0.001
-    ])
+    kp = np.array(
+        [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            5,
+            5,
+            5,
+            5,
+            5,
+            5,
+        ]
+    )
+    kd = np.array(
+        [
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.01,
+            0.01,
+            0.001,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.01,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+            0.001,
+        ]
+    )

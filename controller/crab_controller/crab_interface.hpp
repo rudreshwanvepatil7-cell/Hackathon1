@@ -9,9 +9,9 @@
 class StateEstimator;
 class CrabStateProvider;
 
-class crabSensorData {
+class CrabSensorData {
 public:
-  crabSensorData()
+  CrabSensorData()
       : imu_frame_quat_(0, 0, 0, 1), imu_ang_vel_(Eigen::Vector3d::Zero()),
         imu_dvel_(Eigen::Vector3d::Zero()),
         imu_lin_acc_(Eigen::Vector3d::Zero()),
@@ -24,7 +24,7 @@ public:
         base_joint_quat_(0, 0, 0, 1),
         base_joint_lin_vel_(Eigen::Vector3d::Zero()),
         base_joint_ang_vel_(Eigen::Vector3d::Zero()) {};
-  virtual ~crabSensorData() = default;
+  virtual ~CrabSensorData() = default;
 
   Eigen::Vector4d imu_frame_quat_; // x, y, z, w order
   Eigen::Vector3d imu_ang_vel_;    // in world frame
@@ -48,23 +48,23 @@ public:
   Eigen::Vector3d base_joint_ang_vel_;
 };
 
-class crabCommand {
+class CrabCommand {
 public:
-  crabCommand()
+  CrabCommand()
       : joint_pos_cmd_(Eigen::VectorXd::Zero(crab::n_adof)),
         joint_vel_cmd_(Eigen::VectorXd::Zero(crab::n_adof)),
         joint_trq_cmd_(Eigen::VectorXd::Zero(crab::n_adof)) {};
-  virtual ~crabCommand() = default;
+  virtual ~CrabCommand() = default;
 
   Eigen::VectorXd joint_pos_cmd_;
   Eigen::VectorXd joint_vel_cmd_;
   Eigen::VectorXd joint_trq_cmd_;
 };
 
-class crabInterface : public Interface {
+class CrabInterface : public Interface {
 public:
-  crabInterface();
-  virtual ~crabInterface();
+  CrabInterface();
+  virtual ~CrabInterface();
 
   void GetCommand(void *sensor_data, void *command_data) override;
 
@@ -73,7 +73,7 @@ public:
 private:
   StateEstimator *se_;
   CrabStateProvider *sp_;
-  void _SafeCommand(crabSensorData *data, crabCommand *command);
+  void _SafeCommand(CrabSensorData *data, CrabCommand *command);
   void _SetParameters() override;
 
   // state estimator selection

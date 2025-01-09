@@ -18,25 +18,25 @@ constexpr int kExponentialSmoother = 1;
 constexpr int kLowPassFilter = 2;
 } // namespace com_vel_filter
 
-class DracoStateProvider;
+class CrabStateProvider;
 class SimpleMovingAverage;
 class ExponentialMovingAverageFilter;
 class LowPassVelocityFilter;
 
-class DracoStateEstimator : public StateEstimator {
+class CrabStateEstimator : public StateEstimator {
 public:
-  DracoStateEstimator(PinocchioRobotSystem *robot, const YAML::Node &cfg);
-  virtual ~DracoStateEstimator();
+  CrabStateEstimator(PinocchioRobotSystem *robot, const YAML::Node &cfg);
+  virtual ~CrabStateEstimator();
 
-  void Initialize(DracoSensorData *sensor_data) override;
-  void Update(DracoSensorData *sensor_data) override;
+  void Initialize(CrabSensorData *sensor_data) override;
+  void Update(CrabSensorData *sensor_data) override;
 
   // simulation only
-  void UpdateGroundTruthSensorData(DracoSensorData *sensor_data) override;
+  void UpdateGroundTruthSensorData(CrabSensorData *sensor_data) override;
 
 private:
   void _ComputeDCM();
-  DracoStateProvider *sp_;
+  CrabStateProvider *sp_;
 
   Eigen::Matrix3d R_imu_base_com_;
 

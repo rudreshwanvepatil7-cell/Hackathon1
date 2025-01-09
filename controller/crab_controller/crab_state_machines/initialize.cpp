@@ -77,7 +77,7 @@ void Initialize::SetParameters(const YAML::Node &node) {
                         end_time_);
     util::ReadParameter(node["state_machine"]["initialize"], "target_joint_pos",
                         target_joint_pos_);
-    sp_->nominal_jpos_ = target_joint_pos_; // set nominal jpos
+    //    sp_->nominal_jpos_ = target_joint_pos_; // set nominal jpos
     util::ReadParameter(node["state_machine"]["initialize"],
                         "b_only_joint_pos_control", b_stay_here_);
     util::ReadParameter(node["state_machine"]["initialize"], "wait_time",

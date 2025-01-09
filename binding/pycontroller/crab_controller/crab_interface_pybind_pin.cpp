@@ -25,36 +25,38 @@ PYBIND11_MODULE(crab_interface_py, m) {
       .def(py::init<>())
       .def("GetCommand", &Interface::GetCommand);
 
-  py::class_<crabInterface, Interface>(m, "crabInterface").def(py::init<>());
-  //.def_readwrite("interrupt_", &crabInterface::interrupt_handler_);
-
-  py::class_<crabSensorData>(m, "crabSensorData")
+  py::class_<CrabInterface, Interface>(m, "CrabInterface")
       .def(py::init<>())
-      .def_readwrite("imu_frame_quat_", &crabSensorData::imu_frame_quat_)
-      .def_readwrite("imu_ang_vel_", &crabSensorData::imu_ang_vel_)
-      .def_readwrite("joint_pos_", &crabSensorData::joint_pos_)
-      .def_readwrite("joint_vel_", &crabSensorData::joint_vel_)
-      .def_readwrite("b_FL_foot_contact_", &crabSensorData::b_FL_foot_contact_)
-      .def_readwrite("b_FR_foot_contact_", &crabSensorData::b_FR_foot_contact_)
-      .def_readwrite("b_RL_foot_contact_", &crabSensorData::b_RL_foot_contact_)
-      .def_readwrite("b_RR_foot_contact_", &crabSensorData::b_RR_foot_contact_)
-      .def_readwrite("FL_normal_force_", &crabSensorData::FL_normal_force_)
-      .def_readwrite("FR_normal_force_", &crabSensorData::FR_normal_force_)
-      .def_readwrite("RL_normal_force_", &crabSensorData::RL_normal_force_)
-      .def_readwrite("RR_normal_force_", &crabSensorData::RR_normal_force_)
-      .def_readwrite("imu_dvel_", &crabSensorData::imu_dvel_)
-      .def_readwrite("imu_lin_acc_", &crabSensorData::imu_lin_acc_)
+      .def_readwrite("interrupt_", &CrabInterface::interrupt_handler_);
+
+  py::class_<CrabSensorData>(m, "CrabSensorData")
+      .def(py::init<>())
+      .def_readwrite("imu_frame_quat_", &CrabSensorData::imu_frame_quat_)
+      .def_readwrite("imu_ang_vel_", &CrabSensorData::imu_ang_vel_)
+      .def_readwrite("joint_pos_", &CrabSensorData::joint_pos_)
+      .def_readwrite("joint_vel_", &CrabSensorData::joint_vel_)
+      .def_readwrite("b_FL_foot_contact_", &CrabSensorData::b_FL_foot_contact_)
+      .def_readwrite("b_FR_foot_contact_", &CrabSensorData::b_FR_foot_contact_)
+      .def_readwrite("b_RL_foot_contact_", &CrabSensorData::b_RL_foot_contact_)
+      .def_readwrite("b_RR_foot_contact_", &CrabSensorData::b_RR_foot_contact_)
+      .def_readwrite("FL_normal_force_", &CrabSensorData::FL_normal_force_)
+      .def_readwrite("FR_normal_force_", &CrabSensorData::FR_normal_force_)
+      .def_readwrite("RL_normal_force_", &CrabSensorData::RL_normal_force_)
+      .def_readwrite("RR_normal_force_", &CrabSensorData::RR_normal_force_)
+      .def_readwrite("imu_dvel_", &CrabSensorData::imu_dvel_)
+      .def_readwrite("imu_lin_acc_", &CrabSensorData::imu_lin_acc_)
 
       // Debug
-      .def_readwrite("base_joint_pos_", &crabSensorData::base_joint_pos_)
-      .def_readwrite("base_joint_quat_", &crabSensorData::base_joint_quat_)
-      .def_readwrite("base_joint_lin_vel_", &crabSensorData::base_joint_lin_vel_)
+      .def_readwrite("base_joint_pos_", &CrabSensorData::base_joint_pos_)
+      .def_readwrite("base_joint_quat_", &CrabSensorData::base_joint_quat_)
+      .def_readwrite("base_joint_lin_vel_",
+                     &CrabSensorData::base_joint_lin_vel_)
       .def_readwrite("base_joint_ang_vel_",
-                     &crabSensorData::base_joint_ang_vel_);
+                     &CrabSensorData::base_joint_ang_vel_);
 
-  py::class_<crabCommand>(m, "crabCommand")
+  py::class_<CrabCommand>(m, "CrabCommand")
       .def(py::init<>())
-      .def_readwrite("joint_pos_cmd_", &crabCommand::joint_pos_cmd_)
-      .def_readwrite("joint_vel_cmd_", &crabCommand::joint_vel_cmd_)
-      .def_readwrite("joint_trq_cmd_", &crabCommand::joint_trq_cmd_);
+      .def_readwrite("joint_pos_cmd_", &CrabCommand::joint_pos_cmd_)
+      .def_readwrite("joint_vel_cmd_", &CrabCommand::joint_vel_cmd_)
+      .def_readwrite("joint_trq_cmd_", &CrabCommand::joint_trq_cmd_);
 }

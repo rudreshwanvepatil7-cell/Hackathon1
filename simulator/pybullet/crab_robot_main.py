@@ -6,7 +6,7 @@ cwd = os.getcwd()
 sys.path.append(cwd)
 sys.path.append(cwd + "/build/lib")  # include pybind module
 
-from config.crab.sim.pybullet.wbic.pybullet_params import *
+from config.crab.sim.pybullet.ihwbc.pybullet_params import *
 from util.python_utils import pybullet_util
 from util.python_utils import util
 from util.python_utils import liegroup
@@ -15,20 +15,20 @@ import signal
 import shutil
 import cv2
 
-# import go2_interface_py 
-import crab_interface_py  
+# import go2_interface_py
+import crab_interface_py
 
-import pdb 
 
-# moved some functions to simulator.pybullet.crab_pybullet_fns 
+# moved some functions to simulator.pybullet.crab_pybullet_fns
 from simulator.pybullet.crab_pybullet_fns import *
 
-# ---------------------------------- 
-# sim functions 
-# ---------------------------------- 
+# ----------------------------------
+# sim functions
+# ----------------------------------
 
 if Config.MEASURE_COMPUTATION_TIME:
     from pytictoc import TicToc
+
 
 def signal_handler(signal, frame):
     if Config.MEASURE_COMPUTATION_TIME:
@@ -48,29 +48,29 @@ def signal_handler(signal, frame):
     pb.disconnect()
     sys.exit(0)
 
+
 signal.signal(signal.SIGINT, signal_handler)
 
-# ---------------------------------- 
-# main simulation loop 
-# ---------------------------------- 
+# ----------------------------------
+# main simulation loop
+# ----------------------------------
 
 if __name__ == "__main__":
-    
     ## connect pybullet sim server
     pb.connect(pb.GUI)
     pb.configureDebugVisualizer(pb.COV_ENABLE_GUI, 0)
 
-    base_pos = [0.0, -10.0, 10.0] 
+    base_pos = [0.0, -10.0, 10.0]
     pb.resetDebugVisualizerCamera(
-        cameraDistance          = 12.5,
-        cameraYaw               = 120,
-        cameraPitch             = -45,
-        cameraTargetPosition    = base_pos + np.array([0.5, 0.3, -base_pos[2] + 0.5]),
+        cameraDistance=12.5,
+        cameraYaw=120,
+        cameraPitch=-45,
+        cameraTargetPosition=base_pos + np.array([0.5, 0.3, -base_pos[2] + 0.5]),
     )
-    
+
     ## sim physics setting
     pb.setPhysicsEngineParameter(
-        fixedTimeStep = Config.CONTROLLER_DT, numSubSteps = Config.N_SUBSTEP
+        fixedTimeStep=Config.CONTROLLER_DT, numSubSteps=Config.N_SUBSTEP
     )
     pb.setGravity(0, 0, 0)
 
@@ -83,15 +83,17 @@ if __name__ == "__main__":
         base_pos,
         [0, 0, 0, 1],
         useFixedBase=False,
-    ) 
-    
+    )
+
     # Set the initial linear velocity
-    initial_linear_velocity  = [0.0, 0.25, -0.25]  # Example: 1 m/s along the x-axis
+    initial_linear_velocity = [0.0, 0.25, -0.25]  # Example: 1 m/s along the x-axis
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
-    pb.resetBaseVelocity(robot, 
-                         linearVelocity  = initial_linear_velocity, 
-                         angularVelocity = initial_angular_velocity)
+    pb.resetBaseVelocity(
+        robot,
+        linearVelocity=initial_linear_velocity,
+        angularVelocity=initial_angular_velocity,
+    )
 
     # cylinder_robot = pb.loadURDF(
     #     cwd + "/robot_model/cylinder.urdf",
@@ -116,7 +118,7 @@ if __name__ == "__main__":
     pb.resetBasePositionAndOrientation(plane, [0, 0, -100], [0, 0, 0, 1])
 
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
-    
+
     (
         n_q,
         n_v,
@@ -132,7 +134,7 @@ if __name__ == "__main__":
         Config.PRINT_ROBOT_INFO,
     )
     # robot initial config setting
-    set_init_config_pybullet_robot(robot) 
+    set_init_config_pybullet_robot(robot)
 
     # robot joint and link dynamics setting
     pybullet_util.set_joint_friction(robot, joint_id_dict, 0)
@@ -152,14 +154,14 @@ if __name__ == "__main__":
     )
 
     # TODO: pnc interface, sensor_data, command class
-    rpc_crab_interface = crab_interface_py.crabInterface()
-    rpc_crab_sensor_data = crab_interface_py.crabSensorData()
-    rpc_crab_command = crab_interface_py.crabCommand()
+    rpc_crab_interface = crab_interface_py.CrabInterface()
+    rpc_crab_sensor_data = crab_interface_py.CrabSensorData()
+    rpc_crab_command = crab_interface_py.CrabCommand()
 
     # Run Simulation
     dt = Config.CONTROLLER_DT
-    count = 0 
-    jpg_count = 0 
+    count = 0
+    jpg_count = 0
 
     ## simulation options
     if Config.MEASURE_COMPUTATION_TIME:
@@ -176,22 +178,21 @@ if __name__ == "__main__":
     previous_torso_velocity = np.array([0.0, 0.0, 0.0])
 
     while True:
-        
-        # ---------------------------------- 
+        # ----------------------------------
         # Moving Camera Setting
-        # ---------------------------------- 
-        
+        # ----------------------------------
+
         base_pos, base_ori = pb.getBasePositionAndOrientation(robot)
-        pb.resetDebugVisualizerCamera(cameraDistance=12.5,
-                                      cameraYaw=120,
-                                      cameraPitch=-45,
-                                      cameraTargetPosition=base_pos +
-                                      np.array([0.5, 0.3, -base_pos[2] + 0.5]))
-        
-        # ---------------------------------- 
-        # Debugging 
-        # ---------------------------------- 
-        
+        # pb.resetDebugVisualizerCamera(cameraDistance=12.5,
+        #                               cameraYaw=120,
+        #                               cameraPitch=-45,
+        #                               cameraTargetPosition=base_pos +
+        #                               np.array([0.5, 0.3, -base_pos[2] + 0.5]))
+
+        # ----------------------------------
+        # Debugging
+        # ----------------------------------
+
         base_com_pos, base_com_quat = pb.getBasePositionAndOrientation(robot)
         rot_world_basecom = util.quat_to_rot(base_com_quat)
         rot_world_basejoint = np.dot(
@@ -224,9 +225,9 @@ if __name__ == "__main__":
             augrot_world_basejoint, twist_basejoint_in_basejoint
         )
         base_joint_ang_vel = twist_basejoint_in_world[0:3]
-        base_joint_lin_vel = twist_basejoint_in_world[3:6] 
-        
-        # pdb.set_trace() 
+        base_joint_lin_vel = twist_basejoint_in_world[3:6]
+
+        # pdb.set_trace()
 
         # pass debugged data to rpc interface (for ground truth estimation)
         rpc_crab_sensor_data.base_joint_pos_ = base_joint_pos
@@ -234,18 +235,18 @@ if __name__ == "__main__":
         rpc_crab_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
         rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
 
-        # ---------------------------------- 
+        # ----------------------------------
         # Get Keyboard Event
-        # ---------------------------------- 
-        
+        # ----------------------------------
+
         keys = pb.getKeyboardEvents()
         if pybullet_util.is_key_triggered(keys, "1"):
             pass
 
-        # ---------------------------------- 
+        # ----------------------------------
         # Get Sensor Data
-        # ---------------------------------- 
-        
+        # ----------------------------------
+
         (
             imu_frame_quat,
             imu_ang_vel,
@@ -260,7 +261,9 @@ if __name__ == "__main__":
             FR_normal_force,
             RL_normal_force,
             RR_normal_force,
-        ) = get_sensor_data_from_pybullet(robot, previous_torso_velocity = previous_torso_velocity)
+        ) = get_sensor_data_from_pybullet(
+            robot, previous_torso_velocity=previous_torso_velocity
+        )
 
         ## copy sensor data to rpc sensor data class
         rpc_crab_sensor_data.imu_frame_quat_ = imu_frame_quat
@@ -277,11 +280,11 @@ if __name__ == "__main__":
         rpc_crab_sensor_data.FR_normal_force_ = FR_normal_force
         rpc_crab_sensor_data.RL_normal_force_ = RL_normal_force
         rpc_crab_sensor_data.RR_normal_force_ = RR_normal_force
-        
-        # ---------------------------------- 
+
+        # ----------------------------------
         # compute control command
-        # ---------------------------------- 
-        
+        # ----------------------------------
+
         if Config.MEASURE_COMPUTATION_TIME:
             timer.tic()
 
@@ -294,23 +297,25 @@ if __name__ == "__main__":
         # copy command data from rpc command class
         rpc_trq_command = rpc_crab_command.joint_trq_cmd_
         rpc_joint_pos_command = rpc_crab_command.joint_pos_cmd_
-        rpc_joint_vel_command = rpc_crab_command.joint_vel_cmd_ 
-        
-        rpc_trq_command = np.ones(28) * 0.15
-        # pdb.set_trace() 
+        rpc_joint_vel_command = rpc_crab_command.joint_vel_cmd_
+
+        # rpc_trq_command = np.ones(28) * 0.15
+        # pdb.set_trace()
 
         # apply command to pybullet robot
         apply_control_input_to_pybullet(robot, rpc_trq_command)
-        
-        # pdb.set_trace() 
+
+        # pdb.set_trace()
 
         # save current torso velocity for next iteration
-        previous_torso_velocity = pybullet_util.get_link_vel(robot, crab_link_idx.base_link)[3:6]
+        previous_torso_velocity = pybullet_util.get_link_vel(
+            robot, crab_link_idx.base_link
+        )[3:6]
 
-        # ---------------------------------- 
+        # ----------------------------------
         # Save Image file
-        # ---------------------------------- 
-        
+        # ----------------------------------
+
         if (Config.VIDEO_RECORD) and (count % Config.RECORD_FREQ == 0):
             camera_data = pb.getDebugVisualizerCamera()
             frame = pybullet_util.get_camera_image_from_debug_camera(
