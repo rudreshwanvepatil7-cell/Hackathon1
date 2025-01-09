@@ -18,7 +18,6 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   jpos_task_ = new JointTask(robot_);
   com_xy_task_ = new CrabCoMXYTask(robot_);
   com_z_task_ = new CrabCoMZTask(robot_);
-  // TODO write correct names for corresponding crab link names
   torso_ori_task_ = new LinkOriTask(robot_, crab_link::base_link);
   lf_pos_task_ = new LinkPosTask(robot_, crab_link::back_left__foot_link);
   rf_pos_task_ = new LinkPosTask(robot_, crab_link::back_right__foot_link);
@@ -47,7 +46,7 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   task_unweighted_cost_map_.clear();
   task_unweighted_cost_map_.insert(std::make_pair("joint_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
-  //  task_unweighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
+  task_unweighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("lf_pos_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("rf_pos_task", NAN));
@@ -60,7 +59,7 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   task_weighted_cost_map_.clear();
   task_weighted_cost_map_.insert(std::make_pair("joint_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
-  //  task_weighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
+  task_weighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("lf_pos_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("rf_pos_task", NAN));

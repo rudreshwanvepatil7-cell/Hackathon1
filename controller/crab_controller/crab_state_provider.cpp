@@ -10,7 +10,7 @@ CrabStateProvider *CrabStateProvider::GetStateProvider() {
 CrabStateProvider::CrabStateProvider() {
   util::PrettyConstructor(1, "CrabStateProvider");
 
-  servo_dt_ = 0.00125;
+  servo_dt_ = 0.001;
   data_save_freq_ = 1;
 
   count_ = 0;
@@ -21,8 +21,8 @@ CrabStateProvider::CrabStateProvider() {
 
   rot_world_local_ = Eigen::Matrix3d::Identity();
 
-  b_lf_contact_ = true;
-  b_rf_contact_ = true;
+  b_lf_contact_ = false;
+  b_rf_contact_ = false;
   b_request_change_swing_leg_ = false;
   b_swing_leg_ = end_effector::LFoot;
 

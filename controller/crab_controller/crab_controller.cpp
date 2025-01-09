@@ -134,6 +134,8 @@ void CrabController::GetCommand(void *command) {
     joint_pos_cmd_ = tci_container_->task_map_["joint_task"]->DesiredPos();
     joint_vel_cmd_ = tci_container_->task_map_["joint_task"]->DesiredVel();
     joint_trq_cmd_ = Eigen::VectorXd::Zero(crab::n_adof);
+    std::cout << "[Crab Controller::GetCommand] joint_pos_cmd_: "
+              << joint_pos_cmd_.transpose() << std::endl;
   } else {
     // first visit for feedforward torque command
     if (b_first_visit_wbc_ctrl_) {
@@ -167,8 +169,8 @@ void CrabController::GetCommand(void *command) {
     for (const auto &[task_name, task_ptr] : tci_container_->task_map_) {
       task_ptr->UpdateJacobian();
       task_ptr->UpdateJacobianDotQdot();
-      //      task_ptr->UpdateOpCommand();
-      task_ptr->UpdateOpCommand(sp_->rot_world_local_); // for ihwbc
+      task_ptr->UpdateOpCommand();
+      //      task_ptr->UpdateOpCommand(sp_->rot_world_local_); // for ihwbc
 
       // if (task_name == "torso_ori_task" || task_name == "lf_ori_task" ||
       // task_name == "rf_ori_task")
@@ -231,12 +233,12 @@ void CrabController::GetCommand(void *command) {
     Eigen::MatrixXd Minv = robot_->GetMassMatrixInverse();
     Eigen::VectorXd cori = robot_->GetCoriolis();
     Eigen::VectorXd grav = robot_->GetGravity();
-    std::cout << "[Crab Controller::GetCommand] updated Minv:" << Minv
-              << std::endl;
-    std::cout << "[Crab Controller::GetCommand] updated cori:" << cori
-              << std::endl;
-    std::cout << "[Crab Controller::GetCommand] updated grav:" << grav
-              << std::endl;
+    std::cout << "[Crab Controller::GetCommand] updated Minv:" << std::endl
+              << Minv << std::endl;
+    std::cout << "[Crab Controller::GetCommand] updated cori:" << std::endl
+              << cori.transpose() << std::endl;
+    std::cout << "[Crab Controller::GetCommand] updated grav:" << std::endl
+              << grav.transpose() << std::endl;
 
     // TODO: clean up this
     if (ihwbc_ != nullptr) {

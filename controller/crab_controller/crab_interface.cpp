@@ -51,8 +51,8 @@ CrabInterface::CrabInterface() : Interface() {
     ctrl_arch_ = new CrabControlArchitecture(robot_, cfg_);
     //    interrupt_handler_ = new crabInterruptHandler(
     //        static_cast<CrabControlArchitecture *>(ctrl_arch_));
-    //    task_gain_handler_ = new CrabTaskGainHandler(
-    //        static_cast<CrabControlArchitecture *>(ctrl_arch_));
+    task_gain_handler_ = new CrabTaskGainHandler(
+        static_cast<CrabControlArchitecture *>(ctrl_arch_));
   }
   //  else if (wbc_type_ == "wbic") {
   //    ctrl_arch_ = new CrabControlArchitecture_WBIC(robot_, cfg_);
@@ -70,7 +70,7 @@ CrabInterface::~CrabInterface() {
   delete se_;
   delete ctrl_arch_;
   // delete interrupt_handler_;
-  // delete task_gain_handler_;
+  delete task_gain_handler_;
 }
 
 void CrabInterface::GetCommand(void *sensor_data, void *command_data) {
@@ -91,10 +91,10 @@ void CrabInterface::GetCommand(void *sensor_data, void *command_data) {
   }
 
   // process interrupt & task gains
-  // if (interrupt_handler_->IsSignalReceived())
-  // interrupt_handler_->Process();
-  // if (task_gain_handler_->IsSignalReceived())
-  // task_gain_handler_->Process();
+  //   if (interrupt_handler_->IsSignalReceived())
+  //   interrupt_handler_->Process();
+  if (task_gain_handler_->IsSignalReceived())
+    task_gain_handler_->Process();
 
   // get control command
   ctrl_arch_->GetCommand(crab_command);
@@ -139,15 +139,10 @@ void CrabInterface::_SetParameters() {
     if (test_env_name == "mujoco") {
       if (wbc_type_ == "ihwbc")
         cfg_ = YAML::LoadFile(THIS_COM "config/crab/sim/mujoco/ihwbc/pnc.yaml");
-      else if (wbc_type_ == "wbic")
-        cfg_ = YAML::LoadFile(THIS_COM "config/crab/sim/mujoco/wbic/pnc.yaml");
     } else if (test_env_name == "pybullet") {
       if (wbc_type_ == "ihwbc")
         cfg_ =
             YAML::LoadFile(THIS_COM "config/crab/sim/pybullet/ihwbc/pnc.yaml");
-      if (wbc_type_ == "wbic")
-        cfg_ =
-            YAML::LoadFile(THIS_COM "config/crab/sim/pybullet/wbic/pnc.yaml");
     } else if (test_env_name == "hw") {
       if (wbc_type_ == "ihwbc")
         cfg_ = YAML::LoadFile(THIS_COM "config/crab/hw/ihwbc/pnc.yaml");

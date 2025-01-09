@@ -27,8 +27,10 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
   // set starting state
   std::string test_env_name = util::ReadParameter<std::string>(cfg, "env");
   if (test_env_name == "pybullet") {
-    prev_loco_state_ = crab_states::kLand;
-    loco_state_ = crab_states::kLand;
+    prev_loco_state_ = crab_states::kInitialize;
+    loco_state_ = crab_states::kInitialize;
+    //    prev_loco_state_ = crab_states::kLand;
+    //    loco_state_ = crab_states::kLand;
   } else {
     // mujoco & hw
     prev_loco_state_ = crab_states::kInitialize;

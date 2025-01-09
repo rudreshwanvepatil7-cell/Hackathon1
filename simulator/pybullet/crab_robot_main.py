@@ -60,7 +60,8 @@ if __name__ == "__main__":
     pb.connect(pb.GUI)
     pb.configureDebugVisualizer(pb.COV_ENABLE_GUI, 0)
 
-    base_pos = [0.0, -10.0, 10.0]
+    # base_pos = [0.0, -10.0, 10.0]
+    base_pos = Config.INITIAL_BASE_JOINT_POS
     pb.resetDebugVisualizerCamera(
         cameraDistance=12.5,
         cameraYaw=120,
@@ -86,7 +87,8 @@ if __name__ == "__main__":
     )
 
     # Set the initial linear velocity
-    initial_linear_velocity = [0.0, 0.25, -0.25]  # Example: 1 m/s along the x-axis
+    # initial_linear_velocity = [0.0, 0.25, -0.25]  # Example: 1 m/s along the x-axis
+    initial_linear_velocity = [0.0, 0.0, 0.0]  # zero initial linear velocity
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
     pb.resetBaseVelocity(
@@ -108,14 +110,14 @@ if __name__ == "__main__":
         useFixedBase=False,
     )
 
-    # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
+    ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
     # Create a large black plane to simulate a black background
-    plane_shape = pb.createCollisionShape(pb.GEOM_PLANE)
-    plane_visual = pb.createVisualShape(pb.GEOM_PLANE, rgbaColor=[0, 0, 0, 1])
-    plane = pb.createMultiBody(0, plane_shape, plane_visual)
+    # plane_shape = pb.createCollisionShape(pb.GEOM_PLANE)
+    # plane_visual = pb.createVisualShape(pb.GEOM_PLANE, rgbaColor=[0, 0, 0, 1])
+    # plane = pb.createMultiBody(0, plane_shape, plane_visual)
 
     # Position the plane far away to act as a background
-    pb.resetBasePositionAndOrientation(plane, [0, 0, -100], [0, 0, 0, 1])
+    # pb.resetBasePositionAndOrientation(plane, [0, 0, -100], [0, 0, 0, 1])
 
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
 
