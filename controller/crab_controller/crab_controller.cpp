@@ -259,7 +259,6 @@ void CrabController::GetCommand(void *command) {
                                    joint_vel_cmd_);
     }
   }
-
   if (b_smoothing_command_) {
     // do smoothing command, only for real experiment
     double s =
@@ -326,20 +325,11 @@ void CrabController::_SaveData() {
       tci_container_->task_map_["lf_ori_task"]->Rot().transpose();
   rot.bottomRightCorner<3, 3>() =
       tci_container_->task_map_["lf_ori_task"]->Rot().transpose();
-  if (ihwbc_ != nullptr)
-    dm->data_->lfoot_rf_cmd_ =
-        rot * tci_container_->force_task_map_["lf_force_task"]
-                  ->CmdRf(); // global quantity
 
   rot.topLeftCorner<3, 3>() =
       tci_container_->task_map_["rf_ori_task"]->Rot().transpose();
   rot.bottomRightCorner<3, 3>() =
       tci_container_->task_map_["rf_ori_task"]->Rot().transpose();
-  if (ihwbc_ != nullptr) {
-    dm->data_->rfoot_rf_cmd_ =
-        rot * tci_container_->force_task_map_["rf_force_task"]
-                  ->CmdRf(); // global quantity
-  }
 
   // IHWBC task weight, kp, kd, ki for plotting
   // TODO:clean up this
