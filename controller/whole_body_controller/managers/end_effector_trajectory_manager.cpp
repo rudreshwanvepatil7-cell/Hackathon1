@@ -38,8 +38,6 @@ void EndEffectorTrajectoryManager::UseCurrent() {
 
   pos_task_->UpdateDesired(des_pos, des_vel, des_acc);
   ori_task_->UpdateDesired(des_ori, des_ang_vel, des_acc);
-  std::cout << "[EE Traj Mgr] UseCurrent " << pos_task_->TargetIdx()
-            << " position: " << des_pos.transpose() << std::endl;
 }
 
 void EndEffectorTrajectoryManager::UseNominal(

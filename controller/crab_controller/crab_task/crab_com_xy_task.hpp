@@ -12,8 +12,6 @@ class CrabStateProvider;
 class ExponentialMovingAverageFilter;
 class FirstOrderLowPassFilter;
 
-constexpr double kGravAcc = 9.81;
-
 namespace feedback_source {
 constexpr int kCoMFeedback = 0;
 } // namespace feedback_source

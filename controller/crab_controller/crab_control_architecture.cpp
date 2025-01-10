@@ -27,10 +27,10 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
   // set starting state
   std::string test_env_name = util::ReadParameter<std::string>(cfg, "env");
   if (test_env_name == "pybullet") {
-    prev_loco_state_ = crab_states::kInitialize;
-    loco_state_ = crab_states::kInitialize;
-    //    prev_loco_state_ = crab_states::kLand;
-    //    loco_state_ = crab_states::kLand;
+    //    prev_loco_state_ = crab_states::kInitialize;
+    //    loco_state_ = crab_states::kInitialize;
+    prev_loco_state_ = crab_states::kLand;
+    loco_state_ = crab_states::kLand;
   } else {
     // mujoco & hw
     prev_loco_state_ = crab_states::kInitialize;
@@ -47,10 +47,10 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
   // trajectory Managers
   //=============================================================
   //  initialize kinematics manager
-  floating_base_tm_ = new FloatingBaseTrajectoryManager(
-      tci_container_->task_map_["com_xy_task"],
-      tci_container_->task_map_["com_z_task"],
-      tci_container_->task_map_["torso_ori_task"], robot_);
+  //  floating_base_tm_ = new FloatingBaseTrajectoryManager(
+  //      tci_container_->task_map_["com_xy_task"],
+  //      tci_container_->task_map_["com_z_task"],
+  //      tci_container_->task_map_["torso_ori_task"], robot_);
 
   lf_SE3_tm_ = new EndEffectorTrajectoryManager(
       tci_container_->task_map_["lf_pos_task"],
@@ -58,10 +58,10 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
   rf_SE3_tm_ = new EndEffectorTrajectoryManager(
       tci_container_->task_map_["rf_pos_task"],
       tci_container_->task_map_["rf_ori_task"], robot_);
-  lh_SE3_tm_ = new HandTrajectoryManager(
+  lh_SE3_tm_ = new EndEffectorTrajectoryManager(
       tci_container_->task_map_["lh_pos_task"],
       tci_container_->task_map_["lh_ori_task"], robot_);
-  rh_SE3_tm_ = new HandTrajectoryManager(
+  rh_SE3_tm_ = new EndEffectorTrajectoryManager(
       tci_container_->task_map_["rh_pos_task"],
       tci_container_->task_map_["rh_ori_task"], robot_);
 
@@ -175,7 +175,7 @@ CrabControlArchitecture::~CrabControlArchitecture() {
   delete controller_;
 
   // tm
-  delete floating_base_tm_;
+  //  delete floating_base_tm_;
   delete lf_SE3_tm_;
   delete rf_SE3_tm_;
 
@@ -198,8 +198,6 @@ void CrabControlArchitecture::GetCommand(void *command) {
   if (b_loco_state_first_visit_) {
     locomotion_state_machine_container_[loco_state_]->FirstVisit();
     b_loco_state_first_visit_ = false;
-    std::cout << "[Crab Control Architecture] GetCommand first visit"
-              << std::endl;
   }
 
 #if B_USE_FOXGLOVE
@@ -208,10 +206,8 @@ void CrabControlArchitecture::GetCommand(void *command) {
 
   // desired trajectory update in state machine
   locomotion_state_machine_container_[loco_state_]->OneStep();
-  std::cout << "[Crab Control Architecture] GetCommand one step" << std::endl;
   // get control command
   controller_->GetCommand(command);
-  std::cout << "[Crab Control Architecture] GetCommand controller" << std::endl;
 
   if (locomotion_state_machine_container_[loco_state_]->EndOfState()) {
     locomotion_state_machine_container_[loco_state_]->LastVisit();

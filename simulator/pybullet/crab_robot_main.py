@@ -87,8 +87,7 @@ if __name__ == "__main__":
     )
 
     # Set the initial linear velocity
-    # initial_linear_velocity = [0.0, 0.25, -0.25]  # Example: 1 m/s along the x-axis
-    initial_linear_velocity = [0.0, 0.0, 0.0]  # zero initial linear velocity
+    initial_linear_velocity = [0.0, 0.25, -0.25]  # Example: 1 m/s along the x-axis
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
     pb.resetBaseVelocity(

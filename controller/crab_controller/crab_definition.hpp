@@ -111,6 +111,6 @@ constexpr int front_right__cluster_3_wrist = 28;
 } // namespace crab_joint
 
 namespace crab {
-constexpr int n_qdot = 18;
+constexpr int n_qdot = 34;
 constexpr int n_adof = 28;
 } // namespace crab

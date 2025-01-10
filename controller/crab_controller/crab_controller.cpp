@@ -134,15 +134,11 @@ void CrabController::GetCommand(void *command) {
     joint_pos_cmd_ = tci_container_->task_map_["joint_task"]->DesiredPos();
     joint_vel_cmd_ = tci_container_->task_map_["joint_task"]->DesiredVel();
     joint_trq_cmd_ = Eigen::VectorXd::Zero(crab::n_adof);
-    std::cout << "[Crab Controller::GetCommand] joint_pos_cmd_: "
-              << joint_pos_cmd_.transpose() << std::endl;
   } else {
     // first visit for feedforward torque command
     if (b_first_visit_wbc_ctrl_) {
       // initial joint pos
       init_joint_pos_ = robot_->GetJointPos();
-      std::cout << "[Crab Controller::GetCommand] init_joint_pos_: "
-                << init_joint_pos_.transpose() << std::endl;
 
       //===========================================
       // TODO:ihwbc joint integrator
@@ -152,9 +148,6 @@ void CrabController::GetCommand(void *command) {
                                       Eigen::VectorXd::Zero(crab::n_adof));
         // erase jpos task
         tci_container_->task_map_.erase("joint_task");
-        std::cout
-            << "[Crab Controller::GetCommand] joint_task erased from task map"
-            << std::endl;
       }
 
       // for smoothing command
@@ -177,8 +170,6 @@ void CrabController::GetCommand(void *command) {
       // task_ptr->UpdateOpCommand();
       // else
       // task_ptr->UpdateOpCommand(sp_->rot_world_local_);
-      std::cout << "[Crab Controller::GetCommand] updated task: " << task_name
-                << std::endl;
     }
 
     // modified jacobian for swing legs
@@ -187,9 +178,6 @@ void CrabController::GetCommand(void *command) {
           sp_->floating_base_jidx_);
       tci_container_->task_map_["lf_ori_task"]->ModifyJacobian(
           sp_->floating_base_jidx_);
-      std::cout
-          << "[Crab Controller::GetCommand] modified jacobian for LF swing legs"
-          << std::endl;
     }
 
     if (b_use_modified_swing_foot_jac_ && !sp_->b_rf_contact_) {
@@ -197,9 +185,6 @@ void CrabController::GetCommand(void *command) {
           sp_->floating_base_jidx_);
       tci_container_->task_map_["rf_ori_task"]->ModifyJacobian(
           sp_->floating_base_jidx_);
-      std::cout
-          << "[Crab Controller::GetCommand] modified jacobian for RF swing legs"
-          << std::endl;
     }
 
     // modified jacobian for hands
@@ -212,8 +197,6 @@ void CrabController::GetCommand(void *command) {
           sp_->floating_base_jidx_);
       tci_container_->task_map_["rh_ori_task"]->ModifyJacobian(
           sp_->floating_base_jidx_);
-      std::cout << "[Crab Controller::GetCommand] modified jacobian for hands"
-                << std::endl;
     }
 
     for (const auto &[contact_str, contact_ptr] :
@@ -222,8 +205,6 @@ void CrabController::GetCommand(void *command) {
       contact_ptr->UpdateJacobianDotQdot();
       contact_ptr->UpdateConeConstraint();
       contact_ptr->UpdateOpCommand(); // update desired contact acc
-      std::cout << "[Crab Controller::GetCommand] updated contact map"
-                << std::endl;
     }
 
     // force task not iterated b/c not depending on q or qdot
@@ -233,12 +214,6 @@ void CrabController::GetCommand(void *command) {
     Eigen::MatrixXd Minv = robot_->GetMassMatrixInverse();
     Eigen::VectorXd cori = robot_->GetCoriolis();
     Eigen::VectorXd grav = robot_->GetGravity();
-    std::cout << "[Crab Controller::GetCommand] updated Minv:" << std::endl
-              << Minv << std::endl;
-    std::cout << "[Crab Controller::GetCommand] updated cori:" << std::endl
-              << cori.transpose() << std::endl;
-    std::cout << "[Crab Controller::GetCommand] updated grav:" << std::endl
-              << grav.transpose() << std::endl;
 
     // TODO: clean up this
     if (ihwbc_ != nullptr) {
@@ -249,7 +224,6 @@ void CrabController::GetCommand(void *command) {
           tci_container_->internal_constraint_map_,
           tci_container_->force_task_map_, wbc_qddot_cmd_,
           joint_trq_cmd_); // joint_trq_cmd_ size: 28
-      std::cout << "[Crab Controller::GetCommand] solved ihwbc" << std::endl;
 
       // joint integrator for real experiment
       Eigen::VectorXd joint_acc_cmd =
@@ -300,16 +274,16 @@ void CrabController::_SaveData() {
   CrabDataManager *dm = CrabDataManager::GetDataManager();
 
   // task data for meshcat visualize
-  dm->data_->des_com_pos_.head<2>() =
-      tci_container_->task_map_["com_xy_task"]->DesiredPos();
-  dm->data_->des_com_pos_.tail<1>() =
-      tci_container_->task_map_["com_z_task"]
-          ->DesiredPos(); // notice if this is base height
-  dm->data_->act_com_pos_.head<2>() =
-      tci_container_->task_map_["com_xy_task"]->CurrentPos();
-  dm->data_->act_com_pos_.tail<1>() =
-      tci_container_->task_map_["com_z_task"]
-          ->CurrentPos(); // notice if this is base height
+  //  dm->data_->des_com_pos_.head<2>() =
+  //      tci_container_->task_map_["com_xy_task"]->DesiredPos();
+  //  dm->data_->des_com_pos_.tail<1>() =
+  //      tci_container_->task_map_["com_z_task"]
+  //          ->DesiredPos(); // notice if this is base height
+  //  dm->data_->act_com_pos_.head<2>() =
+  //      tci_container_->task_map_["com_xy_task"]->CurrentPos();
+  //  dm->data_->act_com_pos_.tail<1>() =
+  //      tci_container_->task_map_["com_z_task"]
+  //          ->CurrentPos(); // notice if this is base height
 
   dm->data_->lfoot_pos_ =
       tci_container_->task_map_["lf_pos_task"]->CurrentPos();
@@ -334,21 +308,24 @@ void CrabController::_SaveData() {
   // IHWBC task weight, kp, kd, ki for plotting
   // TODO:clean up this
   if (ihwbc_ != nullptr) {
-    dm->data_->com_xy_weight =
-        tci_container_->task_map_["com_xy_task"]->Weight();
-    dm->data_->com_xy_kp = tci_container_->task_map_["com_xy_task"]->Kp();
-    dm->data_->com_xy_kd = tci_container_->task_map_["com_xy_task"]->Kd();
-    dm->data_->com_xy_ki = tci_container_->task_map_["com_xy_task"]->Ki();
-
-    dm->data_->com_z_weight =
-        tci_container_->task_map_["com_z_task"]->Weight()[0];
-    dm->data_->com_z_kp = tci_container_->task_map_["com_z_task"]->Kp()[0];
-    dm->data_->com_z_kd = tci_container_->task_map_["com_z_task"]->Kd()[0];
-
-    dm->data_->torso_ori_weight =
-        tci_container_->task_map_["torso_ori_task"]->Weight();
-    dm->data_->torso_ori_kp = tci_container_->task_map_["torso_ori_task"]->Kp();
-    dm->data_->torso_ori_kd = tci_container_->task_map_["torso_ori_task"]->Kd();
+    //    dm->data_->com_xy_weight =
+    //        tci_container_->task_map_["com_xy_task"]->Weight();
+    //    dm->data_->com_xy_kp = tci_container_->task_map_["com_xy_task"]->Kp();
+    //    dm->data_->com_xy_kd = tci_container_->task_map_["com_xy_task"]->Kd();
+    //    dm->data_->com_xy_ki = tci_container_->task_map_["com_xy_task"]->Ki();
+    //
+    //    dm->data_->com_z_weight =
+    //        tci_container_->task_map_["com_z_task"]->Weight()[0];
+    //    dm->data_->com_z_kp =
+    //    tci_container_->task_map_["com_z_task"]->Kp()[0]; dm->data_->com_z_kd
+    //    = tci_container_->task_map_["com_z_task"]->Kd()[0];
+    //
+    //    dm->data_->torso_ori_weight =
+    //        tci_container_->task_map_["torso_ori_task"]->Weight();
+    //    dm->data_->torso_ori_kp =
+    //    tci_container_->task_map_["torso_ori_task"]->Kp();
+    //    dm->data_->torso_ori_kd =
+    //    tci_container_->task_map_["torso_ori_task"]->Kd();
 
     dm->data_->lf_pos_weight =
         tci_container_->task_map_["lf_pos_task"]->Weight();
