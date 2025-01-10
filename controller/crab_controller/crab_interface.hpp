@@ -5,8 +5,10 @@
 
 #include "controller/crab_controller/crab_definition.hpp"
 #include "controller/interface.hpp"
+#include "crab_task_gain_handler.hpp"
 
 class StateEstimator;
+class CrabStateProvider;
 
 class CrabSensorData {
  public:
@@ -73,11 +75,11 @@ class CrabInterface : public Interface {
 
   void GetCommand(void *sensor_data, void *command_data) override;
 
-  // CrabTaskGainHandler *task_gain_handler_;
+  CrabTaskGainHandler *task_gain_handler_;
 
  private:
   StateEstimator *se_;
-  // CrabStateProvider *sp_;
+  CrabStateProvider *sp_;
   void _SafeCommand(CrabSensorData *data, CrabCommand *command);
   void _SetParameters() override;
 

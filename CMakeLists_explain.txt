@@ -1,0 +1,231 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(rpc)
+
+##==================================================
+## CMake Flags
+##==================================================
+
+# Set the C++ standard to C++17
+set(CMAKE_CXX_STANDARD 17)
+
+# Enable compiler-specific extensions
+set(CMAKE_CXX_EXTENSIONS on)
+
+# Add the -fPIC compile option to generate position-independent code
+add_compile_options(-fPIC)
+
+# Append the cmake directory in the source directory to the module path
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+# Append the build/Release/generators/ directory in the source directory to the prefix path
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/build/Release/generators/")
+
+# Set the output directory for runtime binaries to bin inside the binary directory
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# Set the output directory for libraries to lib inside the binary directory
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+##==================================================
+## Build Setup
+##================================================== 
+
+# Set the installation directory for libraries
+set(INSTALL_LIB_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+
+# Set the installation directory for binaries
+set(INSTALL_BIN_DIR ${CMAKE_INSTALL_PREFIX}/bin)
+
+# Set the installation directory for header files
+set(INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME})
+
+# Define an option to enable or disable Python bindings using pybind11 (enabled by default)
+option(PYTHON_BINDING "use pybind11" ON)
+
+# Define an option to enable or disable building with the PINOCCHIO library (enabled by default)
+option(BUILD_WITH_PINOCCHIO "compile with PINOCCHIO" ON)
+
+# Define an option to enable or disable building with the mujoco library (enabled by default)
+
+option(BUILD_WITH_MUJOCO "compile with mujoco" ON)
+# Define an option to enable or disable building with the DART library (disabled by default)
+
+option(BUILD_WITH_DART "compile with DART" OFF)
+
+# Define an option to enable or disable building with the ProxQP library (disabled by default)
+option(BUILD_WITH_PROXQP "compile with ProxQP" OFF)
+
+# Define an option to enable or disable building with the MatLogger2 library (disabled by default)
+option(BUILD_WITH_MATLOGGER "compile with MatLogger2" OFF)
+
+# Define an option to enable or disable building with zmq and protobuf libraries (disabled by default)
+option(BUILD_WITH_ZMQ_PROTOBUF "compile with zmq and protobuf" OFF)
+
+# Define an option to enable or disable building with the foxglove library (disabled by default)
+option(BUILD_WITH_FOXGLOVE "compile with foxglove" OFF)
+
+# Define an option to enable or disable building with the teleop library (disabled by default)
+option(BUILD_WITH_TELEOP "compile with teleop" OFF)
+
+# Define an option to enable or disable building with the HPIPM library (disabled by default)
+option(BUILD_WITH_HPIPM "compile with HPIPM" OFF)
+
+# Define an option to enable or disable building with Google Test (disabled by default)
+option(BUILD_WITH_GTESTS "build google tests" OFF)
+
+# Set the default build type to Release if no build type is specified
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug | Release | RelWithDebInfo | MinSizeRel" FORCE)
+endif()
+
+##==================================================
+## Include Directory
+##==================================================
+
+# Add the project source directory to the include path
+include_directories("${PROJECT_SOURCE_DIR}")
+
+# Add the build directory in the project source directory to the include path
+include_directories("${PROJECT_SOURCE_DIR}/build")
+
+##==================================================
+## Dependency
+##==================================================
+
+# ProxQP
+if(BUILD_WITH_PROXQP)
+    # Find the proxsuite package if BUILD_WITH_PROXQP is enabled
+    find_package(proxsuite REQUIRED)
+endif()
+
+# pybind11
+if(PYTHON_BINDING)
+    # Find the pybind11 package, add its include directories, and add the binding subdirectory if PYTHON_BINDING is enabled
+    find_package(pybind11 REQUIRED)
+    include_directories(${pybind11_INCLUDE_DIRS})
+    add_subdirectory(binding)
+endif()
+
+# Pinocchio
+if(BUILD_WITH_PINOCCHIO)
+    # Find the pinocchio package and add its include directories if BUILD_WITH_PINOCCHIO is enabled
+    find_package(pinocchio)
+    include_directories(${pinocchio_INCLUDE_DIRS})
+endif()
+
+# Mujoco
+if(BUILD_WITH_MUJOCO)
+    # Find the Threads and glfw3 packages, locate the mujoco library, and add their include directories if BUILD_WITH_MUJOCO is enabled
+    find_package(Threads REQUIRED)
+    find_package(glfw3 REQUIRED)
+    find_library(mujoco_LIBRARIES mujoco HINTS ${CMAKE_SOURCE_DIR}/mujoco/lib)
+    include_directories(${glfw3_INCLUDE_DIRS})
+    include_directories(mujoco/include)
+endif()
+
+# DART
+if(BUILD_WITH_DART)
+    # Find the DART package and add its include directories if BUILD_WITH_DART is enabled
+    find_package(DART 6.10 REQUIRED COMPONENTS utils-urdf gui-osg CONFIG)
+    include_directories(${DART_INCLUDE_DIRS})
+endif()
+
+# Eigen
+# Find the Eigen package and add its include directories
+find_package(Eigen 3.3 REQUIRED)
+include_directories(${EIGEN_INCLUDE_DIRS})
+
+# MatLogger2
+if(BUILD_WITH_MATLOGGER)
+    # Find the matlogger2 package and set a flag if BUILD_WITH_MATLOGGER is enabled
+    find_package(matlogger2 REQUIRED)
+    set(B_USE_MATLOGGER true)
+else()
+    set(B_USE_MATLOGGER false)
+endif()
+
+# Protobuf & ZMQ
+if (BUILD_WITH_ZMQ_PROTOBUF OR BUILD_WITH_TELEOP)
+    # Find the ZMQ and Protobuf packages, add their include directories, and add the messages subdirectory if BUILD_WITH_ZMQ_PROTOBUF or BUILD_WITH_TELEOP is enabled
+    find_package(ZMQ REQUIRED)
+    find_package(Protobuf REQUIRED)
+    if(Protobuf_FOUND AND ZMQ_FOUND)
+        include_directories(${Protobuf_INCLUDE_DIRS})
+        include_directories(${ZMQ_INCLUDE_DIRS})
+        add_subdirectory(messages)
+    endif()
+    set(B_USE_ZMQ true)
+else()
+    set(B_USE_ZMQ false)
+endif()
+
+# Teleop
+if (BUILD_WITH_TELEOP)
+    # Set a flag if BUILD_WITH_TELEOP is enabled
+    set(B_USE_TELEOP true)
+else()
+    set(B_USE_TELEOP false)
+endif()
+
+# hpipm-cpp
+if (BUILD_WITH_HPIPM)
+    # Find the hpipm-cpp package and set a flag if BUILD_WITH_HPIPM is enabled
+    find_package(hpipm-cpp REQUIRED)
+    set(B_USE_HPIPM true)
+else()
+    set(B_USE_HPIPM false)
+endif()
+
+# Boost
+# Uncomment these lines to find the Boost package and add its include directories
+# find_package(Boost QUIET REQUIRED COMPONENTS system thread filesystem)
+# include_directories(${Boost_INCLUDE_DIRS})
+
+# Foxglove for UI
+if(BUILD_WITH_FOXGLOVE)
+    # Find the foxglove-schemas-protobuf, foxglove-websocket, and Boost packages, and set a flag if BUILD_WITH_FOXGLOVE is enabled
+    find_package(foxglove-schemas-protobuf REQUIRED)
+    find_package(foxglove-websocket REQUIRED)
+    find_package(Boost COMPONENTS program_options REQUIRED)
+
+    # Print a warning if BUILD_WITH_ZMQ_PROTOBUF is not enabled
+    if (NOT BUILD_WITH_ZMQ_PROTOBUF)
+        message("\n*** WARNING ***\nPLEASE ENABLE ZMQ/PROTOBUF -- needed dependencies\n")
+    endif ()
+    set(B_USE_FOXGLOVE true)
+else()
+    set(B_USE_FOXGLOVE false)
+endif()
+
+##==================================================
+## Subdirectories
+##==================================================
+
+# Add various subdirectories to the build
+add_subdirectory(controller)
+add_subdirectory(planner)
+add_subdirectory(util)
+add_subdirectory(third_party)
+add_subdirectory(UI)
+
+if(BUILD_WITH_GTESTS)
+    # Add the test subdirectory if BUILD_WITH_GTESTS is enabled
+    add_subdirectory(test)
+endif()
+
+if(BUILD_WITH_MUJOCO)
+    # Add the mujoco and simulator subdirectories if BUILD_WITH_MUJOCO is enabled
+    add_subdirectory(mujoco)
+    add_subdirectory(simulator)
+endif()
+
+##==================================================
+## Configuration File
+##==================================================
+# Set the source directory, configure a file from config.h.cmake to configuration.hpp, and install configuration.hpp to the include directory
+set(THIS_COM "${PROJECT_SOURCE_DIR}/")
+CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/config.h.cmake
+    ${PROJECT_SOURCE_DIR}/configuration.hpp)
+install(FILES ${PROJECT_SOURCE_DIR}/configuration.hpp DESTINATION
+    "${INSTALL_INCLUDE_DIR}")

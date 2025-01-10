@@ -25,8 +25,9 @@ PYBIND11_MODULE(crab_interface_py, m) {
       .def(py::init<>())
       .def("GetCommand", &Interface::GetCommand);
 
-  py::class_<CrabInterface, Interface>(m, "CrabInterface").def(py::init<>());
-  //.def_readwrite("interrupt_", &CrabInterface::interrupt_handler_);
+  py::class_<CrabInterface, Interface>(m, "CrabInterface")
+      .def(py::init<>())
+      .def_readwrite("interrupt_", &CrabInterface::interrupt_handler_);
 
   py::class_<CrabSensorData>(m, "CrabSensorData")
       .def(py::init<>())

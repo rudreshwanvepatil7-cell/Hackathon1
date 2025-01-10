@@ -231,11 +231,11 @@
     </collision>
   </link>
   <joint name="front_right__cluster_1_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="front_right__cluster_1_base_link" />
-    <child link="front_right__cluster_1_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="front_right__cluster_1_base_link"/>
+    <child link="front_right__cluster_1_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="front_right__cluster_1_distal_link">
     <inertial>
@@ -261,11 +261,11 @@
     </collision>
   </link>
   <joint name="front_right__cluster_1_pitch" type="revolute">
-    <origin rpy="1.57079632679489 0.0350103166030992 0" xyz="0.127 0 0.34925" />
-    <parent link="front_right__cluster_1_proximal_link" />
-    <child link="front_right__cluster_1_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.57079632679489 0.0350103166030992 0" xyz="0.127 0 0.34925"/>
+    <parent link="front_right__cluster_1_proximal_link"/>
+    <child link="front_right__cluster_1_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="front_right__cluster_1_end_link">
     <inertial>
@@ -349,11 +349,11 @@
     </collision>
   </link>
   <joint name="front_right__cluster_2_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="front_right__cluster_2_base_link" />
-    <child link="front_right__cluster_2_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="front_right__cluster_2_base_link"/>
+    <child link="front_right__cluster_2_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="front_right__cluster_2_distal_link">
     <inertial>
@@ -379,11 +379,11 @@
     </collision>
   </link>
   <joint name="front_right__cluster_2_pitch" type="revolute">
-    <origin rpy="1.5708 0 0" xyz="0.1016 0 0.34925" />
-    <parent link="front_right__cluster_2_proximal_link" />
-    <child link="front_right__cluster_2_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.5708 0 0" xyz="0.1016 0 0.34925"/>
+    <parent link="front_right__cluster_2_proximal_link"/>
+    <child link="front_right__cluster_2_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="front_right__cluster_2_end_link">
     <inertial>
@@ -466,11 +466,11 @@
     </collision>
   </link>
   <joint name="front_right__cluster_3_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="front_right__cluster_3_base_link" />
-    <child link="front_right__cluster_3_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="front_right__cluster_3_base_link"/>
+    <child link="front_right__cluster_3_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="front_right__cluster_3_distal_link">
     <inertial>
@@ -496,11 +496,11 @@
     </collision>
   </link>
   <joint name="front_right__cluster_3_pitch" type="revolute">
-    <origin rpy="1.5708 0 0" xyz="0.0889 0 0.34925" />
-    <parent link="front_right__cluster_3_proximal_link" />
-    <child link="front_right__cluster_3_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.5708 0 0" xyz="0.0889 0 0.34925"/>
+    <parent link="front_right__cluster_3_proximal_link"/>
+    <child link="front_right__cluster_3_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="front_right__cluster_3_mid_link">
     <inertial>
@@ -554,11 +554,11 @@
     </collision>
   </link>
   <joint name="front_right__cluster_3_wrist" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="front_right__cluster_3_mid_link" />
-    <child link="front_right__cluster_3_wrist_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="front_right__cluster_3_mid_link"/>
+    <child link="front_right__cluster_3_wrist_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="front_right__cluster_3_end_link">
   </link>
@@ -627,11 +627,11 @@
     </collision>
   </link>
   <joint name="front_left__cluster_1_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="front_left__cluster_1_base_link" />
-    <child link="front_left__cluster_1_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="front_left__cluster_1_base_link"/>
+    <child link="front_left__cluster_1_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="front_left__cluster_1_distal_link">
     <inertial>
@@ -657,11 +657,11 @@
     </collision>
   </link>
   <joint name="front_left__cluster_1_pitch" type="revolute">
-    <origin rpy="1.57079632679489 0.0350103166030992 0" xyz="0.127 0 0.34925" />
-    <parent link="front_left__cluster_1_proximal_link" />
-    <child link="front_left__cluster_1_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.57079632679489 0.0350103166030992 0" xyz="0.127 0 0.34925"/>
+    <parent link="front_left__cluster_1_proximal_link"/>
+    <child link="front_left__cluster_1_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="front_left__cluster_1_end_link">
     <inertial>
@@ -745,11 +745,11 @@
     </collision>
   </link>
   <joint name="front_left__cluster_2_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="front_left__cluster_2_base_link" />
-    <child link="front_left__cluster_2_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="front_left__cluster_2_base_link"/>
+    <child link="front_left__cluster_2_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="front_left__cluster_2_distal_link">
     <inertial>
@@ -775,11 +775,11 @@
     </collision>
   </link>
   <joint name="front_left__cluster_2_pitch" type="revolute">
-    <origin rpy="1.5708 0 0" xyz="0.1016 0 0.34925" />
-    <parent link="front_left__cluster_2_proximal_link" />
-    <child link="front_left__cluster_2_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.5708 0 0" xyz="0.1016 0 0.34925"/>
+    <parent link="front_left__cluster_2_proximal_link"/>
+    <child link="front_left__cluster_2_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="front_left__cluster_2_end_link">
     <inertial>
@@ -862,11 +862,11 @@
     </collision>
   </link>
   <joint name="front_left__cluster_3_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="front_left__cluster_3_base_link" />
-    <child link="front_left__cluster_3_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="front_left__cluster_3_base_link"/>
+    <child link="front_left__cluster_3_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="front_left__cluster_3_distal_link">
     <inertial>
@@ -892,11 +892,11 @@
     </collision>
   </link>
   <joint name="front_left__cluster_3_pitch" type="revolute">
-    <origin rpy="1.5708 0 0" xyz="0.0889 0 0.34925" />
-    <parent link="front_left__cluster_3_proximal_link" />
-    <child link="front_left__cluster_3_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.5708 0 0" xyz="0.0889 0 0.34925"/>
+    <parent link="front_left__cluster_3_proximal_link"/>
+    <child link="front_left__cluster_3_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="front_left__cluster_3_mid_link">
     <inertial>
@@ -950,11 +950,11 @@
     </collision>
   </link>
   <joint name="front_left__cluster_3_wrist" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="front_left__cluster_3_mid_link" />
-    <child link="front_left__cluster_3_wrist_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="front_left__cluster_3_mid_link"/>
+    <child link="front_left__cluster_3_wrist_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="front_left__cluster_3_end_link">
   </link>
@@ -1023,11 +1023,11 @@
     </collision>
   </link>
   <joint name="back_right__cluster_1_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="back_right__cluster_1_base_link" />
-    <child link="back_right__cluster_1_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="back_right__cluster_1_base_link"/>
+    <child link="back_right__cluster_1_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="back_right__cluster_1_distal_link">
     <inertial>
@@ -1053,11 +1053,11 @@
     </collision>
   </link>
   <joint name="back_right__cluster_1_pitch" type="revolute">
-    <origin rpy="1.57079632679489 0.0350103166030992 0" xyz="0.127 0 0.34925" />
-    <parent link="back_right__cluster_1_proximal_link" />
-    <child link="back_right__cluster_1_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.57079632679489 0.0350103166030992 0" xyz="0.127 0 0.34925"/>
+    <parent link="back_right__cluster_1_proximal_link"/>
+    <child link="back_right__cluster_1_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="back_right__cluster_1_end_link">
     <inertial>
@@ -1141,11 +1141,11 @@
     </collision>
   </link>
   <joint name="back_right__cluster_2_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="back_right__cluster_2_base_link" />
-    <child link="back_right__cluster_2_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="back_right__cluster_2_base_link"/>
+    <child link="back_right__cluster_2_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="back_right__cluster_2_distal_link">
     <inertial>
@@ -1171,11 +1171,11 @@
     </collision>
   </link>
   <joint name="back_right__cluster_2_pitch" type="revolute">
-    <origin rpy="1.5708 0 0" xyz="0.1016 0 0.34925" />
-    <parent link="back_right__cluster_2_proximal_link" />
-    <child link="back_right__cluster_2_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.5708 0 0" xyz="0.1016 0 0.34925"/>
+    <parent link="back_right__cluster_2_proximal_link"/>
+    <child link="back_right__cluster_2_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="back_right__cluster_2_end_link">
     <inertial>
@@ -1258,11 +1258,11 @@
     </collision>
   </link>
   <joint name="back_right__cluster_3_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="back_right__cluster_3_base_link" />
-    <child link="back_right__cluster_3_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="back_right__cluster_3_base_link"/>
+    <child link="back_right__cluster_3_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="back_right__cluster_3_distal_link">
     <inertial>
@@ -1288,11 +1288,11 @@
     </collision>
   </link>
   <joint name="back_right__cluster_3_pitch" type="revolute">
-    <origin rpy="1.5708 0 0" xyz="0.0889 0 0.34925" />
-    <parent link="back_right__cluster_3_proximal_link" />
-    <child link="back_right__cluster_3_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.5708 0 0" xyz="0.0889 0 0.34925"/>
+    <parent link="back_right__cluster_3_proximal_link"/>
+    <child link="back_right__cluster_3_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="back_right__cluster_3_mid_link">
     <inertial>
@@ -1346,11 +1346,11 @@
     </collision>
   </link>
   <joint name="back_right__cluster_3_wrist" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="back_right__cluster_3_mid_link" />
-    <child link="back_right__cluster_3_wrist_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="back_right__cluster_3_mid_link"/>
+    <child link="back_right__cluster_3_wrist_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="back_right__cluster_3_end_link">
   </link>
@@ -1419,11 +1419,11 @@
     </collision>
   </link>
   <joint name="back_left__cluster_1_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="back_left__cluster_1_base_link" />
-    <child link="back_left__cluster_1_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="back_left__cluster_1_base_link"/>
+    <child link="back_left__cluster_1_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="back_left__cluster_1_distal_link">
     <inertial>
@@ -1449,11 +1449,11 @@
     </collision>
   </link>
   <joint name="back_left__cluster_1_pitch" type="revolute">
-    <origin rpy="1.57079632679489 0.0350103166030992 0" xyz="0.127 0 0.34925" />
-    <parent link="back_left__cluster_1_proximal_link" />
-    <child link="back_left__cluster_1_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.57079632679489 0.0350103166030992 0" xyz="0.127 0 0.34925"/>
+    <parent link="back_left__cluster_1_proximal_link"/>
+    <child link="back_left__cluster_1_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="back_left__cluster_1_end_link">
     <inertial>
@@ -1537,11 +1537,11 @@
     </collision>
   </link>
   <joint name="back_left__cluster_2_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="back_left__cluster_2_base_link" />
-    <child link="back_left__cluster_2_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="back_left__cluster_2_base_link"/>
+    <child link="back_left__cluster_2_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="back_left__cluster_2_distal_link">
     <inertial>
@@ -1567,11 +1567,11 @@
     </collision>
   </link>
   <joint name="back_left__cluster_2_pitch" type="revolute">
-    <origin rpy="1.5708 0 0" xyz="0.1016 0 0.34925" />
-    <parent link="back_left__cluster_2_proximal_link" />
-    <child link="back_left__cluster_2_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.5708 0 0" xyz="0.1016 0 0.34925"/>
+    <parent link="back_left__cluster_2_proximal_link"/>
+    <child link="back_left__cluster_2_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="back_left__cluster_2_end_link">
     <inertial>
@@ -1654,11 +1654,11 @@
     </collision>
   </link>
   <joint name="back_left__cluster_3_roll" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="back_left__cluster_3_base_link" />
-    <child link="back_left__cluster_3_proximal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="back_left__cluster_3_base_link"/>
+    <child link="back_left__cluster_3_proximal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="back_left__cluster_3_distal_link">
     <inertial>
@@ -1684,11 +1684,11 @@
     </collision>
   </link>
   <joint name="back_left__cluster_3_pitch" type="revolute">
-    <origin rpy="1.5708 0 0" xyz="0.0889 0 0.34925" />
-    <parent link="back_left__cluster_3_proximal_link" />
-    <child link="back_left__cluster_3_distal_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="0" velocity="0" />
+    <origin rpy="1.5708 0 0" xyz="0.0889 0 0.34925"/>
+    <parent link="back_left__cluster_3_proximal_link"/>
+    <child link="back_left__cluster_3_distal_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="0" velocity="30"/>
   </joint>
   <link name="back_left__cluster_3_mid_link">
     <inertial>
@@ -1742,11 +1742,11 @@
     </collision>
   </link>
   <joint name="back_left__cluster_3_wrist" type="revolute">
-    <origin rpy="0 0 0" xyz="0 0 0.5" />
-    <parent link="back_left__cluster_3_mid_link" />
-    <child link="back_left__cluster_3_wrist_link" />
-    <axis xyz="0 0 1" />
-    <limit effort="0" lower="-3.14" upper="3.14" velocity="0" />
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+    <parent link="back_left__cluster_3_mid_link"/>
+    <child link="back_left__cluster_3_wrist_link"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="30" lower="-3.14" upper="3.14" velocity="30"/>
   </joint>
   <link name="back_left__cluster_3_end_link">
   </link>
