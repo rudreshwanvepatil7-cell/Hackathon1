@@ -72,73 +72,69 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
   try {
     util::ReadParameter(cfg["wbc"]["task"]["foot_pos_task"], "weight",
                         weight_at_contact);
-    util::ReadParameter(cfg["wbc"]["task"]["foot_pos_task"], "weight_at_swing",
-                        weight_at_swing);
   } catch (const std::runtime_error &ex) {
     std::cerr << "Error reading foot pos task parameter [" << ex.what()
               << "] at file: [" << __FILE__ << "]" << std::endl;
     std::exit(EXIT_FAILURE);
   }
-  lf_pos_hm_ =
-      new TaskHierarchyManager(tci_container_->task_map_["lf_pos_task"],
-                               weight_at_contact, weight_at_swing);
-  rf_pos_hm_ =
-      new TaskHierarchyManager(tci_container_->task_map_["rf_pos_task"],
-                               weight_at_contact, weight_at_swing);
+  //  lf_pos_hm_ =
+  //      new TaskHierarchyManager(tci_container_->task_map_["lf_pos_task"],
+  //                               weight_at_contact, weight_at_swing);
+  //  rf_pos_hm_ =
+  //      new TaskHierarchyManager(tci_container_->task_map_["rf_pos_task"],
+  //                               weight_at_contact, weight_at_swing);
 
   try {
     util::ReadParameter(cfg["wbc"]["task"]["foot_ori_task"], "weight",
                         weight_at_contact);
-    util::ReadParameter(cfg["wbc"]["task"]["foot_ori_task"], "weight_at_swing",
-                        weight_at_swing);
   } catch (const std::runtime_error &ex) {
     std::cerr << "Error reading foot ori task parameter [" << ex.what()
               << "] at file: [" << __FILE__ << "]" << std::endl;
     std::exit(EXIT_FAILURE);
   }
-  lf_ori_hm_ =
-      new TaskHierarchyManager(tci_container_->task_map_["lf_ori_task"],
-                               weight_at_contact, weight_at_swing);
-  rf_ori_hm_ =
-      new TaskHierarchyManager(tci_container_->task_map_["rf_ori_task"],
-                               weight_at_contact, weight_at_swing);
+  //  lf_ori_hm_ =
+  //      new TaskHierarchyManager(tci_container_->task_map_["lf_ori_task"],
+  //                               weight_at_contact, weight_at_swing);
+  //  rf_ori_hm_ =
+  //      new TaskHierarchyManager(tci_container_->task_map_["rf_ori_task"],
+  //                               weight_at_contact, weight_at_swing);
 
   //=============================================================
   // hand task hierarchy manager
   //=============================================================
-  Eigen::VectorXd weight_at_initial, weight_at_teleop_triggered;
+  Eigen::VectorXd weight_at_initial;
   try {
     util::ReadParameter(cfg["wbc"]["task"]["hand_pos_task"], "weight",
                         weight_at_initial);
-    util::ReadParameter(cfg["wbc"]["task"]["hand_pos_task"], "weight_at_teleop",
-                        weight_at_teleop_triggered);
   } catch (const std::runtime_error &ex) {
     std::cerr << "Error reading hand pos task parameter [" << ex.what()
               << "] at file: [" << __FILE__ << "]" << std::endl;
     std::exit(EXIT_FAILURE);
   }
-  lh_pos_hm_ =
-      new TaskHierarchyManager(tci_container_->task_map_["lh_pos_task"],
-                               weight_at_teleop_triggered, weight_at_initial);
-  rh_pos_hm_ =
-      new TaskHierarchyManager(tci_container_->task_map_["rh_pos_task"],
-                               weight_at_teleop_triggered, weight_at_initial);
+  //  lh_pos_hm_ =
+  //      new TaskHierarchyManager(tci_container_->task_map_["lh_pos_task"],
+  //                               weight_at_teleop_triggered,
+  //                               weight_at_initial);
+  //  rh_pos_hm_ =
+  //      new TaskHierarchyManager(tci_container_->task_map_["rh_pos_task"],
+  //                               weight_at_teleop_triggered,
+  //                               weight_at_initial);
   try {
     util::ReadParameter(cfg["wbc"]["task"]["hand_ori_task"], "weight",
                         weight_at_initial);
-    util::ReadParameter(cfg["wbc"]["task"]["hand_ori_task"], "weight_at_teleop",
-                        weight_at_teleop_triggered);
   } catch (const std::runtime_error &ex) {
     std::cerr << "Error reading hand ori task parameter [" << ex.what()
               << "] at file: [" << __FILE__ << "]" << std::endl;
     std::exit(EXIT_FAILURE);
   }
-  lh_ori_hm_ =
-      new TaskHierarchyManager(tci_container_->task_map_["lh_ori_task"],
-                               weight_at_teleop_triggered, weight_at_initial);
-  rh_ori_hm_ =
-      new TaskHierarchyManager(tci_container_->task_map_["rh_ori_task"],
-                               weight_at_teleop_triggered, weight_at_initial);
+  //  lh_ori_hm_ =
+  //      new TaskHierarchyManager(tci_container_->task_map_["lh_ori_task"],
+  //                               weight_at_teleop_triggered,
+  //                               weight_at_initial);
+  //  rh_ori_hm_ =
+  //      new TaskHierarchyManager(tci_container_->task_map_["rh_ori_task"],
+  //                               weight_at_teleop_triggered,
+  //                               weight_at_initial);
 
   //=============================================================
   // attach Foxglove Clients to control parameters
@@ -180,10 +176,10 @@ CrabControlArchitecture::~CrabControlArchitecture() {
   delete rf_SE3_tm_;
 
   // hm
-  delete lf_pos_hm_;
-  delete lf_ori_hm_;
-  delete rf_pos_hm_;
-  delete rf_ori_hm_;
+  //  delete lf_pos_hm_;
+  //  delete lf_ori_hm_;
+  //  delete rf_pos_hm_;
+  //  delete rf_ori_hm_;
 
   // state machines
   delete locomotion_state_machine_container_[crab_states::kInitialize];

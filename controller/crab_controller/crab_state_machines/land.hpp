@@ -29,4 +29,6 @@ private:
   bool b_use_fixed_foot_pos_;
   Eigen::Isometry3d nominal_lfoot_iso_;
   Eigen::Isometry3d nominal_rfoot_iso_;
+  Eigen::Isometry3d nominal_lhand_iso_;
+  Eigen::Isometry3d nominal_rhand_iso_;
 };

@@ -34,14 +34,14 @@ public:
   EndEffectorTrajectoryManager *lh_SE3_tm_;
   EndEffectorTrajectoryManager *rh_SE3_tm_;
 
-  TaskHierarchyManager *lf_pos_hm_;
-  TaskHierarchyManager *lf_ori_hm_;
-  TaskHierarchyManager *rf_pos_hm_;
-  TaskHierarchyManager *rf_ori_hm_;
-  TaskHierarchyManager *lh_pos_hm_;
-  TaskHierarchyManager *lh_ori_hm_;
-  TaskHierarchyManager *rh_pos_hm_;
-  TaskHierarchyManager *rh_ori_hm_;
+  //  TaskHierarchyManager *lf_pos_hm_;
+  //  TaskHierarchyManager *lf_ori_hm_;
+  //  TaskHierarchyManager *rf_pos_hm_;
+  //  TaskHierarchyManager *rf_ori_hm_;
+  //  TaskHierarchyManager *lh_pos_hm_;
+  //  TaskHierarchyManager *lh_ori_hm_;
+  //  TaskHierarchyManager *rh_pos_hm_;
+  //  TaskHierarchyManager *rh_ori_hm_;
 
 private:
   CrabController *controller_;

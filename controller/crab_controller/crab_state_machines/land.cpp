@@ -32,12 +32,38 @@ void Land::FirstVisit() {
   //      init_com_pos, init_com_pos,
   //      init_torso_quat, init_torso_quat, duration);
 
-  // set current foot position as nominal (desired) for rest of this state
+  // set current foot position as nominal (desired)
   nominal_lfoot_iso_ = robot_->GetLinkIsometry(crab_link::back_left__foot_link);
   nominal_rfoot_iso_ =
       robot_->GetLinkIsometry(crab_link::back_right__foot_link);
-  FootStep::MakeHorizontal(nominal_lfoot_iso_);
-  FootStep::MakeHorizontal(nominal_rfoot_iso_);
+  nominal_lhand_iso_ =
+      robot_->GetLinkIsometry(crab_link::front_left__foot_link);
+  nominal_rhand_iso_ =
+      robot_->GetLinkIsometry(crab_link::front_right__foot_link);
+
+  // rotate nominal foot towards landing object
+  nominal_lfoot_iso_.rotate(Eigen::AngleAxisd(0.75, Eigen::Vector3d::UnitX()));
+  nominal_rfoot_iso_.rotate(Eigen::AngleAxisd(-0.75, Eigen::Vector3d::UnitX()));
+  nominal_lhand_iso_.rotate(Eigen::AngleAxisd(0.75, Eigen::Vector3d::UnitX()));
+  nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.75, Eigen::Vector3d::UnitX()));
+  nominal_lfoot_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
+  nominal_rfoot_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
+  nominal_lhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
+  nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
+
+  // Initialize interpolation
+  ctrl_arch_->lf_SE3_tm_->InitializeSwingTrajectory(
+      robot_->GetLinkIsometry(crab_link::back_left__foot_link),
+      nominal_lfoot_iso_, nominal_lfoot_iso_.translation().z(), duration);
+  ctrl_arch_->rf_SE3_tm_->InitializeSwingTrajectory(
+      robot_->GetLinkIsometry(crab_link::back_right__foot_link),
+      nominal_rfoot_iso_, nominal_rfoot_iso_.translation().z(), duration);
+  ctrl_arch_->lh_SE3_tm_->InitializeSwingTrajectory(
+      robot_->GetLinkIsometry(crab_link::front_left__foot_link),
+      nominal_lhand_iso_, nominal_lhand_iso_.translation().z(), duration);
+  ctrl_arch_->rh_SE3_tm_->InitializeSwingTrajectory(
+      robot_->GetLinkIsometry(crab_link::front_right__foot_link),
+      nominal_rhand_iso_, nominal_rhand_iso_.translation().z(), duration);
 }
 
 void Land::OneStep() {
@@ -48,8 +74,10 @@ void Land::OneStep() {
 
   // update foot pose task update
   if (b_use_fixed_foot_pos_) {
-    ctrl_arch_->lf_SE3_tm_->UseNominal(nominal_lfoot_iso_);
-    ctrl_arch_->rf_SE3_tm_->UseNominal(nominal_rfoot_iso_);
+    ctrl_arch_->lf_SE3_tm_->UpdateDesired(state_machine_time_);
+    ctrl_arch_->rf_SE3_tm_->UpdateDesired(state_machine_time_);
+    ctrl_arch_->lh_SE3_tm_->UpdateDesired(state_machine_time_);
+    ctrl_arch_->rh_SE3_tm_->UpdateDesired(state_machine_time_);
   } else {
     ctrl_arch_->lf_SE3_tm_->UseCurrent();
     ctrl_arch_->lh_SE3_tm_->UseCurrent();

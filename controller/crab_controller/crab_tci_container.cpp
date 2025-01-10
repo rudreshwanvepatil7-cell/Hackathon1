@@ -45,9 +45,9 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   // initialize wbc cost task list
   task_unweighted_cost_map_.clear();
   task_unweighted_cost_map_.insert(std::make_pair("joint_task", NAN));
-  task_unweighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
-  task_unweighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
-  task_unweighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
+  //  task_unweighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
+  //  task_unweighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
+  //  task_unweighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("lf_pos_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("rf_pos_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("lf_ori_task", NAN));
@@ -58,9 +58,9 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   task_unweighted_cost_map_.insert(std::make_pair("rh_ori_task", NAN));
   task_weighted_cost_map_.clear();
   task_weighted_cost_map_.insert(std::make_pair("joint_task", NAN));
-  task_weighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
-  task_weighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
-  task_weighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
+  //  task_weighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
+  //  task_weighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
+  //  task_weighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("lf_pos_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("rf_pos_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("lf_ori_task", NAN));

@@ -103,28 +103,24 @@ wbc:
       kd : [14., 14., 10.]
 
     hand_pos_task:
-      weight : [500., 500., 500.]
-      weight_at_teleop : [50., 50., 50.]
-      kp : [1000., 1000., 1000.]
-      kd : [100., 100., 100.]
+      weight : [0., 0., 0.]
+      kp : [10., 10., 10.]
+      kd : [1., 1., 1.]
 
     hand_ori_task:
-      weight : [500., 500., 500.]
-      weight_at_teleop : [10., 10., 10.]
-      kp : [500., 500., 500.]
-      kd : [20., 20., 20.]
+      weight : [10., 10., 10.]
+      kp : [5., 5., 5.]
+      kd : [1., 1., 1.]
 
     foot_pos_task:
-      weight : [5000., 5000., 5000.]
-      weight_at_swing : [8000., 8000., 8000.]
-      kp : [300., 300., 300.]
-      kd : [30., 30., 30.]
+      weight : [0., 0., 0.]
+      kp : [10., 10., 10.]
+      kd : [1., 1., 1.]
 
     foot_ori_task:
-      weight : [5000., 5000., 5000.]
-      weight_at_swing : [5000., 5000., 5000.]
-      kp : [80., 80., 80.]
-      kd : [4., 4., 4.]
+      weight : [10., 10., 10.]
+      kp : [5., 5., 5.]
+      kd : [1., 1., 1.]
 
   contact:
     max_rf_z: 400.
@@ -137,7 +133,7 @@ wbc:
 
   qp:
     b_save_costs: false
-    lambda_qddot: 5e-6 ##regularization
+    lambda_qddot: 5e-4 ##regularization
     #lambda_rf: [9e-7, 5e-7, 6e-7, 0., 0., 0., 9e-7, 5e-7, 6e-7, 0., 0., 0.]  #regulariztion lfoot / rfoot (trq, force order)
     #lambda_rf: [1e-3, 1e-3, 1e-3, 1e-5, 1e-5, 0., 1e-3, 1e-3, 1e-3, 1e-5, 1e-5, 0.]  #regulariztion lfoot / rfoot (trq, force order)
     lambda_rf: [1e-3, 1e-3, 1e-3, 1e-5, 1e-5, 1e-5, 1e-3, 1e-3, 1e-3, 1e-5, 1e-5, 1e-5]  #regulariztion lfoot / rfoot (trq, force order)
@@ -149,7 +145,7 @@ wbc:
     max_pos_err: 0.2 #rad
 
 state_machine:
-    b_use_const_desired_foot_pos: false
+    b_use_const_desired_foot_pos: true
 
     initialize:
       init_duration: 5.
@@ -160,11 +156,10 @@ state_machine:
       wait_time: 2.
 
     land:
-      standup_duration: 1.
-      target_com_height: 0.658
-      target_base_height: 0.90
-
-      rf_z_max_interp_duration: 0.1
+      target_lf_rpy: [0., 1., 0.]
+      target_lh_rpy: [0., 1., 0.]
+      target_rf_rpy: [0., 1., 0.]
+      target_rh_rpy: [0., 1., 0.]
 
 dcm_walking:
   #t_additional_init_trans: 0.
