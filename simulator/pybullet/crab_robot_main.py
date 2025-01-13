@@ -87,7 +87,8 @@ if __name__ == "__main__":
     )
 
     # Set the initial linear velocity
-    initial_linear_velocity = [0.0, 0.0, 0.0]  # Example: zero initial velocity
+    # initial_linear_velocity = [0.0, 0.0, 0.0]  # Example: zero initial velocity
+    initial_linear_velocity = [0.0, 0.25, -0.2]  # Example: zero initial velocity
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
     pb.resetBaseVelocity(
@@ -109,14 +110,15 @@ if __name__ == "__main__":
         useFixedBase=False,
     )
 
-    ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
-    # Create a large black plane to simulate a black background
-    # plane_shape = pb.createCollisionShape(pb.GEOM_PLANE)
-    # plane_visual = pb.createVisualShape(pb.GEOM_PLANE, rgbaColor=[0, 0, 0, 1])
-    # plane = pb.createMultiBody(0, plane_shape, plane_visual)
+    # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
+    
+    # Create a large plane to simulate a background
+    plane_shape = pb.createCollisionShape(pb.GEOM_PLANE)
+    plane_visual = pb.createVisualShape(pb.GEOM_PLANE, rgbaColor=[0, 0, 0, 1])
+    plane = pb.createMultiBody(0, plane_shape, plane_visual)
 
     # Position the plane far away to act as a background
-    # pb.resetBasePositionAndOrientation(plane, [0, 0, -100], [0, 0, 0, 1])
+    pb.resetBasePositionAndOrientation(plane, [0, 0, -100], [0, 0, 0, 1])
 
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
 
@@ -184,11 +186,11 @@ if __name__ == "__main__":
         # ----------------------------------
 
         base_pos, base_ori = pb.getBasePositionAndOrientation(robot)
-        # pb.resetDebugVisualizerCamera(cameraDistance=12.5,
-        #                               cameraYaw=120,
-        #                               cameraPitch=-45,
-        #                               cameraTargetPosition=base_pos +
-        #                               np.array([0.5, 0.3, -base_pos[2] + 0.5]))
+        pb.resetDebugVisualizerCamera(cameraDistance=12.5,
+                                      cameraYaw=120,
+                                      cameraPitch=-45,
+                                      cameraTargetPosition=base_pos +
+                                      np.array([0.5, 0.3, -base_pos[2] + 0.5]))
 
         # ----------------------------------
         # Debugging
