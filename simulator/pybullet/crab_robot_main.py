@@ -306,7 +306,7 @@ if __name__ == "__main__":
         # pdb.set_trace()
 
         # apply command to pybullet robot
-        apply_control_input_to_pybullet(robot, rpc_trq_command)
+        # apply_control_input_to_pybullet(robot, rpc_trq_command)
 
         # pdb.set_trace()
 

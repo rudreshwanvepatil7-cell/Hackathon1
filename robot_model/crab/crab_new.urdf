@@ -616,7 +616,7 @@
       <mass value="1e-10"/> <!-- Very small mass -->
       <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
     </inertial>
-    </link>
+  </link>
   <joint name="front_right__cluster_3_end_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0.082551"/>
     <parent link="front_right__cluster_3_wrist_link"/>
@@ -1013,7 +1013,7 @@
       <mass value="1e-10"/> <!-- Very small mass -->
       <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
     </inertial>
-    </link>
+  </link>
   <joint name="front_left__cluster_3_end_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0.082551"/>
     <parent link="front_left__cluster_3_wrist_link"/>
@@ -1021,7 +1021,13 @@
     <axis xyz="0 0 0"/>
   </joint>
   <!-- Call subassembly macros -->
-  <link name="back_right__base_link"/>
+  <link name="back_right__base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-10"/> <!-- Very small mass -->
+      <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
+    </inertial>
+  </link> 
   <joint name="base_link_back_right__joint" type="fixed">
     <parent link="base_link"/>
     <child link="back_right__base_link"/>
@@ -1399,7 +1405,12 @@
     <limit effort="0" lower="-3.14" upper="3.14" velocity="0"/>
   </joint>
   <link name="back_right__cluster_3_end_link">
-    </link>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-10"/> <!-- Very small mass -->
+      <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
+    </inertial>
+  </link>
   <joint name="back_right__cluster_3_end_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0.082551"/>
     <parent link="back_right__cluster_3_wrist_link"/>
@@ -1407,7 +1418,13 @@
     <axis xyz="0 0 0"/>
   </joint>
   <!-- Call subassembly macros -->
-  <link name="back_left__base_link"/>
+  <link name="back_left__base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-10"/> <!-- Very small mass -->
+      <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
+    </inertial>
+  <link> 
   <joint name="base_link_back_left__joint" type="fixed">
     <parent link="base_link"/>
     <child link="back_left__base_link"/>
@@ -1785,7 +1802,12 @@
     <limit effort="0" lower="-3.14" upper="3.14" velocity="0"/>
   </joint>
   <link name="back_left__cluster_3_end_link">
-    </link>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-10"/> <!-- Very small mass -->
+      <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
+    </inertial>
+  </link>
   <joint name="back_left__cluster_3_end_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0.082551"/>
     <parent link="back_left__cluster_3_wrist_link"/>
