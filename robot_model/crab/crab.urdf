@@ -1816,6 +1816,11 @@
   </joint>
   <!-- Call subassembly macros -->
   <link name="back_left__foot_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-10"/> <!-- Very small mass -->
+      <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
+    </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -1837,6 +1842,11 @@
   </joint>
   <!-- Call subassembly macros -->
   <link name="back_right__foot_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-10"/> <!-- Very small mass -->
+      <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
+    </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -1858,6 +1868,11 @@
   </joint>
   <!-- Call subassembly macros -->
   <link name="front_left__foot_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-10"/> <!-- Very small mass -->
+      <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
+    </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -1879,6 +1894,11 @@
   </joint>
   <!-- Call subassembly macros -->
   <link name="front_right__foot_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-10"/> <!-- Very small mass -->
+      <inertia ixx="1e-10" ixy="0.0" ixz="0.0" iyy="1e-10" iyz="0.0" izz="1e-10"/> <!-- Very small inertia -->
+    </inertial>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>

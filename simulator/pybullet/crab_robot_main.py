@@ -110,15 +110,15 @@ if __name__ == "__main__":
         useFixedBase=False,
     )
 
-    # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
+    ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
     
     # Create a large plane to simulate a background
-    plane_shape = pb.createCollisionShape(pb.GEOM_PLANE)
-    plane_visual = pb.createVisualShape(pb.GEOM_PLANE, rgbaColor=[0, 0, 0, 1])
-    plane = pb.createMultiBody(0, plane_shape, plane_visual)
+    # plane_shape = pb.createCollisionShape(pb.GEOM_PLANE)
+    # plane_visual = pb.createVisualShape(pb.GEOM_PLANE, rgbaColor=[0, 0, 0, 1])
+    # plane = pb.createMultiBody(0, plane_shape, plane_visual)
 
-    # Position the plane far away to act as a background
-    pb.resetBasePositionAndOrientation(plane, [0, 0, -100], [0, 0, 0, 1])
+    # # Position the plane far away to act as a background
+    # pb.resetBasePositionAndOrientation(plane, [0, 0, -100], [0, 0, 0, 1])
 
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 1)
 
