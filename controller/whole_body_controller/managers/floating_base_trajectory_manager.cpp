@@ -1,4 +1,5 @@
 #include "controller/whole_body_controller/managers/floating_base_trajectory_manager.hpp"
+
 #include "controller/robot_system/pinocchio_robot_system.hpp"
 #include "controller/whole_body_controller/basic_task.hpp"
 #include "util/interpolation.hpp"
@@ -7,29 +8,33 @@
 FloatingBaseTrajectoryManager::FloatingBaseTrajectoryManager(
     Task *com_xy_task, Task *com_z_task, Task *torso_ori_task,
     PinocchioRobotSystem *robot)
-    : com_xy_task_(com_xy_task), com_z_task_(com_z_task),
-      torso_ori_task_(torso_ori_task), robot_(robot), duration_(0.),
+    : com_xy_task_(com_xy_task),
+      com_z_task_(com_z_task),
+      torso_ori_task_(torso_ori_task),
+      robot_(robot),
+      duration_(0.),
       init_com_pos_(Eigen::Vector3d::Zero()),
       target_com_pos_(Eigen::Vector3d::Zero()),
-      exp_err_(Eigen::VectorXd::Zero(3)), axis_(Eigen::Vector3d::Zero()),
-      angle_(0.), amp_(Eigen::Vector3d::Zero()), freq_(Eigen::Vector3d::Zero()),
-      b_swaying_(false), min_jerk_curve_(nullptr), min_jerk_time_(nullptr) {
-
+      exp_err_(Eigen::VectorXd::Zero(3)),
+      axis_(Eigen::Vector3d::Zero()),
+      angle_(0.),
+      amp_(Eigen::Vector3d::Zero()),
+      freq_(Eigen::Vector3d::Zero()),
+      b_swaying_(false),
+      min_jerk_curve_(nullptr),
+      min_jerk_time_(nullptr) {
   util::PrettyConstructor(2, "FloatingBaseTrajectoryManager");
 }
 
 FloatingBaseTrajectoryManager::~FloatingBaseTrajectoryManager() {
-  if (min_jerk_curve_ != nullptr)
-    delete min_jerk_curve_;
-  if (min_jerk_time_ != nullptr)
-    delete min_jerk_time_;
+  if (min_jerk_curve_ != nullptr) delete min_jerk_curve_;
+  if (min_jerk_time_ != nullptr) delete min_jerk_time_;
 }
 
 void FloatingBaseTrajectoryManager::InitializeFloatingBaseInterpolation(
     const Eigen::Vector3d &init_com_pos, const Eigen::Vector3d &target_com_pos,
     const Eigen::Quaterniond &init_torso_quat,
     const Eigen::Quaterniond &target_torso_quat, const double duration) {
-
   duration_ = duration;
 
   // linear
@@ -89,7 +94,7 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
     // minjerk com traj generation
     if (min_jerk_curve_ == nullptr || min_jerk_time_ == nullptr)
       throw std::runtime_error(
-          "Initialze MinJerkCurve First in FlaotingBaseTrajectoryManager");
+          "Initialize MinJerkCurve First in FlaotingBaseTrajectoryManager");
 
     Eigen::VectorXd des_com_pos = min_jerk_curve_->Evaluate(state_machine_time);
     Eigen::VectorXd des_com_vel =

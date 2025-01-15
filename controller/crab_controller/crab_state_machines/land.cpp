@@ -1,14 +1,15 @@
 #include "controller/crab_controller/crab_state_machines/land.hpp"
+
 #include "controller/crab_controller/crab_control_architecture.hpp"
 #include "controller/crab_controller/crab_definition.hpp"
 #include "controller/crab_controller/crab_state_provider.hpp"
 #include "controller/robot_system/pinocchio_robot_system.hpp"
 #include "controller/whole_body_controller/managers/end_effector_trajectory_manager.hpp"
-// 
+//
 #include "controller/whole_body_controller/managers/floating_base_trajectory_manager.hpp"
 #include "planner/locomotion/dcm_planner/foot_step.hpp"
 
-// Constructor 
+// Constructor
 Land::Land(const StateId state_id, PinocchioRobotSystem *robot,
            CrabControlArchitecture *ctrl_arch)
     : StateMachine(state_id, robot), ctrl_arch_(ctrl_arch) {
@@ -18,7 +19,6 @@ Land::Land(const StateId state_id, PinocchioRobotSystem *robot,
   nominal_lfoot_iso_.setIdentity();
   nominal_rfoot_iso_.setIdentity();
 }
-
 
 // First visit to the state
 void Land::FirstVisit() {
@@ -31,9 +31,8 @@ void Land::FirstVisit() {
       robot_->GetLinkIsometry(crab_link::base_link).linear();
   Eigen::Quaterniond init_torso_quat(R_w_torso);
   double duration = 10.;
-  //  ctrl_arch_->floating_base_tm_->InitializeFloatingBaseInterpolation(
-  //      init_com_pos, init_com_pos,
-  //      init_torso_quat, init_torso_quat, duration);
+  ctrl_arch_->floating_base_tm_->InitializeFloatingBaseInterpolation(
+      init_com_pos, init_com_pos, init_torso_quat, init_torso_quat, duration);
 
   // Set current foot position as nominal (desired)
   nominal_lfoot_iso_ = robot_->GetLinkIsometry(crab_link::back_left__foot_link);
@@ -73,7 +72,7 @@ void Land::OneStep() {
   state_machine_time_ = sp_->current_time_ - state_machine_start_time_;
 
   // com & torso ori task update
-   ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
+  ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
 
   // update foot pose task update
   if (b_use_fixed_foot_pos_) {
@@ -86,11 +85,10 @@ void Land::OneStep() {
     ctrl_arch_->lh_SE3_tm_->UseCurrent();
     ctrl_arch_->rf_SE3_tm_->UseCurrent();
     ctrl_arch_->rh_SE3_tm_->UseCurrent();
-  } 
+  }
 
-  // update torso pose task update 
-  // ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_); 
-
+  // update torso pose task update
+  // ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
 }
 
 bool Land::EndOfState() { return false; }

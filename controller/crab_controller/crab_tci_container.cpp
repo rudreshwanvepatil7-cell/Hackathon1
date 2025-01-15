@@ -1,11 +1,12 @@
 #include "controller/crab_controller/crab_tci_container.hpp"
+
+#include <utility>
+
 #include "controller/crab_controller/crab_definition.hpp"
 #include "controller/crab_controller/crab_task/crab_com_xy_task.hpp"
 #include "controller/crab_controller/crab_task/crab_com_z_task.hpp"
 #include "controller/whole_body_controller/basic_contact.hpp"
 #include "controller/whole_body_controller/basic_task.hpp"
-
-#include <utility>
 
 CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
                                    const YAML::Node &cfg)
@@ -16,9 +17,9 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   // Tasks List
   //=============================================================
   jpos_task_ = new JointTask(robot_);
-  //  com_xy_task_ = new CrabCoMXYTask(robot_);
-  //  com_z_task_ = new CrabCoMZTask(robot_);
-  //  torso_ori_task_ = new LinkOriTask(robot_, crab_link::base_link);
+  com_xy_task_ = new CrabCoMXYTask(robot_);
+  com_z_task_ = new CrabCoMZTask(robot_);
+  torso_ori_task_ = new LinkOriTask(robot_, crab_link::base_link);
   lf_pos_task_ = new LinkPosTask(robot_, crab_link::back_left__foot_link);
   rf_pos_task_ = new LinkPosTask(robot_, crab_link::back_right__foot_link);
   lf_ori_task_ = new LinkOriTask(robot_, crab_link::back_left__foot_link);
@@ -30,9 +31,9 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
 
   task_map_.clear();
   task_map_.insert(std::make_pair("joint_task", jpos_task_));
-  //  task_map_.insert(std::make_pair("com_xy_task", com_xy_task_));
-  //  task_map_.insert(std::make_pair("com_z_task", com_z_task_));
-  //  task_map_.insert(std::make_pair("torso_ori_task", torso_ori_task_));
+  task_map_.insert(std::make_pair("com_xy_task", com_xy_task_));
+  task_map_.insert(std::make_pair("com_z_task", com_z_task_));
+  task_map_.insert(std::make_pair("torso_ori_task", torso_ori_task_));
   task_map_.insert(std::make_pair("lf_pos_task", lf_pos_task_));
   task_map_.insert(std::make_pair("rf_pos_task", rf_pos_task_));
   task_map_.insert(std::make_pair("lf_ori_task", lf_ori_task_));
@@ -45,9 +46,9 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   // initialize wbc cost task list
   task_unweighted_cost_map_.clear();
   task_unweighted_cost_map_.insert(std::make_pair("joint_task", NAN));
-  //  task_unweighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
-  //  task_unweighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
-  //  task_unweighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
+  task_unweighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
+  task_unweighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
+  task_unweighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("lf_pos_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("rf_pos_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("lf_ori_task", NAN));
@@ -58,9 +59,9 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   task_unweighted_cost_map_.insert(std::make_pair("rh_ori_task", NAN));
   task_weighted_cost_map_.clear();
   task_weighted_cost_map_.insert(std::make_pair("joint_task", NAN));
-  //  task_weighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
-  //  task_weighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
-  //  task_weighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
+  task_weighted_cost_map_.insert(std::make_pair("com_xy_task", NAN));
+  task_weighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
+  task_weighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("lf_pos_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("rf_pos_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("lf_ori_task", NAN));
@@ -72,9 +73,9 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
 
   // wbc task list for inverse kinematics
   task_vector_.clear();
-  //  task_vector_.push_back(com_z_task_);
-  //  task_vector_.push_back(torso_ori_task_);
-  //  task_vector_.push_back(com_xy_task_);
+  task_vector_.push_back(com_z_task_);
+  task_vector_.push_back(torso_ori_task_);
+  task_vector_.push_back(com_xy_task_);
   task_vector_.push_back(lf_pos_task_);
   task_vector_.push_back(rf_pos_task_);
   task_vector_.push_back(lf_ori_task_);
@@ -85,10 +86,10 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   //=============================================================
   lf_contact_ =
       new SurfaceContact(robot_, crab_link::back_left__foot_link, 0.3, 0.11,
-                         0.04); // params reset later
+                         0.04);  // params reset later
   rf_contact_ =
       new SurfaceContact(robot_, crab_link::back_right__foot_link, 0.3, 0.11,
-                         0.04); // params reset later
+                         0.04);  // params reset later
 
   contact_map_.clear();
   //  contact_map_.insert(std::make_pair("lf_contact", lf_contact_));

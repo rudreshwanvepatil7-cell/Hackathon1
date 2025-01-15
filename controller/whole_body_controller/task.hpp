@@ -8,11 +8,13 @@
 enum class WBC_TYPE { IHWBC, WBIC };
 
 class Task {
-public:
+ public:
   Task(PinocchioRobotSystem *robot, const int dim)
-      : robot_(robot), dim_(dim), target_idx_(0),
+      : robot_(robot),
+        dim_(dim),
+        target_idx_(0),
         local_R_world_(Eigen::Matrix3d::Identity()) {
-
+    std::cout << "Initializing task with dim " << dim << std::endl;
     des_pos_ = Eigen::VectorXd::Zero(dim_);
     des_vel_ = Eigen::VectorXd::Zero(dim_);
     des_acc_ = Eigen::VectorXd::Zero(dim_);
@@ -135,7 +137,7 @@ public:
     std::cout << "vel: " << vel_.transpose() << std::endl;
   }
 
-protected:
+ protected:
   PinocchioRobotSystem *robot_;
   int dim_;
   int target_idx_;

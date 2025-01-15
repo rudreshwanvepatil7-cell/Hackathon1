@@ -1,12 +1,12 @@
-#include "controller/robot_system/pinocchio_robot_system.hpp"
-
 #include "controller/crab_controller/crab_control_architecture.hpp"
+
 #include "controller/crab_controller/crab_controller.hpp"
 #include "controller/crab_controller/crab_definition.hpp"
 #include "controller/crab_controller/crab_state_machines/initialize.hpp"
 #include "controller/crab_controller/crab_state_machines/land.hpp"
 #include "controller/crab_controller/crab_state_provider.hpp"
 #include "controller/crab_controller/crab_tci_container.hpp"
+#include "controller/robot_system/pinocchio_robot_system.hpp"
 #include "controller/whole_body_controller/managers/end_effector_trajectory_manager.hpp"
 #include "controller/whole_body_controller/managers/floating_base_trajectory_manager.hpp"
 #include "controller/whole_body_controller/managers/hand_trajectory_manager.hpp"
@@ -47,10 +47,10 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
   // trajectory Managers
   //=============================================================
   //  initialize kinematics manager
-  //  floating_base_tm_ = new FloatingBaseTrajectoryManager(
-  //      tci_container_->task_map_["com_xy_task"],
-  //      tci_container_->task_map_["com_z_task"],
-  //      tci_container_->task_map_["torso_ori_task"], robot_);
+  floating_base_tm_ = new FloatingBaseTrajectoryManager(
+      tci_container_->task_map_["com_xy_task"],
+      tci_container_->task_map_["com_z_task"],
+      tci_container_->task_map_["torso_ori_task"], robot_);
 
   lf_SE3_tm_ = new EndEffectorTrajectoryManager(
       tci_container_->task_map_["lf_pos_task"],

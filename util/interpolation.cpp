@@ -1,11 +1,10 @@
 #include "util/interpolation.hpp"
 
+#include <configuration.hpp>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include <configuration.hpp>
 
 namespace util {
 double Smooth(double ini, double fin, double rat) {
@@ -95,7 +94,7 @@ void SinusoidTrajectory(const Eigen::VectorXd &amp, const Eigen::VectorXd &freq,
     }
   }
 }
-} // namespace util
+}  // namespace util
 
 // Constructor
 HermiteCurve::HermiteCurve() {
@@ -273,7 +272,7 @@ void HermiteQuaternionCurve::Evaluate(const double &t_in,
   else
     delq = Eigen::AngleAxisd(delq_vec.norm(), delq_vec / delq_vec.norm());
   // quat_out = q0 * delq; // local frame
-  quat_out = delq * qa; // global frame
+  quat_out = delq * qa;  // global frame
 }
 
 void HermiteQuaternionCurve::GetAngularVelocity(const double &t_in,
@@ -332,7 +331,6 @@ void HermiteQuaternionCurve2::SetDesired(
 void HermiteQuaternionCurve2::SetInitial(
     const Eigen::Quaterniond &quat_start,
     const Eigen::Vector3d &angular_velocity_start) {
-
   qa = quat_start;
   omega_a = angular_velocity_start;
 
@@ -350,7 +348,7 @@ void HermiteQuaternionCurve2::Initialize_data_structures() {
   } else {
     q1 = qa * Eigen::Quaterniond(Eigen::AngleAxisd(
                   omega_a.norm() / 3.0,
-                  omega_a / omega_a.norm())); // q1 = qa*exp(wa/3.0)
+                  omega_a / omega_a.norm()));  // q1 = qa*exp(wa/3.0)
   }
 
   if (omega_b.norm() < 1e-6) {
@@ -358,7 +356,7 @@ void HermiteQuaternionCurve2::Initialize_data_structures() {
   } else {
     q2 = qb * Eigen::Quaterniond(Eigen::AngleAxisd(
                   omega_b.norm() / 3.0,
-                  -omega_b / omega_b.norm())); // q2 = qb*exp(wb/3.0)^-1
+                  -omega_b / omega_b.norm()));  // q2 = qb*exp(wb/3.0)^-1
   }
 
   q3 = qb;
@@ -418,12 +416,12 @@ Eigen::Quaterniond HermiteQuaternionCurve2::GetOrientation(const double &s_in) {
   qtmp3 = Eigen::AngleAxisd(omega_3aa.angle() * b3, omega_3aa.axis());
 
   // quat_out = q0*qtmp1*qtmp2*qtmp3; // local frame
-  Eigen::Quaterniond quat_out = qtmp3 * qtmp2 * qtmp1 * q0; // global frame
+  Eigen::Quaterniond quat_out = qtmp3 * qtmp2 * qtmp1 * q0;  // global frame
   return quat_out;
 }
 
-Eigen::Vector3d
-HermiteQuaternionCurve2::GetAngularVelocity(const double &s_in) {
+Eigen::Vector3d HermiteQuaternionCurve2::GetAngularVelocity(
+    const double &s_in) {
   // world frame: w(t) = qdot(t)*q^-1(t)
   // local frame: w(t) = q^-1(t)*qdot(t)
   // s_ = this->clamp(s_in);
@@ -457,8 +455,8 @@ HermiteQuaternionCurve2::GetAngularVelocity(const double &s_in) {
 }
 
 // For world frame
-Eigen::Vector3d
-HermiteQuaternionCurve2::GetAngularAcceleration(const double &s_in) {
+Eigen::Vector3d HermiteQuaternionCurve2::GetAngularAcceleration(
+    const double &s_in) {
   // world frame: a(t) = (qddot(t)*q^-1(t) - (qdot(t)*q^-1(t))^2)
   // local frame: a(t) = (q^-1(t)*qddot(t) - (q^-1(t)*qdot(t))^2)
 
@@ -624,9 +622,13 @@ MinJerkCurveVec::MinJerkCurveVec(const Eigen::VectorXd &start_pos,
                                  const Eigen::VectorXd &end_vel,
                                  const Eigen::VectorXd &end_acc,
                                  const double duration)
-    : p1_(start_pos), v1_(start_vel), a1_(start_acc), p2_(end_pos),
-      v2_(end_vel), a2_(end_acc), Ts_(duration) {
-
+    : p1_(start_pos),
+      v1_(start_vel),
+      a1_(start_acc),
+      p2_(end_pos),
+      v2_(end_vel),
+      a2_(end_acc),
+      Ts_(duration) {
   // Create N minjerk curves_ with the specified boundary conditions
   for (int i = 0; i < start_pos.size(); i++) {
     curves_.push_back(MinJerkCurve(Eigen::Vector3d(p1_[i], v1_[i], a1_[i]),
