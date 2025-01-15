@@ -28,7 +28,7 @@ public:
 
   CrabTCIContainer *tci_container_;
 
-  //  FloatingBaseTrajectoryManager *floating_base_tm_;
+  FloatingBaseTrajectoryManager *floating_base_tm_;
   EndEffectorTrajectoryManager *lf_SE3_tm_;
   EndEffectorTrajectoryManager *rf_SE3_tm_;
   EndEffectorTrajectoryManager *lh_SE3_tm_;
