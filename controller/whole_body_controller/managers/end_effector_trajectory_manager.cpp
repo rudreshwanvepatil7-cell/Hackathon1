@@ -126,7 +126,10 @@ void EndEffectorTrajectoryManager::UpdateDesired(const double current_time) {
   Eigen::VectorXd des_ori_vel(3);
   des_ori_vel << des_ori_vel_vec;
   Eigen::VectorXd des_ori_acc(3);
-  des_ori_acc << des_ori_acc_vec;
+  des_ori_acc << des_ori_acc_vec; 
+
+  std::cout << "END EFFECTOR TRAJECTORY MANAGER: UPDATE DESIRED" << std::endl;
+  std::cout << "\n\n des_ori: \n" << des_ori << std::endl; 
 
   ori_task_->UpdateDesired(des_ori, des_ori_vel, des_ori_acc);
 }

@@ -265,7 +265,7 @@ void HermiteQuaternionCurve::Initialize_data_structures() {
 
 void HermiteQuaternionCurve::Evaluate(const double &t_in,
                                       Eigen::Quaterniond &quat_out) {
-  Eigen::VectorXd delq_vec = theta_ab.Evaluate(t_in);
+  Eigen::VectorXd delq_vec = theta_ab.Evaluate(t_in); 
 
   if (delq_vec.norm() < 1e-6)
     delq = Eigen::Quaterniond(1, 0, 0, 0);

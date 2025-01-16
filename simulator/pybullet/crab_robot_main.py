@@ -70,7 +70,7 @@ if __name__ == "__main__":
         cameraDistance=12.5,
         cameraYaw=120,
         cameraPitch=-45,
-        cameraTargetPosition=base_pos + np.array([0.5, 0.3, -base_pos[2] + 0.5]),
+        cameraTargetPosition=base_pos + np.array([0.5, 0.3, -base_pos[2] + 1.5]),
     )
 
     ## sim physics setting
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     # Set the initial linear velocity
     # initial_linear_velocity = [0.0, 0.0, 0.0]  # Example: zero initial velocity
-    initial_linear_velocity = [0.0, 0.25, -0.2]  # Example: zero initial velocity
+    initial_linear_velocity = [0.0, 0.2, -0.1]  # Example: zero initial velocity
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
     pb.resetBaseVelocity(
@@ -194,7 +194,7 @@ if __name__ == "__main__":
                                       cameraYaw=120,
                                       cameraPitch=-45,
                                       cameraTargetPosition=base_pos +
-                                      np.array([0.5, 0.3, -base_pos[2] + 0.5]))
+                                      np.array([0.5, 0.3, -base_pos[2] + 1.5]))
 
         # ----------------------------------
         # Debugging

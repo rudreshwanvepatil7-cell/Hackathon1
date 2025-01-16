@@ -4,6 +4,7 @@
 #include "controller/whole_body_controller/basic_task.hpp"
 #include "util/interpolation.hpp"
 #include "util/util.hpp"
+#include <iostream> 
 
 FloatingBaseTrajectoryManager::FloatingBaseTrajectoryManager(
     Task *com_xy_task, Task *com_z_task, Task *torso_ori_task,
@@ -73,7 +74,10 @@ void FloatingBaseTrajectoryManager::InitializeSwaying(
 
 void FloatingBaseTrajectoryManager::UpdateDesired(
     const double state_machine_time) {
-  if (b_swaying_) {
+  if (b_swaying_) { 
+
+    std::cout << "b_swaying_ is TRUE" << std::endl;  
+
     Eigen::VectorXd local_des_pos = Eigen::VectorXd::Zero(3);
     Eigen::VectorXd local_des_vel = Eigen::VectorXd::Zero(3);
     Eigen::VectorXd local_des_acc = Eigen::VectorXd::Zero(3);
@@ -91,6 +95,9 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
                                des_com_acc.tail<1>());
 
   } else {
+
+    std::cout << "\n\n TORSO ORI UPDATE: b_swaying_ is FALSE" << std::endl; 
+
     // minjerk com traj generation
     if (min_jerk_curve_ == nullptr || min_jerk_time_ == nullptr)
       throw std::runtime_error(
@@ -100,7 +107,12 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
     Eigen::VectorXd des_com_vel =
         min_jerk_curve_->EvaluateFirstDerivative(state_machine_time);
     Eigen::VectorXd des_com_acc =
-        min_jerk_curve_->EvaluateSecondDerivative(state_machine_time);
+        min_jerk_curve_->EvaluateSecondDerivative(state_machine_time); 
+
+    std::cout << "\n\n des_com_pos: \n" << des_com_pos << std::endl; 
+
+    // manually set des_com_pos as something hardcoded 
+    des_com_pos << 0.0, 0.0, 0.0; 
 
     // update com des traj
     com_xy_task_->UpdateDesired(des_com_pos.head<2>(), des_com_vel.head<2>(),
@@ -115,12 +127,17 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
     double t_ddot =
         min_jerk_time_->EvaluateSecondDerivative(state_machine_time)[0];
 
+    // print statements 
+    std::cout << "\n\n t = " << t << ", t_dot = " << t_dot << ", t_ddot = " << t_ddot << std::endl; 
+
     Eigen::AngleAxisd so3 = Eigen::AngleAxisd(angle_ * t, axis_);
     Eigen::Quaterniond des_torso_quat =
         // util::ExpToQuat(exp_err_ * t) * init_torso_quat_;
         Eigen::Quaterniond(so3) * init_torso_quat_;
     Eigen::VectorXd des_torso_quat_vec(4);
-    des_torso_quat_vec << des_torso_quat.normalized().coeffs();
+    des_torso_quat_vec << des_torso_quat.normalized().coeffs(); 
+
+    std::cout << "\n\n angle_ = \n" << angle_ << "\n axis_ = \n" << axis_ << std::endl; 
 
     Eigen::VectorXd des_torso_ang_vel(3);
     des_torso_ang_vel << axis_ * angle_ * t_dot;
@@ -129,8 +146,16 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
     des_torso_ang_acc << axis_ * angle_ * t_ddot;
     // des_torso_ang_acc << exp_err_ * t_ddot;
 
+    std::cout << "\n\n so3.axis = \n" << so3.axis() << "\n so3.angle = \n" << so3.angle() << std::endl; 
+    std::cout << "\n\n des_torso_quat_vec: \n" << des_torso_quat_vec << std::endl;
+
+    // print Eigen::VectorXd des_torso_quat_vec 
+    // std::cout << "des_torso_quat_vec: " << des_torso_quat_vec << std::endl;  
+
     // update desired torso_ori des traj
     torso_ori_task_->UpdateDesired(des_torso_quat_vec, des_torso_ang_vel,
-                                   des_torso_ang_acc);
+                                   des_torso_ang_acc); 
+
+    std::cout << "TORSO ORI UPDATE: END\n\n" << std::endl;
   }
 }
