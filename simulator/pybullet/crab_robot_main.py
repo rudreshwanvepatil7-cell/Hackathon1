@@ -101,21 +101,15 @@ if __name__ == "__main__":
         angularVelocity=initial_angular_velocity,
     )
 
-    # cylinder_robot = pb.loadURDF(
-    #     cwd + "/robot_model/cylinder.urdf",
-    #     Config.INITIAL_CYLINDER_BASE_JOINT_POS,
-    #     Config.INITIAL_CYLINDER_BASE_JOINT_QUAT,
-    #     useFixedBase=0,
-    # )
     cylinder_robot = pb.loadURDF(
         cwd + "/robot_model/cylinder.urdf",
         [0.0, 0.0, 2.5],
         [0, 0.707, 0, 0.707],
-        useFixedBase=False,
+        useFixedBase=True,
     )
 
-    ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=1)
-    
+    ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=True)
+
     # Create a large plane to simulate a background
     # plane_shape = pb.createCollisionShape(pb.GEOM_PLANE)
     # plane_visual = pb.createVisualShape(pb.GEOM_PLANE, rgbaColor=[0, 0, 0, 1])
@@ -190,11 +184,12 @@ if __name__ == "__main__":
         # ----------------------------------
 
         base_pos, base_ori = pb.getBasePositionAndOrientation(robot)
-        pb.resetDebugVisualizerCamera(cameraDistance=12.5,
-                                      cameraYaw=120,
-                                      cameraPitch=-45,
-                                      cameraTargetPosition=base_pos +
-                                      np.array([0.5, 0.3, -base_pos[2] + 0.5]))
+        pb.resetDebugVisualizerCamera(
+            cameraDistance=12.5,
+            cameraYaw=120,
+            cameraPitch=-45,
+            cameraTargetPosition=base_pos + np.array([0.5, 0.3, -base_pos[2] + 0.5]),
+        )
 
         # ----------------------------------
         # Debugging
@@ -241,6 +236,27 @@ if __name__ == "__main__":
         rpc_crab_sensor_data.base_joint_quat_ = base_joint_quat
         rpc_crab_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
         rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
+
+        apply_magnetic_force_to_foot(
+            robot,
+            cylinder_robot,
+            crab_link_idx.front_right__cluster_3_wrist_link,
+        )
+        apply_magnetic_force_to_foot(
+            robot,
+            cylinder_robot,
+            crab_link_idx.front_left__cluster_3_wrist_link,
+        )
+        apply_magnetic_force_to_foot(
+            robot,
+            cylinder_robot,
+            crab_link_idx.back_right__cluster_3_wrist_link,
+        )
+        apply_magnetic_force_to_foot(
+            robot,
+            cylinder_robot,
+            crab_link_idx.back_left__cluster_3_wrist_link,
+        )
 
         # ----------------------------------
         # Get Keyboard Event
