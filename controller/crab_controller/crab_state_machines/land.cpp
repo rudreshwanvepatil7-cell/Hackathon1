@@ -6,9 +6,10 @@
 #include "controller/robot_system/pinocchio_robot_system.hpp"
 #include "controller/whole_body_controller/managers/end_effector_trajectory_manager.hpp"
 //
+#include "controller/crab_controller/crab_tci_container.hpp" // Include the header file for CrabTCIContainer
 #include "controller/whole_body_controller/managers/floating_base_trajectory_manager.hpp"
 #include "planner/locomotion/dcm_planner/foot_step.hpp"
-#include "controller/crab_controller/crab_tci_container.hpp" // Include the header file for CrabTCIContainer
+#include "util/util.hpp"
 
 // Constructor
 Land::Land(const StateId state_id, PinocchioRobotSystem *robot,
@@ -31,23 +32,26 @@ void Land::FirstVisit() {
   Eigen::Matrix3d R_w_torso =
       robot_->GetLinkIsometry(crab_link::base_link).linear();
   Eigen::Quaterniond init_torso_quat(R_w_torso);
-  double duration = 2.; 
+  double duration = 10.;
 
-  // hard-coding target torso orientation 
+  // hard-coding target torso orientation
 
   // set target torso quaternion as [0, 0, 0.707, 0.707]
-  Eigen::Quaterniond target_torso_quat(0.0, 0.0, 0.707, 0.707);
-  // Eigen::Quaterniond target_torso_quat = Eigen::Quaterniond::Identity(); 
-  std::cout << "\n\n target_torso_quat = \n" << target_torso_quat.coeffs() << std::endl; 
+  //  Eigen::Quaterniond target_torso_quat(0.0, -0.28, 0.0, 0.96);
+  Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(-0.3, 0., 0.);
+
+  // Eigen::Quaterniond target_torso_quat = Eigen::Quaterniond::Identity();
+  std::cout << "\n\n target_torso_quat = \n"
+            << target_torso_quat.coeffs().transpose() << std::endl;
 
   ctrl_arch_->floating_base_tm_->InitializeFloatingBaseInterpolation(
-      init_com_pos, init_com_pos, init_torso_quat, target_torso_quat, duration); 
+      init_com_pos, init_com_pos, init_torso_quat, target_torso_quat, duration);
 
-  std::cout << "\n\n init_torso_quat = \n" << init_torso_quat.coeffs() << std::endl; 
+  std::cout << "\n\n init_torso_quat = \n"
+            << init_torso_quat.coeffs().transpose() << std::endl;
 
   // Set current foot position as nominal (desired)
-  nominal_lfoot_iso_ = 
-      robot_->GetLinkIsometry(crab_link::back_left__foot_link);
+  nominal_lfoot_iso_ = robot_->GetLinkIsometry(crab_link::back_left__foot_link);
   nominal_rfoot_iso_ =
       robot_->GetLinkIsometry(crab_link::back_right__foot_link);
   nominal_lhand_iso_ =
@@ -82,13 +86,15 @@ void Land::FirstVisit() {
 
 void Land::OneStep() {
   state_machine_time_ = sp_->current_time_ - state_machine_start_time_;
+  state_machine_time_ = std::min(state_machine_time_, 10.0);
 
   // com & torso ori task update
   ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
 
-  // print string every loop 
-  // std::cout << "Is this even working" << std::endl; 
-  // std::cout << "Desired orientation 0: " << desired_orientation.col(0) << std::endl; 
+  // print string every loop
+  // std::cout << "Is this even working" << std::endl;
+  // std::cout << "Desired orientation 0: " << desired_orientation.col(0) <<
+  // std::endl;
 
   // update foot pose task update
   if (b_use_fixed_foot_pos_) {
@@ -124,7 +130,7 @@ void Land::LastVisit() {
   sp_->rot_world_local_ = torso_iso.linear();
 }
 
-// Comment out for now 
+// Comment out for now
 StateId Land::GetNextState() {}
 
 void Land::SetParameters(const YAML::Node &node) {

@@ -86,10 +86,10 @@ CrabTCIContainer::CrabTCIContainer(PinocchioRobotSystem *robot,
   //=============================================================
   lf_contact_ =
       new SurfaceContact(robot_, crab_link::back_left__foot_link, 0.3, 0.11,
-                         0.04);  // params reset later
+                         0.04); // params reset later
   rf_contact_ =
       new SurfaceContact(robot_, crab_link::back_right__foot_link, 0.3, 0.11,
-                         0.04);  // params reset later
+                         0.04); // params reset later
 
   contact_map_.clear();
   //  contact_map_.insert(std::make_pair("lf_contact", lf_contact_));
@@ -115,7 +115,7 @@ CrabTCIContainer::~CrabTCIContainer() {
   delete jpos_task_;
   //  delete com_xy_task_;
   //  delete com_z_task_;
-  //  delete torso_ori_task_;
+  delete torso_ori_task_;
   delete lf_pos_task_;
   delete rf_pos_task_;
   delete lf_ori_task_;
@@ -147,8 +147,8 @@ void CrabTCIContainer::_InitializeParameters(const YAML::Node &cfg) {
   // task
   //  com_xy_task_->SetParameters(cfg["wbc"]["task"]["com_xy_task"], wbc_type);
   //  com_z_task_->SetParameters(cfg["wbc"]["task"]["com_z_task"], wbc_type);
-  //  torso_ori_task_->SetParameters(cfg["wbc"]["task"]["torso_ori_task"],
-  //                                 wbc_type);
+  torso_ori_task_->SetParameters(cfg["wbc"]["task"]["torso_ori_task"],
+                                 wbc_type);
   lf_pos_task_->SetParameters(cfg["wbc"]["task"]["foot_pos_task"], wbc_type);
   rf_pos_task_->SetParameters(cfg["wbc"]["task"]["foot_pos_task"], wbc_type);
   lf_ori_task_->SetParameters(cfg["wbc"]["task"]["foot_ori_task"], wbc_type);
