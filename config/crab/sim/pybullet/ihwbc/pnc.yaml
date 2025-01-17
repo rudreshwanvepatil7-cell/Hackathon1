@@ -89,11 +89,11 @@ wbc:
 
     com_z_task:
       com_height_target_source: 0 # 0: com height / 1: base height
-      com_weight : [1000.]
+      com_weight : [0.]
       com_kp : [100.]
       com_kd : [5.]
 
-      base_weight : [1000.] # only used when target source : 1
+      base_weight : [0.] # only used when target source : 1
       base_kp : [100.]
       base_kd : [5.] # x, y will be ignored
 

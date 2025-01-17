@@ -109,10 +109,11 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
     Eigen::VectorXd des_com_acc =
         min_jerk_curve_->EvaluateSecondDerivative(state_machine_time); 
 
+    std::cout << "\n\n state_machine_time = " << state_machine_time << std::endl;
     std::cout << "\n\n des_com_pos: \n" << des_com_pos << std::endl; 
 
     // manually set des_com_pos as something hardcoded 
-    des_com_pos << 0.0, 0.0, 0.0; 
+    // des_com_pos << 0.0, 0.0, 0.0; 
 
     // update com des traj
     com_xy_task_->UpdateDesired(des_com_pos.head<2>(), des_com_vel.head<2>(),
@@ -137,7 +138,7 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
     Eigen::VectorXd des_torso_quat_vec(4);
     des_torso_quat_vec << des_torso_quat.normalized().coeffs(); 
 
-    std::cout << "\n\n angle_ = \n" << angle_ << "\n axis_ = \n" << axis_ << std::endl; 
+    std::cout << "\n\n angle_ = \n" << angle_ << "\n axis_ = \n" << axis_.transpose() << std::endl; 
 
     Eigen::VectorXd des_torso_ang_vel(3);
     des_torso_ang_vel << axis_ * angle_ * t_dot;
@@ -146,8 +147,8 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
     des_torso_ang_acc << axis_ * angle_ * t_ddot;
     // des_torso_ang_acc << exp_err_ * t_ddot;
 
-    std::cout << "\n\n so3.axis = \n" << so3.axis() << "\n so3.angle = \n" << so3.angle() << std::endl; 
-    std::cout << "\n\n des_torso_quat_vec: \n" << des_torso_quat_vec << std::endl;
+    std::cout << "\n\n so3.axis = \n" << so3.axis().transpose() << "\n so3.angle = \n" << so3.angle() << std::endl; 
+    std::cout << "\n\n des_torso_quat_vec: \n" << des_torso_quat_vec.transpose() << std::endl;
 
     // print Eigen::VectorXd des_torso_quat_vec 
     // std::cout << "des_torso_quat_vec: " << des_torso_quat_vec << std::endl;  
