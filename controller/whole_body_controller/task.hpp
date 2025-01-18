@@ -14,7 +14,6 @@ class Task {
         dim_(dim),
         target_idx_(0),
         local_R_world_(Eigen::Matrix3d::Identity()) {
-    std::cout << "Initializing task with dim " << dim << std::endl;
     des_pos_ = Eigen::VectorXd::Zero(dim_);
     des_vel_ = Eigen::VectorXd::Zero(dim_);
     des_acc_ = Eigen::VectorXd::Zero(dim_);

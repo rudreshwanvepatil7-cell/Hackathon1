@@ -1,6 +1,7 @@
 import pybullet as pb
 import os
 import sys
+import numpy as np
 
 cwd = os.getcwd()
 sys.path.append(cwd)
@@ -542,4 +543,25 @@ def set_init_config_pybullet_robot(robot):
     )
     pb.resetJointState(
         robot, crab_joint_idx.back_right__cluster_3_wrist, np.radians(-roll_angle), 0.0
+    )
+
+
+def apply_magnetic_force_to_foot(robot, satellite, link_idx):
+    closest_points = pb.getClosestPoints(
+        bodyA=robot, bodyB=satellite, distance=0.5, linkIndexA=link_idx, linkIndexB=-1
+    )
+    if not len(closest_points):
+        return
+    foot_closest = closest_points[0][5]
+    sat_closest = closest_points[0][6]
+
+    force = np.array(sat_closest) - np.array(foot_closest)
+    force = 100 * force / np.linalg.norm(force)
+
+    pb.applyExternalForce(
+        objectUniqueId=robot,
+        linkIndex=link_idx,
+        forceObj=force,
+        posObj=foot_closest,
+        flags=pb.WORLD_FRAME,
     )
