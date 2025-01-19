@@ -86,7 +86,11 @@ void EndEffectorTrajectoryManager::InitializeSwingTrajectory(
                           Eigen::VectorXd::Zero(3), 0.5 * duration_);
 
   Eigen::Quaterniond start_ori(ini_pose.linear());
-  Eigen::Quaterniond end_ori(fin_pose.linear());
+  Eigen::Quaterniond end_ori(fin_pose.linear()); 
+
+  // end_eff start_ori and end_ori 
+  std::cout << "END EFFECTOR START ORI: " << start_ori.coeffs().transpose() << std::endl; 
+  std::cout << "END EFFECTOR END ORI: " << end_ori.coeffs().transpose() << std::endl; 
 
   ori_curve_ =
       new HermiteQuaternionCurve(start_ori, Eigen::Vector3d::Zero(), end_ori,
@@ -133,8 +137,8 @@ void EndEffectorTrajectoryManager::UpdateDesired(const double current_time) {
   Eigen::VectorXd des_ori_acc(3);
   des_ori_acc << des_ori_acc_vec; 
 
-  std::cout << "END EFFECTOR TRAJECTORY MANAGER: UPDATE DESIRED" << std::endl;
-  std::cout << "\n\n des_ori: \n" << des_ori << std::endl; 
+  // std::cout << "END EFFECTOR TRAJECTORY MANAGER: UPDATE DESIRED" << std::endl;
+  // std::cout << "\n\n des_ori: \n" << des_ori << std::endl; 
 
   ori_task_->UpdateDesired(des_ori, des_ori_vel, des_ori_acc);
 }
