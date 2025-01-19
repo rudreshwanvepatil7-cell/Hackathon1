@@ -32,14 +32,14 @@ void Land::FirstVisit() {
   Eigen::Matrix3d R_w_torso =
       robot_->GetLinkIsometry(crab_link::base_link).linear();
   Eigen::Quaterniond init_torso_quat(R_w_torso);
-  double duration = 20.;
+  double duration = 30.;
 
   // hard-coding target torso orientation
 
   // set target torso quaternion as [0, 0, 0.707, 0.707]
   //  Eigen::Quaterniond target_torso_quat(0.0, -0.28, 0.0, 0.96);
   // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(-0.3, 0., 0.);
-  Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(0.3, 0., 0.);
+  Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(0.4, 0., 0.);
 
   // Eigen::Quaterniond target_torso_quat = Eigen::Quaterniond::Identity();
   std::cout << "\n\n target_torso_quat = \n"
@@ -70,6 +70,12 @@ void Land::FirstVisit() {
   nominal_rfoot_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
   nominal_lhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
   nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
+
+  // void EndEffectorTrajectoryManager::InitializeSwingTrajectory(
+  //   const Eigen::Isometry3d &ini_pose, 
+  //   const Eigen::Isometry3d &fin_pose,
+  //   const double swing_height, 
+  //   const double duration) {
 
   // Initialize interpolation
   ctrl_arch_->lf_SE3_tm_->InitializeSwingTrajectory(

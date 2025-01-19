@@ -60,8 +60,10 @@ void EndEffectorTrajectoryManager::UseNominal(
 }
 
 void EndEffectorTrajectoryManager::InitializeSwingTrajectory(
-    const Eigen::Isometry3d &ini_pose, const Eigen::Isometry3d &fin_pose,
-    const double swing_height, const double duration) {
+    const Eigen::Isometry3d &ini_pose, 
+    const Eigen::Isometry3d &fin_pose,
+    const double swing_height, 
+    const double duration) {
 
   duration_ = duration;
 

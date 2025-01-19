@@ -129,7 +129,7 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
         min_jerk_time_->EvaluateSecondDerivative(state_machine_time)[0];
 
     // print statements 
-    std::cout << "\n\n t = " << t << ", t_dot = " << t_dot << ", t_ddot = " << t_ddot << std::endl; 
+    // std::cout << "\n\n t = " << t << ", t_dot = " << t_dot << ", t_ddot = " << t_ddot << std::endl; 
 
     Eigen::AngleAxisd so3 = Eigen::AngleAxisd(angle_ * t, axis_);
     Eigen::Quaterniond des_torso_quat =
@@ -157,6 +157,6 @@ void FloatingBaseTrajectoryManager::UpdateDesired(
     torso_ori_task_->UpdateDesired(des_torso_quat_vec, des_torso_ang_vel,
                                    des_torso_ang_acc); 
 
-    std::cout << "TORSO ORI UPDATE: END\n\n" << std::endl;
+    // std::cout << "TORSO ORI UPDATE: END\n\n" << std::endl;
   }
 }
