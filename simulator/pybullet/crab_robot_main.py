@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     # Set the initial linear velocity
     # initial_linear_velocity = [0.0, 0.0, 0.0]  # Example: zero initial velocity
-    initial_linear_velocity = [0.0, 0.2, -0.1]  # Example: zero initial velocity
+    initial_linear_velocity = [0.0, 0.4, -0.2]  # Example: zero initial velocity
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
     pb.resetBaseVelocity(
@@ -107,6 +107,9 @@ if __name__ == "__main__":
         [0, 0.707, 0, 0.707],
         useFixedBase=True,
     )
+    
+    # get cylinder position 
+    cylinder_pos, _ = pb.getBasePositionAndOrientation(cylinder_robot)
 
     ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=True)
 

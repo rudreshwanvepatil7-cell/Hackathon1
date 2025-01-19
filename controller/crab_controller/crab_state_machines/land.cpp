@@ -32,13 +32,14 @@ void Land::FirstVisit() {
   Eigen::Matrix3d R_w_torso =
       robot_->GetLinkIsometry(crab_link::base_link).linear();
   Eigen::Quaterniond init_torso_quat(R_w_torso);
-  double duration = 10.;
+  double duration = 20.;
 
   // hard-coding target torso orientation
 
   // set target torso quaternion as [0, 0, 0.707, 0.707]
   //  Eigen::Quaterniond target_torso_quat(0.0, -0.28, 0.0, 0.96);
-  Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(-0.3, 0., 0.);
+  // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(-0.3, 0., 0.);
+  Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(0.3, 0., 0.);
 
   // Eigen::Quaterniond target_torso_quat = Eigen::Quaterniond::Identity();
   std::cout << "\n\n target_torso_quat = \n"
@@ -51,7 +52,8 @@ void Land::FirstVisit() {
             << init_torso_quat.coeffs().transpose() << std::endl;
 
   // Set current foot position as nominal (desired)
-  nominal_lfoot_iso_ = robot_->GetLinkIsometry(crab_link::back_left__foot_link);
+  nominal_lfoot_iso_ = 
+      robot_->GetLinkIsometry(crab_link::back_left__foot_link);
   nominal_rfoot_iso_ =
       robot_->GetLinkIsometry(crab_link::back_right__foot_link);
   nominal_lhand_iso_ =

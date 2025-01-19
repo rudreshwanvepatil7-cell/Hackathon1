@@ -34,7 +34,10 @@ void EndEffectorTrajectoryManager::UseCurrent() {
   Eigen::VectorXd des_ori(4);
   des_ori << des_ori_quat.normalized().coeffs();
   Eigen::VectorXd des_ang_vel(3);
-  des_ang_vel << robot_->GetLinkSpatialVel(ori_task_->TargetIdx()).head<3>();
+  des_ang_vel << robot_->GetLinkSpatialVel(ori_task_->TargetIdx()).head<3>(); 
+
+  // print des_ori_task 
+  std::cout << "END EFFECTOR des_ori = " << des_ori << std::endl; 
 
   pos_task_->UpdateDesired(des_pos, des_vel, des_acc);
   ori_task_->UpdateDesired(des_ori, des_ang_vel, des_acc);
