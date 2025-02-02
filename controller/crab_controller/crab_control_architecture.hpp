@@ -3,13 +3,15 @@
 #if B_USE_FOXGLOVE
 #include "UI/foxglove/client/parameter_subscriber.hpp"
 #endif
-#include "util/util.hpp"
 #include <any>
+
+#include "util/util.hpp"
 
 namespace crab_states {
 constexpr int kInitialize = 1;
-constexpr int kLand = 2;
-} // namespace crab_states
+constexpr int kApproach = 2;
+constexpr int kContact = 3;
+}  // namespace crab_states
 
 class CrabController;
 class CrabTCIContainer;
@@ -20,7 +22,7 @@ class CrabStateProvider;
 class TaskHierarchyManager;
 
 class CrabControlArchitecture : public ControlArchitecture {
-public:
+ public:
   CrabControlArchitecture(PinocchioRobotSystem *robot, const YAML::Node &cfg);
   virtual ~CrabControlArchitecture();
 
@@ -43,7 +45,7 @@ public:
   //  TaskHierarchyManager *rh_pos_hm_;
   //  TaskHierarchyManager *rh_ori_hm_;
 
-private:
+ private:
   CrabController *controller_;
   CrabStateProvider *sp_;
 

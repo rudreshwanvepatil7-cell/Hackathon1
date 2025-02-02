@@ -1,10 +1,9 @@
-#include "controller/robot_system/pinocchio_robot_system.hpp"
-
-#include "controller/filter/digital_filters.hpp"
+#include "controller/crab_controller/crab_state_estimator.hpp"
 
 #include "controller/crab_controller/crab_interface.hpp"
-#include "controller/crab_controller/crab_state_estimator.hpp"
 #include "controller/crab_controller/crab_state_provider.hpp"
+#include "controller/filter/digital_filters.hpp"
+#include "controller/robot_system/pinocchio_robot_system.hpp"
 
 #if B_USE_ZMQ
 #include "controller/crab_controller/crab_data_manager.hpp"
@@ -14,9 +13,11 @@
 
 CrabStateEstimator::CrabStateEstimator(PinocchioRobotSystem *robot,
                                        const YAML::Node &cfg)
-    : StateEstimator(robot), R_imu_base_com_(Eigen::Matrix3d::Identity()),
+    : StateEstimator(robot),
+      R_imu_base_com_(Eigen::Matrix3d::Identity()),
       global_leg_odometry_(Eigen::Vector3d::Zero()),
-      prev_base_joint_pos_(Eigen::Vector3d::Zero()), b_first_visit_(true),
+      prev_base_joint_pos_(Eigen::Vector3d::Zero()),
+      b_first_visit_(true),
       com_vel_exp_filter_(nullptr) {
   util::PrettyConstructor(1, "CrabStateEstimator");
 
@@ -84,8 +85,7 @@ CrabStateEstimator::~CrabStateEstimator() {
     delete com_vel_mv_avg_filter_.back();
     com_vel_mv_avg_filter_.pop_back();
   }
-  if (com_vel_exp_filter_ != nullptr)
-    delete com_vel_exp_filter_;
+  if (com_vel_exp_filter_ != nullptr) delete com_vel_exp_filter_;
 }
 
 void CrabStateEstimator::Initialize(CrabSensorData *sensor_data) {
@@ -105,7 +105,6 @@ void CrabStateEstimator::Initialize(CrabSensorData *sensor_data) {
 }
 
 void CrabStateEstimator::Update(CrabSensorData *sensor_data) {
-
   std::cout << "[State Estimator] Update Not Implemented Yet" << std::endl;
 }
 
@@ -120,6 +119,11 @@ void CrabStateEstimator::UpdateGroundTruthSensorData(
       sensor_data->base_joint_lin_vel_, sensor_data->base_joint_ang_vel_,
       sensor_data->joint_pos_, sensor_data->joint_vel_, true);
 
+  sp_->b_lf_contact_ = sensor_data->b_RL_foot_contact_;
+  sp_->b_rf_contact_ = sensor_data->b_RR_foot_contact_;
+  sp_->b_lh_contact_ = sensor_data->b_FL_foot_contact_;
+  sp_->b_rh_contact_ = sensor_data->b_FR_foot_contact_;
+
 #if B_USE_ZMQ
   if (sp_->count_ % sp_->data_save_freq_ == 0) {
     CrabDataManager *dm = CrabDataManager::GetDataManager();
@@ -130,6 +134,8 @@ void CrabStateEstimator::UpdateGroundTruthSensorData(
 
     dm->data_->b_lfoot_ = sp_->b_lf_contact_;
     dm->data_->b_rfoot_ = sp_->b_rf_contact_;
+    dm->data_->b_lhand_ = sp_->b_lh_contact_;
+    dm->data_->b_rhand_ = sp_->b_rh_contact_;
   }
 #endif
 #if B_USE_MATLOGGER

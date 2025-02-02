@@ -221,30 +221,10 @@ def get_sensor_data_from_pybullet(robot, previous_torso_velocity):
         RR_normal_force += contact[9]
 
     # Determine foot contact states based on the z-coordinate of the foot link
-    b_FL_foot_contact = (
-        True
-        if pb.getLinkState(robot, crab_link_idx.front_left__foot_link, 1, 1)[0][2]
-        <= 0.05
-        else False
-    )
-    b_FR_foot_contact = (
-        True
-        if pb.getLinkState(robot, crab_link_idx.front_right__foot_link, 1, 1)[0][2]
-        <= 0.05
-        else False
-    )
-    b_RL_foot_contact = (
-        True
-        if pb.getLinkState(robot, crab_link_idx.back_left__foot_link, 1, 1)[0][2]
-        <= 0.05
-        else False
-    )
-    b_RR_foot_contact = (
-        True
-        if pb.getLinkState(robot, crab_link_idx.back_right__foot_link, 1, 1)[0][2]
-        <= 0.05
-        else False
-    )
+    b_FL_foot_contact = FL_normal_force >= 0.05
+    b_FR_foot_contact = FR_normal_force >= 0.05
+    b_RL_foot_contact = RL_normal_force >= 0.05
+    b_RR_foot_contact = RR_normal_force >= 0.05
 
     return (
         imu_frame_quat,

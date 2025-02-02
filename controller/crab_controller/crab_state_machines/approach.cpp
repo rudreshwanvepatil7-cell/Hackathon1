@@ -1,4 +1,4 @@
-#include "controller/crab_controller/crab_state_machines/land.hpp"
+#include "controller/crab_controller/crab_state_machines/approach.hpp"
 
 #include "controller/crab_controller/crab_control_architecture.hpp"
 #include "controller/crab_controller/crab_definition.hpp"
@@ -6,16 +6,16 @@
 #include "controller/robot_system/pinocchio_robot_system.hpp"
 #include "controller/whole_body_controller/managers/end_effector_trajectory_manager.hpp"
 //
-#include "controller/crab_controller/crab_tci_container.hpp" // Include the header file for CrabTCIContainer
+#include "controller/crab_controller/crab_tci_container.hpp"  // Include the header file for CrabTCIContainer
 #include "controller/whole_body_controller/managers/floating_base_trajectory_manager.hpp"
 #include "planner/locomotion/dcm_planner/foot_step.hpp"
 #include "util/util.hpp"
 
 // Constructor
-Land::Land(const StateId state_id, PinocchioRobotSystem *robot,
-           CrabControlArchitecture *ctrl_arch)
+Approach::Approach(const StateId state_id, PinocchioRobotSystem *robot,
+                   CrabControlArchitecture *ctrl_arch)
     : StateMachine(state_id, robot), ctrl_arch_(ctrl_arch) {
-  util::PrettyConstructor(2, "Land");
+  util::PrettyConstructor(2, "Approach");
 
   sp_ = CrabStateProvider::GetStateProvider();
   nominal_lfoot_iso_.setIdentity();
@@ -23,8 +23,8 @@ Land::Land(const StateId state_id, PinocchioRobotSystem *robot,
 }
 
 // First visit to the state
-void Land::FirstVisit() {
-  std::cout << "crab_states: kLand" << std::endl;
+void Approach::FirstVisit() {
+  std::cout << "crab_states: kApproach" << std::endl;
   state_machine_start_time_ = sp_->current_time_;
 
   // TODO set torso orientation to something meaningful
@@ -52,8 +52,7 @@ void Land::FirstVisit() {
             << init_torso_quat.coeffs().transpose() << std::endl;
 
   // Set current foot position as nominal (desired)
-  nominal_lfoot_iso_ = 
-      robot_->GetLinkIsometry(crab_link::back_left__foot_link);
+  nominal_lfoot_iso_ = robot_->GetLinkIsometry(crab_link::back_left__foot_link);
   nominal_rfoot_iso_ =
       robot_->GetLinkIsometry(crab_link::back_right__foot_link);
   nominal_lhand_iso_ =
@@ -72,9 +71,9 @@ void Land::FirstVisit() {
   nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
 
   // void EndEffectorTrajectoryManager::InitializeSwingTrajectory(
-  //   const Eigen::Isometry3d &ini_pose, 
+  //   const Eigen::Isometry3d &ini_pose,
   //   const Eigen::Isometry3d &fin_pose,
-  //   const double swing_height, 
+  //   const double swing_height,
   //   const double duration) {
 
   // Initialize interpolation
@@ -92,7 +91,7 @@ void Land::FirstVisit() {
       nominal_rhand_iso_, nominal_rhand_iso_.translation().z(), duration);
 }
 
-void Land::OneStep() {
+void Approach::OneStep() {
   state_machine_time_ = sp_->current_time_ - state_machine_start_time_;
   state_machine_time_ = std::min(state_machine_time_, 10.0);
 
@@ -121,9 +120,12 @@ void Land::OneStep() {
   // ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
 }
 
-bool Land::EndOfState() { return false; }
+bool Approach::EndOfState() {
+  return sp_->b_lh_contact_ || sp_->b_rh_contact_ || sp_->b_lf_contact_ ||
+         sp_->b_rf_contact_;
+}
 
-void Land::LastVisit() {
+void Approach::LastVisit() {
   state_machine_time_ = 0.;
 
   if (sp_->b_use_base_height_)
@@ -139,9 +141,9 @@ void Land::LastVisit() {
 }
 
 // Comment out for now
-StateId Land::GetNextState() {}
+StateId Approach::GetNextState() { return crab_states::kContact; }
 
-void Land::SetParameters(const YAML::Node &node) {
+void Approach::SetParameters(const YAML::Node &node) {
   try {
     b_use_fixed_foot_pos_ = util::ReadParameter<bool>(
         node["state_machine"], "b_use_const_desired_foot_pos");

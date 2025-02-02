@@ -2,8 +2,9 @@
 
 #include "controller/crab_controller/crab_controller.hpp"
 #include "controller/crab_controller/crab_definition.hpp"
+#include "controller/crab_controller/crab_state_machines/approach.hpp"
+#include "controller/crab_controller/crab_state_machines/contact.hpp"
 #include "controller/crab_controller/crab_state_machines/initialize.hpp"
-#include "controller/crab_controller/crab_state_machines/land.hpp"
 #include "controller/crab_controller/crab_state_provider.hpp"
 #include "controller/crab_controller/crab_tci_container.hpp"
 #include "controller/robot_system/pinocchio_robot_system.hpp"
@@ -27,10 +28,8 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
   // set starting state
   std::string test_env_name = util::ReadParameter<std::string>(cfg, "env");
   if (test_env_name == "pybullet") {
-    //    prev_loco_state_ = crab_states::kInitialize;
-    //    loco_state_ = crab_states::kInitialize;
-    prev_loco_state_ = crab_states::kLand;
-    loco_state_ = crab_states::kLand;
+    prev_loco_state_ = crab_states::kApproach;
+    loco_state_ = crab_states::kApproach;
   } else {
     // mujoco & hw
     prev_loco_state_ = crab_states::kInitialize;
@@ -161,9 +160,15 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
   locomotion_state_machine_container_[crab_states::kInitialize]->SetParameters(
       cfg);
 
-  locomotion_state_machine_container_[crab_states::kLand] =
-      new Land(crab_states::kLand, robot_, this);
-  locomotion_state_machine_container_[crab_states::kLand]->SetParameters(cfg);
+  locomotion_state_machine_container_[crab_states::kApproach] =
+      new Approach(crab_states::kApproach, robot_, this);
+  locomotion_state_machine_container_[crab_states::kApproach]->SetParameters(
+      cfg);
+
+  locomotion_state_machine_container_[crab_states::kContact] =
+      new Contact(crab_states::kContact, robot_, this);
+  locomotion_state_machine_container_[crab_states::kContact]->SetParameters(
+      cfg);
 }
 
 CrabControlArchitecture::~CrabControlArchitecture() {
@@ -183,7 +188,8 @@ CrabControlArchitecture::~CrabControlArchitecture() {
 
   // state machines
   delete locomotion_state_machine_container_[crab_states::kInitialize];
-  delete locomotion_state_machine_container_[crab_states::kLand];
+  delete locomotion_state_machine_container_[crab_states::kApproach];
+  delete locomotion_state_machine_container_[crab_states::kContact];
 
 #if B_USE_FOXGLOVE
   delete param_subscriber_;

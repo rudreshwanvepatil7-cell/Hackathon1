@@ -155,7 +155,13 @@ state_machine:
       b_only_joint_pos_control: false
       wait_time: 2.
 
-    land:
+    approach:
+      target_lf_rpy: [0., 1., 0.]
+      target_lh_rpy: [0., 1., 0.]
+      target_rf_rpy: [0., 1., 0.]
+      target_rh_rpy: [0., 1., 0.]
+
+    contact:
       target_lf_rpy: [0., 1., 0.]
       target_lh_rpy: [0., 1., 0.]
       target_rf_rpy: [0., 1., 0.]

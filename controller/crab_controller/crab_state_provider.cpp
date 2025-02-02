@@ -1,4 +1,5 @@
 #include "controller/crab_controller/crab_state_provider.hpp"
+
 #include "controller/crab_controller/crab_definition.hpp"
 #include "util/util.hpp"
 
@@ -23,13 +24,15 @@ CrabStateProvider::CrabStateProvider() {
 
   b_lf_contact_ = false;
   b_rf_contact_ = false;
+  b_lh_contact_ = false;
+  b_rh_contact_ = false;
   b_request_change_swing_leg_ = false;
   b_swing_leg_ = end_effector::LFoot;
 
   com_vel_est_.setZero();
 
-  state_ = 1;      // crab_states::kInitialize
-  prev_state_ = 1; // crab_states::kInitialize
+  state_ = 1;       // crab_states::kInitialize
+  prev_state_ = 1;  // crab_states::kInitialize
 
   b_use_base_height_ = false;
   des_com_height_ = 0.;

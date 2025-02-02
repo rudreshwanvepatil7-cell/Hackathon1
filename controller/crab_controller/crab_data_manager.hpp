@@ -1,13 +1,14 @@
 #pragma once
 
-#include "crab.pb.h" //in build/messages/
-#include "crab_definition.hpp"
 #include <Eigen/Dense>
 #include <memory>
 #include <zmq.hpp>
 
+#include "crab.pb.h"  //in build/messages/
+#include "crab_definition.hpp"
+
 struct CrabData {
-public:
+ public:
   CrabData() {};
   ~CrabData() = default;
 
@@ -62,24 +63,26 @@ public:
 
   bool b_lfoot_ = false;
   bool b_rfoot_ = false;
+  bool b_lhand_ = false;
+  bool b_rhand_ = false;
 
   Eigen::Quaterniond quat_world_local_ = Eigen::Quaterniond::Identity();
 };
 
 // Singleton class
 class CrabDataManager {
-public:
+ public:
   static CrabDataManager *GetDataManager();
   ~CrabDataManager() = default;
 
   void InitializeSocket(const std::string &ip_address);
   void SendData();
 
-  bool IsInitialized(); // socket initialized boolean getter
+  bool IsInitialized();  // socket initialized boolean getter
 
   std::unique_ptr<CrabData> data_;
 
-private:
+ private:
   CrabDataManager();
 
   std::unique_ptr<zmq::context_t> context_;

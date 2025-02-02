@@ -5,11 +5,11 @@ class PinocchioRobotSystem;
 class CrabControlArchitecture;
 class CrabStateProvider;
 
-class Land : public StateMachine {
-public:
-  Land(const StateId state_id, PinocchioRobotSystem *robot,
-       CrabControlArchitecture *ctrl_arch);
-  ~Land() = default;
+class Approach : public StateMachine {
+ public:
+  Approach(const StateId state_id, PinocchioRobotSystem *robot,
+           CrabControlArchitecture *ctrl_arch);
+  ~Approach() = default;
 
   void FirstVisit() override;
   void OneStep() override;
@@ -20,7 +20,7 @@ public:
 
   void SetParameters(const YAML::Node &node) override;
 
-private:
+ private:
   CrabControlArchitecture *ctrl_arch_;
 
   CrabStateProvider *sp_;

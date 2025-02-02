@@ -1,4 +1,5 @@
 #include "controller/crab_controller/crab_state_machines/initialize.hpp"
+
 #include "controller/crab_controller/crab_control_architecture.hpp"
 #include "controller/crab_controller/crab_state_provider.hpp"
 #include "controller/crab_controller/crab_tci_container.hpp"
@@ -8,8 +9,11 @@
 
 Initialize::Initialize(const StateId state_id, PinocchioRobotSystem *robot,
                        CrabControlArchitecture *ctrl_arch)
-    : StateMachine(state_id, robot), ctrl_arch_(ctrl_arch), b_stay_here_(false),
-      wait_time_(0.), min_jerk_curves_(nullptr) {
+    : StateMachine(state_id, robot),
+      ctrl_arch_(ctrl_arch),
+      b_stay_here_(false),
+      wait_time_(0.),
+      min_jerk_curves_(nullptr) {
   util::PrettyConstructor(2, "Initialize");
 
   sp_ = CrabStateProvider::GetStateProvider();
@@ -18,8 +22,7 @@ Initialize::Initialize(const StateId state_id, PinocchioRobotSystem *robot,
 }
 
 Initialize::~Initialize() {
-  if (min_jerk_curves_ != nullptr)
-    delete min_jerk_curves_;
+  if (min_jerk_curves_ != nullptr) delete min_jerk_curves_;
 }
 
 void Initialize::FirstVisit() {
@@ -31,7 +34,7 @@ void Initialize::FirstVisit() {
       Eigen::VectorXd::Zero(init_joint_pos_.size()), target_joint_pos_,
       Eigen::VectorXd::Zero(target_joint_pos_.size()),
       Eigen::VectorXd::Zero(target_joint_pos_.size()),
-      end_time_); // min jerk curve initialization
+      end_time_);  // min jerk curve initialization
 }
 
 void Initialize::OneStep() {
@@ -62,14 +65,10 @@ void Initialize::OneStep() {
 void Initialize::LastVisit() {}
 
 bool Initialize::EndOfState() {
-  if (b_stay_here_) {
-    return false;
-  } else {
-    return (state_machine_time_ >= end_time_ + wait_time_) ? true : false;
-  }
+  return !b_stay_here_ && (state_machine_time_ >= end_time_ + wait_time_);
 }
 
-StateId Initialize::GetNextState() { return crab_states::kLand; }
+StateId Initialize::GetNextState() { return crab_states::kApproach; }
 
 void Initialize::SetParameters(const YAML::Node &node) {
   try {
