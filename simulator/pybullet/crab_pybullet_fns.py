@@ -1,7 +1,8 @@
 import pybullet as pb
 import os
 import sys
-import numpy as np
+import numpy as np 
+import signal 
 
 cwd = os.getcwd()
 sys.path.append(cwd)
@@ -545,3 +546,34 @@ def apply_magnetic_force_to_foot(robot, satellite, link_idx):
         posObj=foot_closest,
         flags=pb.WORLD_FRAME,
     )
+
+
+# ----------------------------------
+# sim functions
+# ----------------------------------
+
+
+if Config.MEASURE_COMPUTATION_TIME:
+    from pytictoc import TicToc
+
+
+def signal_handler(signal, frame):
+    if Config.MEASURE_COMPUTATION_TIME:
+        print("========================================================")
+        print('saving list of compuation time in "compuation_time.txt"')
+        print("========================================================")
+        np.savetxt(
+            "computation_time.txt", np.array([compuation_cal_list]), delimiter=","
+        )
+
+    if Config.VIDEO_RECORD:
+        print("========================================================")
+        print("Making Video")
+        print("========================================================")
+        pybullet_util.make_video(video_dir)
+
+    pb.disconnect()
+    sys.exit(0)
+
+
+signal.signal(signal.SIGINT, signal_handler)

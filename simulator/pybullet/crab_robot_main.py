@@ -22,38 +22,8 @@ import cv2
 # import go2_interface_py
 import crab_interface_py
 
-
 # moved some functions to simulator.pybullet.crab_pybullet_fns
 from simulator.pybullet.crab_pybullet_fns import *
-
-# ----------------------------------
-# sim functions
-# ----------------------------------
-
-if Config.MEASURE_COMPUTATION_TIME:
-    from pytictoc import TicToc
-
-
-def signal_handler(signal, frame):
-    if Config.MEASURE_COMPUTATION_TIME:
-        print("========================================================")
-        print('saving list of compuation time in "compuation_time.txt"')
-        print("========================================================")
-        np.savetxt(
-            "computation_time.txt", np.array([compuation_cal_list]), delimiter=","
-        )
-
-    if Config.VIDEO_RECORD:
-        print("========================================================")
-        print("Making Video")
-        print("========================================================")
-        pybullet_util.make_video(video_dir)
-
-    pb.disconnect()
-    sys.exit(0)
-
-
-signal.signal(signal.SIGINT, signal_handler)
 
 # ----------------------------------
 # main simulation loop
@@ -102,7 +72,7 @@ if __name__ == "__main__":
     )
 
     cylinder_robot = pb.loadURDF(
-        cwd + "/robot_model/cylinder.urdf",
+        cwd + "/robot_model/crab/cylinder.urdf",
         [0.0, 0.0, 2.5],
         [0, 0.707, 0, 0.707],
         useFixedBase=True,
