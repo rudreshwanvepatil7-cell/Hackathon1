@@ -317,10 +317,10 @@ if __name__ == "__main__":
         rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
 
         # Compute the vector from the cylinder to each end effector
-        lfoot_cyl_vector = np.array(lfoot_pos) - np.array(cylinder_pos)
-        rfoot_cyl_vector = np.array(rfoot_pos) - np.array(cylinder_pos)
-        lhand_cyl_vector = np.array(lhand_pos) - np.array(cylinder_pos)
-        rhand_cyl_vector = np.array(rhand_pos) - np.array(cylinder_pos)
+        lfoot_cyl_vector = np.array(cylinder_pos) - np.array(lfoot_pos) 
+        rfoot_cyl_vector = np.array(cylinder_pos) - np.array(rfoot_pos) 
+        lhand_cyl_vector = np.array(cylinder_pos) - np.array(lhand_pos) 
+        rhand_cyl_vector = np.array(cylinder_pos) - np.array(rhand_pos) 
         
         rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector 
         rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 

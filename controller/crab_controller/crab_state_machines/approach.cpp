@@ -72,12 +72,9 @@ void Approach::FirstVisit()
 
   // Set current foot position as nominal (desired)
   nominal_lfoot_iso_ = robot_->GetLinkIsometry(crab_link::back_left__foot_link);
-  nominal_rfoot_iso_ =
-      robot_->GetLinkIsometry(crab_link::back_right__foot_link);
-  nominal_lhand_iso_ =
-      robot_->GetLinkIsometry(crab_link::front_left__foot_link);
-  nominal_rhand_iso_ =
-      robot_->GetLinkIsometry(crab_link::front_right__foot_link); 
+  nominal_rfoot_iso_ = robot_->GetLinkIsometry(crab_link::back_right__foot_link);
+  nominal_lhand_iso_ = robot_->GetLinkIsometry(crab_link::front_left__foot_link);
+  nominal_rhand_iso_ = robot_->GetLinkIsometry(crab_link::front_right__foot_link); 
 
   // get the vector from end effector to target from crab sensor data 
   Eigen::Vector3d lfoot_target_vector = sp_->lfoot_target_vector_; 
@@ -90,9 +87,6 @@ void Approach::FirstVisit()
   SetRotationDCM( rfoot_target_vector, nominal_rfoot_iso_ ); 
   SetRotationDCM( lhand_target_vector, nominal_lhand_iso_ ); 
   SetRotationDCM( rhand_target_vector, nominal_rhand_iso_ ); 
-
-  // get orientation of nominal foot (with respect to global frame) 
-  Eigen::Matrix3d rotation_matrix = nominal_lfoot_iso_.linear(); 
 
   // rotate nominal foot towards landing object
   // nominal_lfoot_iso_.rotate(Eigen::AngleAxisd(0.75,  Eigen::Vector3d::UnitX()));
