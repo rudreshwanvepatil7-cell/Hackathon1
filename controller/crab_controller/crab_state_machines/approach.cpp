@@ -12,18 +12,37 @@
 #include "util/util.hpp"
 
 // Constructor
-Approach::Approach(const StateId state_id, PinocchioRobotSystem *robot,
-                   CrabControlArchitecture *ctrl_arch)
-    : StateMachine(state_id, robot), ctrl_arch_(ctrl_arch) {
+Approach::Approach( const StateId state_id, 
+                    PinocchioRobotSystem *robot,
+                    CrabControlArchitecture *ctrl_arch )
+    : StateMachine(state_id, robot), ctrl_arch_(ctrl_arch) 
+{
   util::PrettyConstructor(2, "Approach");
-
   sp_ = CrabStateProvider::GetStateProvider();
   nominal_lfoot_iso_.setIdentity();
   nominal_rfoot_iso_.setIdentity();
 }
 
+// Function to compute and set the rotation matrix
+void SetRotationDCM( Eigen::Vector3d LIMB_target_vector, 
+                     Eigen::Isometry3d & nominal_LIMB_iso_ ) 
+{
+  Eigen::Vector3d z_axis = LIMB_target_vector.normalized(); 
+  Eigen::Vector3d x_axis = Eigen::Vector3d::UnitX(); 
+  Eigen::Vector3d y_axis = z_axis.cross(x_axis).normalized(); 
+  x_axis = y_axis.cross(z_axis).normalized(); 
+
+  Eigen::Matrix3d rot_matrix; 
+  rot_matrix.col(0) = x_axis; 
+  rot_matrix.col(1) = y_axis; 
+  rot_matrix.col(2) = z_axis; 
+
+  nominal_LIMB_iso_.linear() = rot_matrix; 
+} 
+
 // First visit to the state
-void Approach::FirstVisit() {
+void Approach::FirstVisit() 
+{
   std::cout << "crab_states: kApproach" << std::endl;
   state_machine_start_time_ = sp_->current_time_;
 
@@ -58,27 +77,44 @@ void Approach::FirstVisit() {
   nominal_lhand_iso_ =
       robot_->GetLinkIsometry(crab_link::front_left__foot_link);
   nominal_rhand_iso_ =
-      robot_->GetLinkIsometry(crab_link::front_right__foot_link);
+      robot_->GetLinkIsometry(crab_link::front_right__foot_link); 
+
+  // get the vector from end effector to target from crab sensor data 
+  Eigen::Vector3d lfoot_target_vector = sp_->lfoot_target_vector_; 
+  Eigen::Vector3d rfoot_target_vector = sp_->rfoot_target_vector_; 
+  Eigen::Vector3d lhand_target_vector = sp_->lhand_target_vector_; 
+  Eigen::Vector3d rhand_target_vector = sp_->rhand_target_vector_; 
+
+  // rotate nominal foot so that the z axis aligns with the lfoot_target_vector 
+  SetRotationDCM( lfoot_target_vector, nominal_lfoot_iso_ ); 
+  SetRotationDCM( rfoot_target_vector, nominal_rfoot_iso_ ); 
+  SetRotationDCM( lhand_target_vector, nominal_lhand_iso_ ); 
+  SetRotationDCM( rhand_target_vector, nominal_rhand_iso_ ); 
+
+  // get orientation of nominal foot (with respect to global frame) 
+  Eigen::Matrix3d rotation_matrix = nominal_lfoot_iso_.linear(); 
 
   // rotate nominal foot towards landing object
-  nominal_lfoot_iso_.rotate(Eigen::AngleAxisd(0.75, Eigen::Vector3d::UnitX()));
-  nominal_rfoot_iso_.rotate(Eigen::AngleAxisd(-0.75, Eigen::Vector3d::UnitX()));
-  nominal_lhand_iso_.rotate(Eigen::AngleAxisd(0.75, Eigen::Vector3d::UnitX()));
-  nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.75, Eigen::Vector3d::UnitX()));
-  nominal_lfoot_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
-  nominal_rfoot_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
-  nominal_lhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
-  nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY())); 
+  // nominal_lfoot_iso_.rotate(Eigen::AngleAxisd(0.75,  Eigen::Vector3d::UnitX()));
+  // nominal_rfoot_iso_.rotate(Eigen::AngleAxisd(-0.75, Eigen::Vector3d::UnitX()));
+  // nominal_lhand_iso_.rotate(Eigen::AngleAxisd(0.75,  Eigen::Vector3d::UnitX()));
+  // nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.75, Eigen::Vector3d::UnitX()));
 
+  // nominal_lfoot_iso_.rotate(Eigen::AngleAxisd(-0.5,  Eigen::Vector3d::UnitY()));
+  // nominal_rfoot_iso_.rotate(Eigen::AngleAxisd(-0.5,  Eigen::Vector3d::UnitY()));
+  // nominal_lhand_iso_.rotate(Eigen::AngleAxisd(-0.5,  Eigen::Vector3d::UnitY()));
+  // nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.5,  Eigen::Vector3d::UnitY())); 
+
+  // translate foot toward landing object 
   Eigen::Isometry3d fin_lfoot_iso_ = nominal_lfoot_iso_; 
   Eigen::Isometry3d fin_rfoot_iso_ = nominal_rfoot_iso_; 
   Eigen::Isometry3d fin_lhand_iso_ = nominal_lhand_iso_; 
   Eigen::Isometry3d fin_rhand_iso_ = nominal_rhand_iso_; 
 
-  fin_lfoot_iso_.translation() << 10.0, 10.0, 0.0;
-  fin_rfoot_iso_.translation() << 10.0, 10.0, 0.0; 
-  fin_lhand_iso_.translation() << 10.0, 10.0, 0.0; 
-  fin_rhand_iso_.translation() << 10.0, 10.0, 0.0; 
+  fin_lfoot_iso_.translation() += lfoot_target_vector; 
+  fin_rfoot_iso_.translation() += rfoot_target_vector; 
+  fin_lhand_iso_.translation() += lhand_target_vector; 
+  fin_rhand_iso_.translation() += rhand_target_vector; 
 
   std::cout << "nominal lfoot iso = " << nominal_lfoot_iso_.translation() << std::endl;
   std::cout << "fin lfoot iso = " << fin_lfoot_iso_.translation() << std::endl; 
@@ -108,9 +144,18 @@ void Approach::FirstVisit() {
   std::cout << "swing height lfoot trajectory = " << nominal_lfoot_iso_.translation().z() << std::endl; 
 }
 
-void Approach::OneStep() {
+void Approach::OneStep() 
+{
   state_machine_time_ = sp_->current_time_ - state_machine_start_time_;
-  state_machine_time_ = std::min(state_machine_time_, 10.0);
+  state_machine_time_ = std::min(state_machine_time_, 10.0); 
+
+  // get the vector from end effector to target from crab sensor data 
+  Eigen::Vector3d lfoot_target_vector = sp_->lfoot_target_vector_; 
+  Eigen::Vector3d rfoot_target_vector = sp_->rfoot_target_vector_; 
+  Eigen::Vector3d lhand_target_vector = sp_->lhand_target_vector_; 
+  Eigen::Vector3d rhand_target_vector = sp_->rhand_target_vector_; 
+
+  std::cout << "lfoot_target_vector = " << lfoot_target_vector << std::endl; 
 
   // com & torso ori task update
   ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
@@ -137,7 +182,8 @@ bool Approach::EndOfState() {
          sp_->b_rf_contact_;
 }
 
-void Approach::LastVisit() {
+void Approach::LastVisit() 
+{
   state_machine_time_ = 0.;
 
   if (sp_->b_use_base_height_)
@@ -155,7 +201,8 @@ void Approach::LastVisit() {
 // Comment out for now
 StateId Approach::GetNextState() { return crab_states::kContact; }
 
-void Approach::SetParameters(const YAML::Node &node) {
+void Approach::SetParameters(const YAML::Node &node) 
+{
   try {
     b_use_fixed_foot_pos_ = util::ReadParameter<bool>(
         node["state_machine"], "b_use_const_desired_foot_pos");
@@ -164,3 +211,4 @@ void Approach::SetParameters(const YAML::Node &node) {
               << __FILE__ << "]" << std::endl;
   }
 }
+

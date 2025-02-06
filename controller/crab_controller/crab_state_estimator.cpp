@@ -122,7 +122,12 @@ void CrabStateEstimator::UpdateGroundTruthSensorData(
   sp_->b_lf_contact_ = sensor_data->b_RL_foot_contact_;
   sp_->b_rf_contact_ = sensor_data->b_RR_foot_contact_;
   sp_->b_lh_contact_ = sensor_data->b_FL_foot_contact_;
-  sp_->b_rh_contact_ = sensor_data->b_FR_foot_contact_;
+  sp_->b_rh_contact_ = sensor_data->b_FR_foot_contact_; 
+
+  sp_->lfoot_target_vector_ = sensor_data->lfoot_target_vector_; 
+  sp_->rfoot_target_vector_ = sensor_data->rfoot_target_vector_; 
+  sp_->lhand_target_vector_ = sensor_data->lhand_target_vector_; 
+  sp_->rhand_target_vector_ = sensor_data->rhand_target_vector_; 
 
 #if B_USE_ZMQ
   if (sp_->count_ % sp_->data_save_freq_ == 0) {

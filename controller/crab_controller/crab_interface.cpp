@@ -20,7 +20,7 @@ CrabInterface::CrabInterface() : Interface() {
   util::ColorPrint(color::kBoldRed, border);
   util::PrettyConstructor(0, "CrabInterface");
 
-  sp_ = CrabStateProvider::GetStateProvider();
+  sp_ = CrabStateProvider::GetStateProvider(); 
 
   // initialize robot model
   robot_ = new PinocchioRobotSystem(THIS_COM "robot_model/crab/crab.urdf",

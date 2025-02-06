@@ -9,7 +9,7 @@ CrabStateProvider *CrabStateProvider::GetStateProvider() {
 }
 
 CrabStateProvider::CrabStateProvider() {
-  util::PrettyConstructor(1, "CrabStateProvider");
+  util::PrettyConstructor(1, "CrabStateProvider"); 
 
   servo_dt_ = 0.001;
   data_save_freq_ = 1;
@@ -27,7 +27,12 @@ CrabStateProvider::CrabStateProvider() {
   b_lh_contact_ = false;
   b_rh_contact_ = false;
   b_request_change_swing_leg_ = false;
-  b_swing_leg_ = end_effector::LFoot;
+  b_swing_leg_ = end_effector::LFoot; 
+
+  lfoot_target_vector_ = Eigen::Vector3d::Zero(); 
+  rfoot_target_vector_ = Eigen::Vector3d::Zero(); 
+  lhand_target_vector_ = Eigen::Vector3d::Zero(); 
+  rhand_target_vector_ = Eigen::Vector3d::Zero(); 
 
   com_vel_est_.setZero();
 

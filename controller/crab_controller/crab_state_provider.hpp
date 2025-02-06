@@ -1,11 +1,12 @@
 #pragma once
 #include <Eigen/Dense>
-#include <vector>
+#include <vector> 
+#include "crab_interface.hpp" 
 
 class CrabStateProvider {
  public:
   static CrabStateProvider *GetStateProvider();
-  ~CrabStateProvider() = default;
+  ~CrabStateProvider() = default; 
 
   // servo dt should be set outside of controller
   double servo_dt_;
@@ -23,7 +24,12 @@ class CrabStateProvider {
   bool b_lh_contact_;
   bool b_rh_contact_;
   bool b_request_change_swing_leg_;
-  int b_swing_leg_;
+  int b_swing_leg_; 
+
+  Eigen::Vector3d lfoot_target_vector_; 
+  Eigen::Vector3d rfoot_target_vector_; 
+  Eigen::Vector3d lhand_target_vector_; 
+  Eigen::Vector3d rhand_target_vector_; 
 
   Eigen::Vector3d com_vel_est_;
 

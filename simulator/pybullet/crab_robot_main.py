@@ -321,18 +321,6 @@ if __name__ == "__main__":
         rfoot_cyl_vector = np.array(rfoot_pos) - np.array(cylinder_pos)
         lhand_cyl_vector = np.array(lhand_pos) - np.array(cylinder_pos)
         rhand_cyl_vector = np.array(rhand_pos) - np.array(cylinder_pos)
-
-        # Compute the distance (magnitude of the vector)
-        distance_to_lfoot = np.linalg.norm(lfoot_cyl_vector)
-        distance_to_rfoot = np.linalg.norm(rfoot_cyl_vector)
-        distance_to_lhand = np.linalg.norm(lhand_cyl_vector)
-        distance_to_rhand = np.linalg.norm(rhand_cyl_vector)
-
-        # Print the distances for debugging
-        print(f"Distance to left foot: {distance_to_lfoot}")
-        print(f"Distance to right foot: {distance_to_rfoot}")
-        print(f"Distance to left hand: {distance_to_lhand}")
-        print(f"Distance to right hand: {distance_to_rhand}") 
         
         rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector 
         rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 
