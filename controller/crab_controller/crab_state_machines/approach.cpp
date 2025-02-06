@@ -37,7 +37,7 @@ void Approach::FirstVisit() {
   // hard-coding target torso orientation
 
   // set target torso quaternion as [0, 0, 0.707, 0.707]
-  //  Eigen::Quaterniond target_torso_quat(0.0, -0.28, 0.0, 0.96);
+  // Eigen::Quaterniond target_torso_quat(0.0, -0.28, 0.0, 0.96);
   // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(-0.3, 0., 0.);
   Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(0.4, 0., 0.);
 
@@ -68,27 +68,44 @@ void Approach::FirstVisit() {
   nominal_lfoot_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
   nominal_rfoot_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
   nominal_lhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
-  nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY()));
+  nominal_rhand_iso_.rotate(Eigen::AngleAxisd(-0.5, Eigen::Vector3d::UnitY())); 
 
-  // void EndEffectorTrajectoryManager::InitializeSwingTrajectory(
-  //   const Eigen::Isometry3d &ini_pose,
-  //   const Eigen::Isometry3d &fin_pose,
-  //   const double swing_height,
-  //   const double duration) {
+  Eigen::Isometry3d fin_lfoot_iso_ = nominal_lfoot_iso_; 
+  Eigen::Isometry3d fin_rfoot_iso_ = nominal_rfoot_iso_; 
+  Eigen::Isometry3d fin_lhand_iso_ = nominal_lhand_iso_; 
+  Eigen::Isometry3d fin_rhand_iso_ = nominal_rhand_iso_; 
+
+  fin_lfoot_iso_.translation() << 10.0, 10.0, 0.0;
+  fin_rfoot_iso_.translation() << 10.0, 10.0, 0.0; 
+  fin_lhand_iso_.translation() << 10.0, 10.0, 0.0; 
+  fin_rhand_iso_.translation() << 10.0, 10.0, 0.0; 
+
+  std::cout << "nominal lfoot iso = " << nominal_lfoot_iso_.translation() << std::endl;
+  std::cout << "fin lfoot iso = " << fin_lfoot_iso_.translation() << std::endl; 
 
   // Initialize interpolation
   ctrl_arch_->lf_SE3_tm_->InitializeSwingTrajectory(
       robot_->GetLinkIsometry(crab_link::back_left__foot_link),
-      nominal_lfoot_iso_, nominal_lfoot_iso_.translation().z(), duration);
+      nominal_lfoot_iso_, 
+      fin_lfoot_iso_.translation().z(), 
+      duration);
   ctrl_arch_->rf_SE3_tm_->InitializeSwingTrajectory(
       robot_->GetLinkIsometry(crab_link::back_right__foot_link),
-      nominal_rfoot_iso_, nominal_rfoot_iso_.translation().z(), duration);
+      nominal_rfoot_iso_, 
+      fin_rfoot_iso_.translation().z(), 
+      duration);
   ctrl_arch_->lh_SE3_tm_->InitializeSwingTrajectory(
       robot_->GetLinkIsometry(crab_link::front_left__foot_link),
-      nominal_lhand_iso_, nominal_lhand_iso_.translation().z(), duration);
+      nominal_lhand_iso_, 
+      fin_lhand_iso_.translation().z(), 
+      duration);
   ctrl_arch_->rh_SE3_tm_->InitializeSwingTrajectory(
       robot_->GetLinkIsometry(crab_link::front_right__foot_link),
-      nominal_rhand_iso_, nominal_rhand_iso_.translation().z(), duration);
+      nominal_rhand_iso_, 
+      fin_rhand_iso_.translation().z(), 
+      duration);
+
+  std::cout << "swing height lfoot trajectory = " << nominal_lfoot_iso_.translation().z() << std::endl; 
 }
 
 void Approach::OneStep() {
@@ -97,11 +114,6 @@ void Approach::OneStep() {
 
   // com & torso ori task update
   ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
-
-  // print string every loop
-  // std::cout << "Is this even working" << std::endl;
-  // std::cout << "Desired orientation 0: " << desired_orientation.col(0) <<
-  // std::endl;
 
   // update foot pose task update
   if (b_use_fixed_foot_pos_) {

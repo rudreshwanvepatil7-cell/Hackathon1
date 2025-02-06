@@ -27,6 +27,10 @@ class CrabSensorData {
         FR_normal_force_(0.),
         RL_normal_force_(0.),
         RR_normal_force_(0.),
+        lfoot_target_vector_(Eigen::Vector3d::Zero()),
+        rfoot_target_vector_(Eigen::Vector3d::Zero()),
+        lhand_target_vector_(Eigen::Vector3d::Zero()),
+        rhand_target_vector_(Eigen::Vector3d::Zero()), 
         base_joint_pos_(Eigen::Vector3d::Zero()),
         base_joint_quat_(0, 0, 0, 1),
         base_joint_lin_vel_(Eigen::Vector3d::Zero()),
@@ -42,7 +46,11 @@ class CrabSensorData {
   bool b_FL_foot_contact_;
   bool b_FR_foot_contact_;
   bool b_RL_foot_contact_;
-  bool b_RR_foot_contact_;
+  bool b_RR_foot_contact_; 
+  Eigen::Vector3d lfoot_target_vector_; 
+  Eigen::Vector3d rfoot_target_vector_; 
+  Eigen::Vector3d lhand_target_vector_; 
+  Eigen::Vector3d rhand_target_vector_; 
   float FL_normal_force_;
   float FR_normal_force_;
   float RL_normal_force_;

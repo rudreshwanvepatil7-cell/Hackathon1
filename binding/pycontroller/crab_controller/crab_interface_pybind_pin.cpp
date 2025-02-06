@@ -43,6 +43,10 @@ PYBIND11_MODULE(crab_interface_py, m) {
       .def_readwrite("FR_normal_force_", &CrabSensorData::FR_normal_force_)
       .def_readwrite("RL_normal_force_", &CrabSensorData::RL_normal_force_)
       .def_readwrite("RR_normal_force_", &CrabSensorData::RR_normal_force_)
+      .def_readwrite("lfoot_target_vector_", &CrabSensorData::lfoot_target_vector_) 
+      .def_readwrite("rfoot_target_vector_", &CrabSensorData::rfoot_target_vector_) 
+      .def_readwrite("lhand_target_vector_", &CrabSensorData::lhand_target_vector_) 
+      .def_readwrite("rhand_target_vector_", &CrabSensorData::rhand_target_vector_) 
       .def_readwrite("imu_dvel_", &CrabSensorData::imu_dvel_)
       .def_readwrite("imu_lin_acc_", &CrabSensorData::imu_lin_acc_)
 

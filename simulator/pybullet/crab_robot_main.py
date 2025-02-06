@@ -305,6 +305,39 @@ if __name__ == "__main__":
         rpc_crab_sensor_data.FR_normal_force_ = FR_normal_force
         rpc_crab_sensor_data.RL_normal_force_ = RL_normal_force
         rpc_crab_sensor_data.RR_normal_force_ = RR_normal_force
+        
+        # ---------------------------------- 
+        # compute distance from end effectors to cylinder 
+        # ---------------------------------- 
+        
+        # Get the position of each end effector
+        lfoot_pos = pb.getLinkState(robot, crab_link_idx.back_left__foot_link)[0]
+        rfoot_pos = pb.getLinkState(robot, crab_link_idx.back_right__foot_link)[0]
+        lhand_pos = pb.getLinkState(robot, crab_link_idx.front_left__foot_link)[0]
+        rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
+
+        # Compute the vector from the cylinder to each end effector
+        lfoot_cyl_vector = np.array(lfoot_pos) - np.array(cylinder_pos)
+        rfoot_cyl_vector = np.array(rfoot_pos) - np.array(cylinder_pos)
+        lhand_cyl_vector = np.array(lhand_pos) - np.array(cylinder_pos)
+        rhand_cyl_vector = np.array(rhand_pos) - np.array(cylinder_pos)
+
+        # Compute the distance (magnitude of the vector)
+        distance_to_lfoot = np.linalg.norm(lfoot_cyl_vector)
+        distance_to_rfoot = np.linalg.norm(rfoot_cyl_vector)
+        distance_to_lhand = np.linalg.norm(lhand_cyl_vector)
+        distance_to_rhand = np.linalg.norm(rhand_cyl_vector)
+
+        # Print the distances for debugging
+        print(f"Distance to left foot: {distance_to_lfoot}")
+        print(f"Distance to right foot: {distance_to_rfoot}")
+        print(f"Distance to left hand: {distance_to_lhand}")
+        print(f"Distance to right hand: {distance_to_rhand}") 
+        
+        rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector 
+        rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 
+        rpc_crab_sensor_data.lhand_target_vector_ = lhand_cyl_vector 
+        rpc_crab_sensor_data.rhand_target_vector_ = rhand_cyl_vector  
 
         # ----------------------------------
         # compute control command
