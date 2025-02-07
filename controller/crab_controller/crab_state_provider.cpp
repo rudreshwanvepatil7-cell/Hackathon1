@@ -34,6 +34,8 @@ CrabStateProvider::CrabStateProvider() {
   lhand_target_vector_ = Eigen::Vector3d::Zero(); 
   rhand_target_vector_ = Eigen::Vector3d::Zero(); 
 
+  body_target_vector_ = Eigen::Vector3d::Zero(); 
+
   com_vel_est_.setZero();
 
   state_ = 1;       // crab_states::kInitialize

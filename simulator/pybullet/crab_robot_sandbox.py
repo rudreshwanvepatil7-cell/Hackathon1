@@ -287,25 +287,41 @@ if __name__ == "__main__":
         rpc_crab_sensor_data.RR_normal_force_ = RR_normal_force
         
         # ---------------------------------- 
+        # compute distance from body to target 
+        # ---------------------------------- 
+        
+        # get position of robot center of mass 
+        com_pos, _ = pb.getBasePositionAndOrientation(robot) 
+        
+        # get position of target (red ball) 
+        target_pos, _ = pb.getBasePositionAndOrientation(red_ball) 
+        
+        # compute vector from body to target and assign to rpc sensor data 
+        body_target_vector = np.array(target_pos) - np.array(com_pos) 
+        rpc_crab_sensor_data.body_target_vector_ = body_target_vector 
+        
+        # ---------------------------------- 
         # compute distance from end effectors to cylinder 
         # ---------------------------------- 
         
-        # # Get the position of each end effector
-        # lfoot_pos = pb.getLinkState(robot, crab_link_idx.back_left__foot_link)[0]
-        # rfoot_pos = pb.getLinkState(robot, crab_link_idx.back_right__foot_link)[0]
-        # lhand_pos = pb.getLinkState(robot, crab_link_idx.front_left__foot_link)[0]
-        # rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
-
-        # # Compute the vector from the cylinder to each end effector
-        # lfoot_cyl_vector = np.array(cylinder_pos) - np.array(lfoot_pos) 
-        # rfoot_cyl_vector = np.array(cylinder_pos) - np.array(rfoot_pos) 
-        # lhand_cyl_vector = np.array(cylinder_pos) - np.array(lhand_pos) 
-        # rhand_cyl_vector = np.array(cylinder_pos) - np.array(rhand_pos) 
+        # get position of red ball 
         
-        # rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector 
-        # rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 
-        # rpc_crab_sensor_data.lhand_target_vector_ = lhand_cyl_vector 
-        # rpc_crab_sensor_data.rhand_target_vector_ = rhand_cyl_vector  
+        # Get the position of each end effector
+        lfoot_pos = pb.getLinkState(robot, crab_link_idx.back_left__foot_link)[0]
+        rfoot_pos = pb.getLinkState(robot, crab_link_idx.back_right__foot_link)[0]
+        lhand_pos = pb.getLinkState(robot, crab_link_idx.front_left__foot_link)[0]
+        rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
+
+        # Compute the vector from the cylinder to each end effector
+        lfoot_target_vector = np.array(target_pos) - np.array(lfoot_pos) 
+        rfoot_target_vector = np.array(target_pos) - np.array(rfoot_pos) 
+        lhand_target_vector = np.array(target_pos) - np.array(lhand_pos) 
+        rhand_target_vector = np.array(target_pos) - np.array(rhand_pos) 
+        
+        rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_target_vector 
+        rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_target_vector 
+        rpc_crab_sensor_data.lhand_target_vector_ = lhand_target_vector 
+        rpc_crab_sensor_data.rhand_target_vector_ = rhand_target_vector  
 
         # ----------------------------------
         # compute control command

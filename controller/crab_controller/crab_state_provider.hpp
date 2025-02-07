@@ -31,6 +31,8 @@ class CrabStateProvider {
   Eigen::Vector3d lhand_target_vector_; 
   Eigen::Vector3d rhand_target_vector_; 
 
+  Eigen::Vector3d body_target_vector_; 
+
   Eigen::Vector3d com_vel_est_;
 
   int state_;

@@ -47,6 +47,7 @@ PYBIND11_MODULE(crab_interface_py, m) {
       .def_readwrite("rfoot_target_vector_", &CrabSensorData::rfoot_target_vector_) 
       .def_readwrite("lhand_target_vector_", &CrabSensorData::lhand_target_vector_) 
       .def_readwrite("rhand_target_vector_", &CrabSensorData::rhand_target_vector_) 
+      .def_readwrite("body_target_vector_", &CrabSensorData::body_target_vector_) 
       .def_readwrite("imu_dvel_", &CrabSensorData::imu_dvel_)
       .def_readwrite("imu_lin_acc_", &CrabSensorData::imu_lin_acc_)
 

@@ -129,6 +129,8 @@ void CrabStateEstimator::UpdateGroundTruthSensorData(
   sp_->lhand_target_vector_ = sensor_data->lhand_target_vector_; 
   sp_->rhand_target_vector_ = sensor_data->rhand_target_vector_; 
 
+  sp_->body_target_vector_  = sensor_data->body_target_vector_; 
+
 #if B_USE_ZMQ
   if (sp_->count_ % sp_->data_save_freq_ == 0) {
     CrabDataManager *dm = CrabDataManager::GetDataManager();

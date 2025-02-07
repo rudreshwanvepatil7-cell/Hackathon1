@@ -82,6 +82,8 @@ void Approach::FirstVisit()
   Eigen::Vector3d lhand_target_vector = sp_->lhand_target_vector_; 
   Eigen::Vector3d rhand_target_vector = sp_->rhand_target_vector_; 
 
+  Eigen::Vector3d body_target_vector  = sp_->body_target_vector_; 
+
   // rotate nominal foot so that the z axis aligns with the lfoot_target_vector 
   SetRotationDCM( lfoot_target_vector, nominal_lfoot_iso_ ); 
   SetRotationDCM( rfoot_target_vector, nominal_rfoot_iso_ ); 
@@ -149,7 +151,7 @@ void Approach::OneStep()
   Eigen::Vector3d lhand_target_vector = sp_->lhand_target_vector_; 
   Eigen::Vector3d rhand_target_vector = sp_->rhand_target_vector_; 
 
-  std::cout << "lfoot_target_vector = " << lfoot_target_vector << std::endl; 
+  // std::cout << "lfoot_target_vector = " << lfoot_target_vector << std::endl; 
 
   // com & torso ori task update
   ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
