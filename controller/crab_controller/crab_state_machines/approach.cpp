@@ -58,7 +58,14 @@ void Approach::FirstVisit()
   // set target torso quaternion as [0, 0, 0.707, 0.707]
   // Eigen::Quaterniond target_torso_quat(0.0, -0.28, 0.0, 0.96);
   // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(-0.3, 0., 0.);
-  Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(0.4, 0., 0.);
+  // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(0.4, 0., 0.);
+  // Eigen::Quaterniond target_torso_quat = init_torso_quat;
+
+  // get rotation matrix from body_target_iso and turn into quaternion 
+  Eigen::Vector3d body_target_vector = sp_->body_target_vector_; 
+  Eigen::Isometry3d body_target_iso  = robot_->GetLinkIsometry(crab_link::base_link);  
+  SetRotationDCM( body_target_vector, body_target_iso ); 
+  Eigen::Quaterniond target_torso_quat = Eigen::Quaterniond(body_target_iso.linear()); 
 
   // Eigen::Quaterniond target_torso_quat = Eigen::Quaterniond::Identity();
   std::cout << "\n\n target_torso_quat = \n"
@@ -81,8 +88,6 @@ void Approach::FirstVisit()
   Eigen::Vector3d rfoot_target_vector = sp_->rfoot_target_vector_; 
   Eigen::Vector3d lhand_target_vector = sp_->lhand_target_vector_; 
   Eigen::Vector3d rhand_target_vector = sp_->rhand_target_vector_; 
-
-  Eigen::Vector3d body_target_vector  = sp_->body_target_vector_; 
 
   // rotate nominal foot so that the z axis aligns with the lfoot_target_vector 
   SetRotationDCM( lfoot_target_vector, nominal_lfoot_iso_ ); 
@@ -137,7 +142,7 @@ void Approach::FirstVisit()
       fin_rhand_iso_.translation().z(), 
       duration);
 
-  std::cout << "swing height lfoot trajectory = " << nominal_lfoot_iso_.translation().z() << std::endl; 
+  // std::cout << "swing height lfoot trajectory = " << nominal_lfoot_iso_.translation().z() << std::endl; 
 }
 
 void Approach::OneStep() 
@@ -154,7 +159,7 @@ void Approach::OneStep()
   // std::cout << "lfoot_target_vector = " << lfoot_target_vector << std::endl; 
 
   // com & torso ori task update
-  ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
+  // ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
 
   // update foot pose task update
   if (b_use_fixed_foot_pos_) {
