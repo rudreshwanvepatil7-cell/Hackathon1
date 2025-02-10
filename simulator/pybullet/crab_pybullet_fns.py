@@ -11,10 +11,9 @@ sys.path.append(cwd + "/build/lib")  # include pybind module
 from config.crab.sim.pybullet.ihwbc.pybullet_params import *
 from util.python_utils import pybullet_util
 
-# ----------------------------------
-# functions to interact with pybullet
-# ----------------------------------
-
+# ---------------------------------- 
+# functions to interact with pybullet 
+# ---------------------------------- 
 
 def get_sensor_data_from_pybullet(robot, previous_torso_velocity):
     # follow pinocchio robotsystem urdf reading convention
@@ -243,9 +242,76 @@ def get_sensor_data_from_pybullet(robot, previous_torso_velocity):
         RR_normal_force,
     )
 
+# ---------------------------------- 
+
+def get_assign_sensor_data(robot, rpc_crab_sensor_data, dt, previous_torso_velocity):
+    (
+        imu_frame_quat,
+        imu_ang_vel,
+        imu_dvel,
+        joint_pos,
+        joint_vel,
+        b_FL_foot_contact,
+        b_FR_foot_contact,
+        b_RL_foot_contact,
+        b_RR_foot_contact,
+        FL_normal_force,
+        FR_normal_force,
+        RL_normal_force,
+        RR_normal_force,
+    ) = get_sensor_data_from_pybullet(
+        robot, previous_torso_velocity=previous_torso_velocity
+    )
+
+    ## copy sensor data to rpc sensor data class
+    rpc_crab_sensor_data.imu_frame_quat_ = imu_frame_quat
+    rpc_crab_sensor_data.imu_ang_vel_ = imu_ang_vel
+    rpc_crab_sensor_data.imu_dvel_ = imu_dvel
+    rpc_crab_sensor_data.imu_lin_acc_ = imu_dvel / dt
+    rpc_crab_sensor_data.joint_pos_ = joint_pos
+    rpc_crab_sensor_data.joint_vel_ = joint_vel
+    rpc_crab_sensor_data.b_FL_foot_contact_ = b_FL_foot_contact
+    rpc_crab_sensor_data.b_FR_foot_contact_ = b_FR_foot_contact
+    rpc_crab_sensor_data.b_RL_foot_contact_ = b_RL_foot_contact
+    rpc_crab_sensor_data.b_RR_foot_contact_ = b_RR_foot_contact
+    rpc_crab_sensor_data.FL_normal_force_ = FL_normal_force
+    rpc_crab_sensor_data.FR_normal_force_ = FR_normal_force
+    rpc_crab_sensor_data.RL_normal_force_ = RL_normal_force
+    rpc_crab_sensor_data.RR_normal_force_ = RR_normal_force
+    
+    return rpc_crab_sensor_data 
 
 # ----------------------------------
+    
+# Function to create an arrow
+def create_arrow(start_pos, end_pos, color=[1, 0, 0], line_width=2):
+    return pb.addUserDebugLine(start_pos, end_pos, lineColorRGB=color, lineWidth=line_width) 
+        
+def update_arrows(base_com_pos, rot_world_basecom, x_arrow = None, y_arrow = None, z_arrow = None, z_neg_arrow = None):
+        
+    # Remove previous arrows
+    if x_arrow is not None:
+        pb.removeUserDebugItem(x_arrow)
+    if y_arrow is not None:
+        pb.removeUserDebugItem(y_arrow)
+    if z_arrow is not None:
+        pb.removeUserDebugItem(z_arrow)
+    if z_neg_arrow is not None:
+        pb.removeUserDebugItem(z_neg_arrow) 
+            
+    arrow_start_pos = base_com_pos
+    x_end = base_com_pos + 2 * rot_world_basecom[:, 0]
+    y_end = base_com_pos + 2 * rot_world_basecom[:, 1]
+    z_end = base_com_pos + 2 * rot_world_basecom[:, 2]
+    z_neg = base_com_pos - 2 * rot_world_basecom[:, 2] 
+    x_arrow = create_arrow(arrow_start_pos, x_end)
+    y_arrow = create_arrow(arrow_start_pos, y_end, color=[0, 1, 0])
+    z_arrow = create_arrow(arrow_start_pos, z_end, color=[0, 0, 1])
+    z_neg_arrow = create_arrow(arrow_start_pos, z_neg, color=[0, 1, 1])
+    
+    return x_arrow, y_arrow, z_arrow, z_neg_arrow
 
+# ---------------------------------- 
 
 def apply_control_input_to_pybullet(robot, command):
     mode = pb.TORQUE_CONTROL

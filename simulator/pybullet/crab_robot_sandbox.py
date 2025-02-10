@@ -161,6 +161,8 @@ if __name__ == "__main__":
     ## for dvel quantity
     previous_torso_velocity = np.array([0.0, 0.0, 0.0])
 
+    # x_arrow_id, y_arrow_id, z_arrow_id, z_neg_arrow_id = update_arrows(base_com_pos, rot_world_basecom) 
+
     while True:
         # ----------------------------------
         # Moving Camera Setting
@@ -210,35 +212,17 @@ if __name__ == "__main__":
         )
         base_joint_ang_vel = twist_basejoint_in_world[0:3]
         base_joint_lin_vel = twist_basejoint_in_world[3:6]
+        
+        # Create an arrow pointing outward from the robot torso
+        # x_arrow_id, y_arrow_id, z_arrow_id, z_neg_arrow_id = update_arrows(base_com_pos, rot_world_basecom, x_arrow_id, y_arrow_id, z_arrow_id, z_neg_arrow_id) 
 
-        # pdb.set_trace()
+        # pdb.set_trace() 
 
         # pass debugged data to rpc interface (for ground truth estimation)
         rpc_crab_sensor_data.base_joint_pos_ = base_joint_pos
         rpc_crab_sensor_data.base_joint_quat_ = base_joint_quat
         rpc_crab_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
         rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
-
-        # apply_magnetic_force_to_foot(
-        #     robot,
-        #     cylinder_robot,
-        #     crab_link_idx.front_right__cluster_3_wrist_link,
-        # )
-        # apply_magnetic_force_to_foot(
-        #     robot,
-        #     cylinder_robot,
-        #     crab_link_idx.front_left__cluster_3_wrist_link,
-        # )
-        # apply_magnetic_force_to_foot(
-        #     robot,
-        #     cylinder_robot,
-        #     crab_link_idx.back_right__cluster_3_wrist_link,
-        # )
-        # apply_magnetic_force_to_foot(
-        #     robot,
-        #     cylinder_robot,
-        #     crab_link_idx.back_left__cluster_3_wrist_link,
-        # )
 
         # ----------------------------------
         # Get Keyboard Event
@@ -251,40 +235,8 @@ if __name__ == "__main__":
         # ----------------------------------
         # Get Sensor Data
         # ----------------------------------
-
-        (
-            imu_frame_quat,
-            imu_ang_vel,
-            imu_dvel,
-            joint_pos,
-            joint_vel,
-            b_FL_foot_contact,
-            b_FR_foot_contact,
-            b_RL_foot_contact,
-            b_RR_foot_contact,
-            FL_normal_force,
-            FR_normal_force,
-            RL_normal_force,
-            RR_normal_force,
-        ) = get_sensor_data_from_pybullet(
-            robot, previous_torso_velocity=previous_torso_velocity
-        )
-
-        ## copy sensor data to rpc sensor data class
-        rpc_crab_sensor_data.imu_frame_quat_ = imu_frame_quat
-        rpc_crab_sensor_data.imu_ang_vel_ = imu_ang_vel
-        rpc_crab_sensor_data.imu_dvel_ = imu_dvel
-        rpc_crab_sensor_data.imu_lin_acc_ = imu_dvel / dt
-        rpc_crab_sensor_data.joint_pos_ = joint_pos
-        rpc_crab_sensor_data.joint_vel_ = joint_vel
-        rpc_crab_sensor_data.b_FL_foot_contact_ = b_FL_foot_contact
-        rpc_crab_sensor_data.b_FR_foot_contact_ = b_FR_foot_contact
-        rpc_crab_sensor_data.b_RL_foot_contact_ = b_RL_foot_contact
-        rpc_crab_sensor_data.b_RR_foot_contact_ = b_RR_foot_contact
-        rpc_crab_sensor_data.FL_normal_force_ = FL_normal_force
-        rpc_crab_sensor_data.FR_normal_force_ = FR_normal_force
-        rpc_crab_sensor_data.RL_normal_force_ = RL_normal_force
-        rpc_crab_sensor_data.RR_normal_force_ = RR_normal_force
+        
+        rpc_crab_sensor_data = get_assign_sensor_data(robot, rpc_crab_sensor_data, dt, previous_torso_velocity)
         
         # ---------------------------------- 
         # compute distance from body to target 
@@ -299,6 +251,10 @@ if __name__ == "__main__":
         # compute vector from body to target and assign to rpc sensor data 
         body_target_vector = np.array(target_pos) - np.array(com_pos) 
         rpc_crab_sensor_data.body_target_vector_ = body_target_vector 
+        
+        # display body_target_vector in pybullet 
+        body_target_id = pb.addUserDebugLine(com_pos, target_pos, [1, 1, 0], 3.0, 1.0) 
+        
         
         # ---------------------------------- 
         # compute distance from end effectors to cylinder 
