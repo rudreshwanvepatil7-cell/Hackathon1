@@ -11,6 +11,7 @@ namespace crab_states {
 constexpr int kInitialize = 1;
 constexpr int kApproach = 2;
 constexpr int kContact = 3;
+constexpr int kReorient = 4; 
 }  // namespace crab_states
 
 class CrabController;

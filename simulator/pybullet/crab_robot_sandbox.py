@@ -162,6 +162,9 @@ if __name__ == "__main__":
     previous_torso_velocity = np.array([0.0, 0.0, 0.0]) 
     
     x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom ) 
+    
+    # initialize PID controller 
+    pid = PIDController(kp = 1.0, ki = 0.0, kd = 0.1)
 
     while True:
         # ----------------------------------
@@ -308,36 +311,51 @@ if __name__ == "__main__":
         rpc_joint_pos_command = rpc_crab_command.joint_pos_cmd_
         rpc_joint_vel_command = rpc_crab_command.joint_vel_cmd_
 
-        # rpc_trq_command = np.ones(28) * 0.15
-        # pdb.set_trace()
-
         # apply command to pybullet robot
         apply_control_input_to_pybullet(robot, rpc_trq_command)
-
-        # pdb.set_trace()
-
+        
         # save current torso velocity for next iteration
         previous_torso_velocity = pybullet_util.get_link_vel(
             robot, crab_link_idx.base_link
         )[3:6]
         
         # # Apply an external force to the robot
-        # force = [0, 10, 0]  # Example force vector in the x-direction
+        # force = [0, 0, 1]  # Example force vector in the x-direction
         # position = base_com_pos  # Apply force at the center of mass
         # link_index = -1  # Apply force to the base link
         # pb.applyExternalForce(robot, link_index, force, position, pb.WORLD_FRAME)
-
-        # Apply an external force to the front of the robot 
-        front_left_idx  = crab_link_idx.front_left__sensor_link  # Replace with the actual link index of the front part
-        front_right_idx = crab_link_idx.front_right__sensor_link  # Replace with the actual link index of the front part 
-        front_left_sensor_pos = pb.getLinkState(robot, front_left_idx)[0]  # Get the position of the front link
-        front_right_sensor_pos = pb.getLinkState(robot, front_right_idx)[0]  # Get the position of the front link 
         
-        force = [0, 10, 0]  # Example force vector in the x-direction
-        pb.applyExternalForce(robot, front_left_idx, force, front_left_sensor_pos, pb.WORLD_FRAME)
-        pb.applyExternalForce(robot, front_right_idx, force, front_left_sensor_pos, pb.WORLD_FRAME)
+        # get position of green ball 
+        target_pos, _ = pb.getBasePositionAndOrientation(green_ball) 
+        
+        # Get the current position and orientation of the robot's base link
+        base_pos, base_ori = pb.getBasePositionAndOrientation(robot)
+        base_pos = np.array(base_pos)
+        base_ori = np.array(pb.getMatrixFromQuaternion(base_ori)).reshape(3, 3)
+        
+        # Get the current direction of z_neg_arrow (negative z-axis of the base)
+        z_neg = -base_ori[:, 2]
+        
+        # Compute the direction toward the target
+        direction_to_target = target_pos - base_pos
+        direction_to_target /= np.linalg.norm(direction_to_target)  # Normalize the vector
 
-        # pdb.set_trace() 
+        # Compute the error (angle between z_neg_arrow and direction_to_target)
+        error = np.arccos(np.clip(np.dot(z_neg, direction_to_target), -1.0, 1.0))
+
+        # Compute the torque using the PID controller
+        dt = 1.0 / 240.0  # Assuming the simulation step is 1/240 seconds
+        torque_magnitude = pid.compute(error, dt)
+
+        # Compute the torque direction (cross product to get the rotation axis)
+        torque_direction = np.cross(z_neg, direction_to_target)
+        torque_direction /= np.linalg.norm(torque_direction)  # Normalize the vector
+
+        # Apply the torque to the robot's base link
+        torque = torque_magnitude * torque_direction
+        pb.applyExternalTorque(robot, -1, torque, pb.WORLD_FRAME)
+    
+
 
         # ----------------------------------
         # Save Image file

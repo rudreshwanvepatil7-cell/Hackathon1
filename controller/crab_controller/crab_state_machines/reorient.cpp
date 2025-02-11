@@ -1,4 +1,4 @@
-#include "controller/crab_controller/crab_state_machines/initialize.hpp"
+#include "controller/crab_controller/crab_state_machines/reorient.hpp"
 
 #include "controller/crab_controller/crab_control_architecture.hpp"
 #include "controller/crab_controller/crab_state_provider.hpp"
@@ -7,26 +7,26 @@
 #include "controller/whole_body_controller/basic_task.hpp"
 #include "util/interpolation.hpp"
 
-Initialize::Initialize(const StateId state_id, PinocchioRobotSystem *robot,
+Reorient::Reorient(const StateId state_id, PinocchioRobotSystem *robot,
                        CrabControlArchitecture *ctrl_arch)
     : StateMachine(state_id, robot),
       ctrl_arch_(ctrl_arch),
       b_stay_here_(false),
       wait_time_(0.),
       min_jerk_curves_(nullptr) {
-  util::PrettyConstructor(2, "Initialize");
+  util::PrettyConstructor(2, "Reorient");
 
   sp_ = CrabStateProvider::GetStateProvider();
   target_joint_pos_ = Eigen::VectorXd::Zero(robot_->NumActiveDof());
   init_joint_pos_ = Eigen::VectorXd::Zero(robot_->NumActiveDof());
 }
 
-Initialize::~Initialize() {
+Reorient::~Reorient() {
   if (min_jerk_curves_ != nullptr) delete min_jerk_curves_;
 }
 
-void Initialize::FirstVisit() {
-  std::cout << "crab_states::kInitialize" << std::endl;
+void Reorient::FirstVisit() {
+  std::cout << "crab_states::kReorient" << std::endl;
   state_machine_start_time_ = sp_->current_time_;
   init_joint_pos_ = robot_->GetJointPos();
   min_jerk_curves_ = new MinJerkCurveVec(
@@ -37,7 +37,7 @@ void Initialize::FirstVisit() {
       end_time_);  // min jerk curve initialization
 }
 
-void Initialize::OneStep() {
+void Reorient::OneStep() {
   state_machine_time_ = sp_->current_time_ - state_machine_start_time_;
 
   Eigen::VectorXd des_joint_pos =
@@ -49,7 +49,7 @@ void Initialize::OneStep() {
 
   if (min_jerk_curves_ == nullptr)
     throw std::runtime_error(
-        "Initialize MinJerkCurve in Initialize StateMachine");
+        "Reorient MinJerkCurve in Reorient StateMachine");
 
   for (unsigned int i(0); i < target_joint_pos_.size(); ++i) {
     des_joint_pos = min_jerk_curves_->Evaluate(state_machine_time_);
@@ -62,26 +62,26 @@ void Initialize::OneStep() {
       des_joint_pos, des_joint_vel, des_joint_acc);
 }
 
-void Initialize::LastVisit() {}
+void Reorient::LastVisit() {}
 
-bool Initialize::EndOfState() {
-  // return !b_stay_here_ && (state_machine_time_ >= end_time_ + wait_time_);
-  return false; 
-}
+// bool Reorient::EndOfState() {
+//   return !b_stay_here_ && (state_machine_time_ >= end_time_ + wait_time_);
+// }
+bool Reorient::EndOfState() { return false; }
 
-StateId Initialize::GetNextState() { return crab_states::kReorient; }
-// StateId Initialize::GetNextState() { return crab_states::kApproach; }
+// StateId Reorient::GetNextState() { return crab_states::kApproach; }
+StateId Reorient::GetNextState() { return crab_states::kReorient; }
 
-void Initialize::SetParameters(const YAML::Node &node) {
+void Reorient::SetParameters(const YAML::Node &node) {
   try {
-    util::ReadParameter(node["state_machine"]["initialize"], "init_duration",
+    util::ReadParameter(node["state_machine"]["Reorient"], "init_duration",
                         end_time_);
-    util::ReadParameter(node["state_machine"]["initialize"], "target_joint_pos",
+    util::ReadParameter(node["state_machine"]["Reorient"], "target_joint_pos",
                         target_joint_pos_);
     //    sp_->nominal_jpos_ = target_joint_pos_; // set nominal jpos
-    util::ReadParameter(node["state_machine"]["initialize"],
+    util::ReadParameter(node["state_machine"]["Reorient"],
                         "b_only_joint_pos_control", b_stay_here_);
-    util::ReadParameter(node["state_machine"]["initialize"], "wait_time",
+    util::ReadParameter(node["state_machine"]["Reorient"], "wait_time",
                         wait_time_);
 
   } catch (const std::runtime_error &e) {

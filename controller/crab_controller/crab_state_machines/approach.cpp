@@ -62,8 +62,8 @@ void Approach::FirstVisit()
   // set target torso quaternion as [0, 0, 0.707, 0.707]
   // Eigen::Quaterniond target_torso_quat(0.0, -0.28, 0.0, 0.96);
   // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(-0.3, 0., 0.);
-  Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(0.5, 0., 0.);
-  // Eigen::Quaterniond target_torso_quat = init_torso_quat;
+  // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(0.5, 0., 0.);
+  Eigen::Quaterniond target_torso_quat = init_torso_quat;
 
   // // get rotation matrix from body_target_iso and turn into quaternion 
   // Eigen::Vector3d body_target_vector = sp_->body_target_vector_; 
@@ -201,7 +201,8 @@ void Approach::LastVisit()
 }
 
 // Comment out for now
-StateId Approach::GetNextState() { return crab_states::kContact; }
+// StateId Approach::GetNextState() { return crab_states::kContact; }
+StateId Approach::GetNextState() { return crab_states::kReorient; }
 
 void Approach::SetParameters(const YAML::Node &node) 
 {
