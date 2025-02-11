@@ -15,9 +15,12 @@ from util.python_utils import pybullet_util
 from util.python_utils import util
 from util.python_utils import liegroup
 
+import signal
+import shutil
+import cv2
+
 # import go2_interface_py
 import crab_interface_py
-
 
 # moved some functions to simulator.pybullet.crab_pybullet_fns
 from simulator.pybullet.crab_pybullet_fns import *
@@ -31,14 +34,14 @@ if __name__ == "__main__":
     pb.connect(pb.GUI)
     pb.configureDebugVisualizer(pb.COV_ENABLE_GUI, 0)
 
-    # base_pos = [0.0, -10.0, 10.0]
-    base_pos = Config.INITIAL_BASE_JOINT_POS
+    base_pos = [0., 0., 0.]
+    # base_pos = Config.INITIAL_BASE_JOINT_POS
     pb.resetDebugVisualizerCamera(
-        cameraDistance=12.5,
+        cameraDistance=10,
         cameraYaw=120,
         cameraPitch=-45,
         cameraTargetPosition= np.array([0.5, 0.3, 1.5]),
-    )
+    ) 
 
     ## sim physics setting
     pb.setPhysicsEngineParameter(
@@ -52,13 +55,13 @@ if __name__ == "__main__":
     ## LOAD ROBOT
     robot = pb.loadURDF(
         cwd + "/robot_model/crab/crab.urdf",
-        [0, 0, 0],
+        base_pos,
         [0, 0, 0, 1],
         useFixedBase=False,
     )
 
     # Set the initial linear velocity
-    initial_linear_velocity  = [0.0, 0.0, 0.0]  # Example: zero initial velocity
+    initial_linear_velocity = [0.0, 0.0, 0.0]  # Example: zero initial velocity
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
     pb.resetBaseVelocity(
@@ -87,9 +90,6 @@ if __name__ == "__main__":
         [0, 0, 0, 1], 
         useFixedBase=True 
     ) 
-    
-    # get cylinder position 
-    # cylinder_pos, _ = pb.getBasePositionAndOrientation(cylinder_robot)
 
     # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=True)
 
@@ -159,9 +159,9 @@ if __name__ == "__main__":
         os.makedirs(video_dir)
 
     ## for dvel quantity
-    previous_torso_velocity = np.array([0.0, 0.0, 0.0])
-
-    # x_arrow_id, y_arrow_id, z_arrow_id, z_neg_arrow_id = update_arrows(base_com_pos, rot_world_basecom) 
+    previous_torso_velocity = np.array([0.0, 0.0, 0.0]) 
+    
+    x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom ) 
 
     while True:
         # ----------------------------------
@@ -172,8 +172,8 @@ if __name__ == "__main__":
         # pb.resetDebugVisualizerCamera(cameraDistance=12.5,
         #                               cameraYaw=120,
         #                               cameraPitch=-45,
-        #                               cameraTargetPosition=
-        #                               np.array([0.5, 0.3, 1.5]))
+        #                               cameraTargetPosition=base_pos +
+        #                               np.array([0.5, 0.3, -base_pos[2] + 1.5]))
 
         # ----------------------------------
         # Debugging
@@ -212,11 +212,8 @@ if __name__ == "__main__":
         )
         base_joint_ang_vel = twist_basejoint_in_world[0:3]
         base_joint_lin_vel = twist_basejoint_in_world[3:6]
-        
-        # Create an arrow pointing outward from the robot torso
-        # x_arrow_id, y_arrow_id, z_arrow_id, z_neg_arrow_id = update_arrows(base_com_pos, rot_world_basecom, x_arrow_id, y_arrow_id, z_arrow_id, z_neg_arrow_id) 
 
-        # pdb.set_trace() 
+        # pdb.set_trace()
 
         # pass debugged data to rpc interface (for ground truth estimation)
         rpc_crab_sensor_data.base_joint_pos_ = base_joint_pos
@@ -235,49 +232,63 @@ if __name__ == "__main__":
         # ----------------------------------
         # Get Sensor Data
         # ----------------------------------
-        
-        rpc_crab_sensor_data = get_assign_sensor_data(robot, rpc_crab_sensor_data, dt, previous_torso_velocity)
-        
-        # ---------------------------------- 
-        # compute distance from body to target 
-        # ---------------------------------- 
-        
-        # get position of robot center of mass 
-        com_pos, _ = pb.getBasePositionAndOrientation(robot) 
-        
-        # get position of target (red ball) 
-        target_pos, _ = pb.getBasePositionAndOrientation(red_ball) 
-        
-        # compute vector from body to target and assign to rpc sensor data 
-        body_target_vector = np.array(target_pos) - np.array(com_pos) 
-        rpc_crab_sensor_data.body_target_vector_ = body_target_vector 
-        
-        # display body_target_vector in pybullet 
-        body_target_id = pb.addUserDebugLine(com_pos, target_pos, [1, 1, 0], 3.0, 1.0) 
-        
+
+        (
+            imu_frame_quat,
+            imu_ang_vel,
+            imu_dvel,
+            joint_pos,
+            joint_vel,
+            b_FL_foot_contact,
+            b_FR_foot_contact,
+            b_RL_foot_contact,
+            b_RR_foot_contact,
+            FL_normal_force,
+            FR_normal_force,
+            RL_normal_force,
+            RR_normal_force,
+        ) = get_sensor_data_from_pybullet(
+            robot, previous_torso_velocity=previous_torso_velocity
+        )
+
+        ## copy sensor data to rpc sensor data class
+        rpc_crab_sensor_data.imu_frame_quat_ = imu_frame_quat
+        rpc_crab_sensor_data.imu_ang_vel_ = imu_ang_vel
+        rpc_crab_sensor_data.imu_dvel_ = imu_dvel
+        rpc_crab_sensor_data.imu_lin_acc_ = imu_dvel / dt
+        rpc_crab_sensor_data.joint_pos_ = joint_pos
+        rpc_crab_sensor_data.joint_vel_ = joint_vel
+        rpc_crab_sensor_data.b_FL_foot_contact_ = b_FL_foot_contact
+        rpc_crab_sensor_data.b_FR_foot_contact_ = b_FR_foot_contact
+        rpc_crab_sensor_data.b_RL_foot_contact_ = b_RL_foot_contact
+        rpc_crab_sensor_data.b_RR_foot_contact_ = b_RR_foot_contact
+        rpc_crab_sensor_data.FL_normal_force_ = FL_normal_force
+        rpc_crab_sensor_data.FR_normal_force_ = FR_normal_force
+        rpc_crab_sensor_data.RL_normal_force_ = RL_normal_force
+        rpc_crab_sensor_data.RR_normal_force_ = RR_normal_force
         
         # ---------------------------------- 
         # compute distance from end effectors to cylinder 
         # ---------------------------------- 
         
-        # get position of red ball 
+        x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom, x_arrow, y_arrow, z_arrow, z_neg_arrow )
         
-        # Get the position of each end effector
-        lfoot_pos = pb.getLinkState(robot, crab_link_idx.back_left__foot_link)[0]
-        rfoot_pos = pb.getLinkState(robot, crab_link_idx.back_right__foot_link)[0]
-        lhand_pos = pb.getLinkState(robot, crab_link_idx.front_left__foot_link)[0]
-        rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
+        # # Get the position of each end effector
+        # lfoot_pos = pb.getLinkState(robot, crab_link_idx.back_left__foot_link)[0]
+        # rfoot_pos = pb.getLinkState(robot, crab_link_idx.back_right__foot_link)[0]
+        # lhand_pos = pb.getLinkState(robot, crab_link_idx.front_left__foot_link)[0]
+        # rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
 
-        # Compute the vector from the cylinder to each end effector
-        lfoot_target_vector = np.array(target_pos) - np.array(lfoot_pos) 
-        rfoot_target_vector = np.array(target_pos) - np.array(rfoot_pos) 
-        lhand_target_vector = np.array(target_pos) - np.array(lhand_pos) 
-        rhand_target_vector = np.array(target_pos) - np.array(rhand_pos) 
+        # # Compute the vector from the cylinder to each end effector
+        # lfoot_cyl_vector = np.array(cylinder_pos) - np.array(lfoot_pos) 
+        # rfoot_cyl_vector = np.array(cylinder_pos) - np.array(rfoot_pos) 
+        # lhand_cyl_vector = np.array(cylinder_pos) - np.array(lhand_pos) 
+        # rhand_cyl_vector = np.array(cylinder_pos) - np.array(rhand_pos) 
         
-        rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_target_vector 
-        rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_target_vector 
-        rpc_crab_sensor_data.lhand_target_vector_ = lhand_target_vector 
-        rpc_crab_sensor_data.rhand_target_vector_ = rhand_target_vector  
+        # rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector 
+        # rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 
+        # rpc_crab_sensor_data.lhand_target_vector_ = lhand_cyl_vector 
+        # rpc_crab_sensor_data.rhand_target_vector_ = rhand_cyl_vector  
 
         # ----------------------------------
         # compute control command
@@ -309,6 +320,24 @@ if __name__ == "__main__":
         previous_torso_velocity = pybullet_util.get_link_vel(
             robot, crab_link_idx.base_link
         )[3:6]
+        
+        # # Apply an external force to the robot
+        # force = [0, 10, 0]  # Example force vector in the x-direction
+        # position = base_com_pos  # Apply force at the center of mass
+        # link_index = -1  # Apply force to the base link
+        # pb.applyExternalForce(robot, link_index, force, position, pb.WORLD_FRAME)
+
+        # Apply an external force to the front of the robot 
+        front_left_idx  = crab_link_idx.front_left__sensor_link  # Replace with the actual link index of the front part
+        front_right_idx = crab_link_idx.front_right__sensor_link  # Replace with the actual link index of the front part 
+        front_left_sensor_pos = pb.getLinkState(robot, front_left_idx)[0]  # Get the position of the front link
+        front_right_sensor_pos = pb.getLinkState(robot, front_right_idx)[0]  # Get the position of the front link 
+        
+        force = [0, 10, 0]  # Example force vector in the x-direction
+        pb.applyExternalForce(robot, front_left_idx, force, front_left_sensor_pos, pb.WORLD_FRAME)
+        pb.applyExternalForce(robot, front_right_idx, force, front_left_sensor_pos, pb.WORLD_FRAME)
+
+        # pdb.set_trace() 
 
         # ----------------------------------
         # Save Image file

@@ -283,32 +283,25 @@ def get_assign_sensor_data(robot, rpc_crab_sensor_data, dt, previous_torso_veloc
 
 # ----------------------------------
     
-# Function to create an arrow
-def create_arrow(start_pos, end_pos, color=[1, 0, 0], line_width=2):
-    return pb.addUserDebugLine(start_pos, end_pos, lineColorRGB=color, lineWidth=line_width) 
-        
-def update_arrows(base_com_pos, rot_world_basecom, x_arrow = None, y_arrow = None, z_arrow = None, z_neg_arrow = None):
-        
-    # Remove previous arrows
-    if x_arrow is not None:
-        pb.removeUserDebugItem(x_arrow)
-    if y_arrow is not None:
-        pb.removeUserDebugItem(y_arrow)
-    if z_arrow is not None:
-        pb.removeUserDebugItem(z_arrow)
-    if z_neg_arrow is not None:
-        pb.removeUserDebugItem(z_neg_arrow) 
-            
+def create_arrow(start_pos, end_pos, color=[1, 0, 0], line_width=2, replace_id=None): 
+    
+    if replace_id == None: 
+        return pb.addUserDebugLine(start_pos, end_pos, lineColorRGB=color, lineWidth=line_width)
+    else: 
+        return pb.addUserDebugLine(start_pos, end_pos, lineColorRGB=color, lineWidth=line_width, replaceItemUniqueId=replace_id)
+
+def update_arrows(base_com_pos, rot_world_basecom, x_arrow=None, y_arrow=None, z_arrow=None, z_neg_arrow=None):
     arrow_start_pos = base_com_pos
     x_end = base_com_pos + 2 * rot_world_basecom[:, 0]
     y_end = base_com_pos + 2 * rot_world_basecom[:, 1]
     z_end = base_com_pos + 2 * rot_world_basecom[:, 2]
-    z_neg = base_com_pos - 2 * rot_world_basecom[:, 2] 
-    x_arrow = create_arrow(arrow_start_pos, x_end)
-    y_arrow = create_arrow(arrow_start_pos, y_end, color=[0, 1, 0])
-    z_arrow = create_arrow(arrow_start_pos, z_end, color=[0, 0, 1])
-    z_neg_arrow = create_arrow(arrow_start_pos, z_neg, color=[0, 1, 1])
-    
+    z_neg = base_com_pos - 2 * rot_world_basecom[:, 2]
+
+    x_arrow = create_arrow(arrow_start_pos, x_end, replace_id=x_arrow)
+    y_arrow = create_arrow(arrow_start_pos, y_end, color=[0, 1, 0], replace_id=y_arrow)
+    z_arrow = create_arrow(arrow_start_pos, z_end, color=[0, 0, 1], replace_id=z_arrow)
+    z_neg_arrow = create_arrow(arrow_start_pos, z_neg, color=[0, 1, 1], replace_id=z_neg_arrow)
+
     return x_arrow, y_arrow, z_arrow, z_neg_arrow
 
 # ---------------------------------- 
