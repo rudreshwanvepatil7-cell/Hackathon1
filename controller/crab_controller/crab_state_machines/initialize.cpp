@@ -65,12 +65,12 @@ void Initialize::OneStep() {
 void Initialize::LastVisit() {}
 
 bool Initialize::EndOfState() {
-  // return !b_stay_here_ && (state_machine_time_ >= end_time_ + wait_time_);
-  return false; 
+  return !b_stay_here_ && (state_machine_time_ >= end_time_ + wait_time_);
+  // return false; 
 }
 
-StateId Initialize::GetNextState() { return crab_states::kReorient; }
-// StateId Initialize::GetNextState() { return crab_states::kApproach; }
+// StateId Initialize::GetNextState() { return crab_states::kReorient; }
+StateId Initialize::GetNextState() { return crab_states::kApproach; }
 
 void Initialize::SetParameters(const YAML::Node &node) {
   try {

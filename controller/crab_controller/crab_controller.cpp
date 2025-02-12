@@ -165,11 +165,11 @@ void CrabController::GetCommand(void *command) {
       task_ptr->UpdateOpCommand();
       //      task_ptr->UpdateOpCommand(sp_->rot_world_local_); // for ihwbc
 
-      // if (task_name == "torso_ori_task" || task_name == "lf_ori_task" ||
-      // task_name == "rf_ori_task")
-      // task_ptr->UpdateOpCommand();
-      // else
-      // task_ptr->UpdateOpCommand(sp_->rot_world_local_);
+      if (task_name == "torso_ori_task" || task_name == "lf_ori_task" ||
+      task_name == "rf_ori_task")
+      task_ptr->UpdateOpCommand();
+      else
+      task_ptr->UpdateOpCommand(sp_->rot_world_local_);
     }
 
     // modified jacobian for swing legs
@@ -320,12 +320,12 @@ void CrabController::_SaveData() {
     //    tci_container_->task_map_["com_z_task"]->Kp()[0]; dm->data_->com_z_kd
     //    = tci_container_->task_map_["com_z_task"]->Kd()[0];
     //
-    //    dm->data_->torso_ori_weight =
-    //        tci_container_->task_map_["torso_ori_task"]->Weight();
-    //    dm->data_->torso_ori_kp =
-    //    tci_container_->task_map_["torso_ori_task"]->Kp();
-    //    dm->data_->torso_ori_kd =
-    //    tci_container_->task_map_["torso_ori_task"]->Kd();
+    dm->data_->torso_ori_weight =
+        tci_container_->task_map_["torso_ori_task"]->Weight();
+    dm->data_->torso_ori_kp =
+    tci_container_->task_map_["torso_ori_task"]->Kp();
+    dm->data_->torso_ori_kd =
+    tci_container_->task_map_["torso_ori_task"]->Kd();
 
     dm->data_->lf_pos_weight =
         tci_container_->task_map_["lf_pos_task"]->Weight();

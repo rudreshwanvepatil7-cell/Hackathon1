@@ -70,7 +70,7 @@ wbc:
       com_feedback_source: 0 # 0: com feedback / 1: icp feedback
       icp_integrator_type: 0 # 0: exponential smoother / 1: leaky integrator
 
-      weight : [1000., 1000.]
+      weight : [0., 0.]
       kp : [200., 200.]
       kd : [10., 10.]
       icp_weight : [40000., 40000.] # only used when feedback source : 1
@@ -98,7 +98,7 @@ wbc:
       base_kd : [5.] # x, y will be ignored
 
     torso_ori_task:
-      weight : [10., 10., 10.]
+      weight : [1000., 1000., 1000.]
       kp : [5., 5., 5.]
       kd : [0.1, 0.1, 0.1]
 
@@ -108,7 +108,7 @@ wbc:
       kd : [1., 1., 1.]
 
     hand_ori_task:
-      weight : [10., 10., 10.]
+      weight : [0., 0., 0.]
       kp : [5., 5., 5.]
       kd : [0.2, 0.2, 0.2]
 
@@ -118,7 +118,7 @@ wbc:
       kd : [1., 1., 1.]
 
     foot_ori_task:
-      weight : [10., 10., 10.]
+      weight : [0., 0., 0.]
       kp : [5., 5., 5.]
       kd : [0.2, 0.2, 0.2]
 

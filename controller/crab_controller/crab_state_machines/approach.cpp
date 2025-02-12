@@ -57,28 +57,24 @@ void Approach::FirstVisit()
   Eigen::Quaterniond init_torso_quat(R_w_torso);
   double duration = 30.;
 
-  // hard-coding target torso orientation
+  // set target torso orientation
+  Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(1.57/4, 0., 0.); 
 
-  // set target torso quaternion as [0, 0, 0.707, 0.707]
-  // Eigen::Quaterniond target_torso_quat(0.0, -0.28, 0.0, 0.96);
-  // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(-0.3, 0., 0.);
-  // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(0.5, 0., 0.);
-  Eigen::Quaterniond target_torso_quat = init_torso_quat;
+  std::cout << "set target_torso_quat = " << target_torso_quat.coeffs() << std::endl; 
+
+  // Eigen::Quaterniond target_torso_quat = init_torso_quat;
 
   // // get rotation matrix from body_target_iso and turn into quaternion 
   // Eigen::Vector3d body_target_vector = sp_->body_target_vector_; 
   // Eigen::Isometry3d body_target_iso  = robot_->GetLinkIsometry(crab_link::base_link);  
-
-  // std::cout << "SETTING TARGET TORSO ORI" << std::endl; 
   // SetRotationDCM( body_target_vector, body_target_iso ); 
-  // std::cout << "COMPUTED TARGET TORSO ORI" << std::endl; 
   // Eigen::Quaterniond target_torso_quat = Eigen::Quaterniond(body_target_iso.linear()); 
 
   ctrl_arch_->floating_base_tm_->InitializeFloatingBaseInterpolation(
       init_com_pos, init_com_pos, init_torso_quat, target_torso_quat, duration);
 
-  std::cout << "\n\n init_torso_quat = \n"
-            << init_torso_quat.coeffs().transpose() << std::endl; 
+  std::cout << "\n\n init_torso_quat = \n" << init_torso_quat.coeffs() << std::endl; 
+  std::cout << "\n\n target_torso_quat = \n" << target_torso_quat.coeffs() << std::endl; 
 
   // Set current foot position as nominal (desired)
   nominal_lfoot_iso_ = robot_->GetLinkIsometry(crab_link::back_left__foot_link);
@@ -124,26 +120,26 @@ void Approach::FirstVisit()
   std::cout << "fin lfoot iso = " << fin_lfoot_iso_.translation() << std::endl; 
 
   // Initialize interpolation
-  ctrl_arch_->lf_SE3_tm_->InitializeSwingTrajectory(
-      robot_->GetLinkIsometry(crab_link::back_left__foot_link),
-      nominal_lfoot_iso_, 
-      fin_lfoot_iso_.translation().z(), 
-      duration);
-  ctrl_arch_->rf_SE3_tm_->InitializeSwingTrajectory(
-      robot_->GetLinkIsometry(crab_link::back_right__foot_link),
-      nominal_rfoot_iso_, 
-      fin_rfoot_iso_.translation().z(), 
-      duration);
-  ctrl_arch_->lh_SE3_tm_->InitializeSwingTrajectory(
-      robot_->GetLinkIsometry(crab_link::front_left__foot_link),
-      nominal_lhand_iso_, 
-      fin_lhand_iso_.translation().z(), 
-      duration);
-  ctrl_arch_->rh_SE3_tm_->InitializeSwingTrajectory(
-      robot_->GetLinkIsometry(crab_link::front_right__foot_link),
-      nominal_rhand_iso_, 
-      fin_rhand_iso_.translation().z(), 
-      duration);
+  // ctrl_arch_->lf_SE3_tm_->InitializeSwingTrajectory(
+  //     robot_->GetLinkIsometry(crab_link::back_left__foot_link),
+  //     nominal_lfoot_iso_, 
+  //     fin_lfoot_iso_.translation().z(), 
+  //     duration);
+  // ctrl_arch_->rf_SE3_tm_->InitializeSwingTrajectory(
+  //     robot_->GetLinkIsometry(crab_link::back_right__foot_link),
+  //     nominal_rfoot_iso_, 
+  //     fin_rfoot_iso_.translation().z(), 
+  //     duration);
+  // ctrl_arch_->lh_SE3_tm_->InitializeSwingTrajectory(
+  //     robot_->GetLinkIsometry(crab_link::front_left__foot_link),
+  //     nominal_lhand_iso_, 
+  //     fin_lhand_iso_.translation().z(), 
+  //     duration);
+  // ctrl_arch_->rh_SE3_tm_->InitializeSwingTrajectory(
+  //     robot_->GetLinkIsometry(crab_link::front_right__foot_link),
+  //     nominal_rhand_iso_, 
+  //     fin_rhand_iso_.translation().z(), 
+  //     duration);
 
   // std::cout << "swing height lfoot trajectory = " << nominal_lfoot_iso_.translation().z() << std::endl; 
 }
@@ -153,29 +149,26 @@ void Approach::OneStep()
   state_machine_time_ = sp_->current_time_ - state_machine_start_time_;
   state_machine_time_ = std::min(state_machine_time_, 10.0); 
 
-  // get the vector from end effector to target from crab sensor data 
-  Eigen::Vector3d lfoot_target_vector = sp_->lfoot_target_vector_; 
-  Eigen::Vector3d rfoot_target_vector = sp_->rfoot_target_vector_; 
-  Eigen::Vector3d lhand_target_vector = sp_->lhand_target_vector_; 
-  Eigen::Vector3d rhand_target_vector = sp_->rhand_target_vector_; 
-
-  // std::cout << "lfoot_target_vector = " << lfoot_target_vector << std::endl; 
+  // Eigen::Matrix3d R_w_torso =
+  //   robot_->GetLinkIsometry(crab_link::base_link).linear();
+  // Eigen::Quaterniond current_torso_quat(R_w_torso);
+  // std::cout << "current_torso_quat = " << current_torso_quat.coeffs() << std::endl; 
 
   // com & torso ori task update
   ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
 
   // update foot pose task update
-  if (b_use_fixed_foot_pos_) {
-    ctrl_arch_->lf_SE3_tm_->UpdateDesired(state_machine_time_);
-    ctrl_arch_->rf_SE3_tm_->UpdateDesired(state_machine_time_);
-    ctrl_arch_->lh_SE3_tm_->UpdateDesired(state_machine_time_);
-    ctrl_arch_->rh_SE3_tm_->UpdateDesired(state_machine_time_);
-  } else {
-    ctrl_arch_->lf_SE3_tm_->UseCurrent();
-    ctrl_arch_->lh_SE3_tm_->UseCurrent();
-    ctrl_arch_->rf_SE3_tm_->UseCurrent();
-    ctrl_arch_->rh_SE3_tm_->UseCurrent();
-  }
+  // if (b_use_fixed_foot_pos_) {
+  //   ctrl_arch_->lf_SE3_tm_->UpdateDesired(state_machine_time_);
+  //   ctrl_arch_->rf_SE3_tm_->UpdateDesired(state_machine_time_);
+  //   ctrl_arch_->lh_SE3_tm_->UpdateDesired(state_machine_time_);
+  //   ctrl_arch_->rh_SE3_tm_->UpdateDesired(state_machine_time_);
+  // } else {
+  //   ctrl_arch_->lf_SE3_tm_->UseCurrent();
+  //   ctrl_arch_->lh_SE3_tm_->UseCurrent();
+  //   ctrl_arch_->rf_SE3_tm_->UseCurrent();
+  //   ctrl_arch_->rh_SE3_tm_->UseCurrent();
+  // }
 
 }
 
