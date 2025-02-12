@@ -1,4 +1,5 @@
 #include "controller/draco_controller/draco_state_machines/initialize.hpp"
+
 #include "controller/draco_controller/draco_control_architecture.hpp"
 #include "controller/draco_controller/draco_state_provider.hpp"
 #include "controller/draco_controller/draco_tci_container.hpp"
@@ -8,8 +9,11 @@
 
 Initialize::Initialize(const StateId state_id, PinocchioRobotSystem *robot,
                        DracoControlArchitecture *ctrl_arch)
-    : StateMachine(state_id, robot), ctrl_arch_(ctrl_arch), b_stay_here_(false),
-      wait_time_(0.), min_jerk_curves_(nullptr) {
+    : StateMachine(state_id, robot),
+      ctrl_arch_(ctrl_arch),
+      b_stay_here_(false),
+      wait_time_(0.),
+      min_jerk_curves_(nullptr) {
   util::PrettyConstructor(2, "Initialize");
 
   sp_ = DracoStateProvider::GetStateProvider();
@@ -18,8 +22,7 @@ Initialize::Initialize(const StateId state_id, PinocchioRobotSystem *robot,
 }
 
 Initialize::~Initialize() {
-  if (min_jerk_curves_ != nullptr)
-    delete min_jerk_curves_;
+  if (min_jerk_curves_ != nullptr) delete min_jerk_curves_;
 }
 
 void Initialize::FirstVisit() {
@@ -31,7 +34,7 @@ void Initialize::FirstVisit() {
       Eigen::VectorXd::Zero(init_joint_pos_.size()), target_joint_pos_,
       Eigen::VectorXd::Zero(target_joint_pos_.size()),
       Eigen::VectorXd::Zero(target_joint_pos_.size()),
-      end_time_); // min jerk curve initialization
+      end_time_);  // min jerk curve initialization
 }
 
 void Initialize::OneStep() {
@@ -62,11 +65,7 @@ void Initialize::OneStep() {
 void Initialize::LastVisit() {}
 
 bool Initialize::EndOfState() {
-  if (b_stay_here_) {
-    return false;
-  } else {
-    return (state_machine_time_ >= end_time_ + wait_time_) ? true : false;
-  }
+  return !b_stay_here_ && (state_machine_time_ >= end_time_ + wait_time_);
 }
 
 StateId Initialize::GetNextState() {
@@ -79,7 +78,7 @@ void Initialize::SetParameters(const YAML::Node &node) {
                         end_time_);
     util::ReadParameter(node["state_machine"]["initialize"], "target_joint_pos",
                         target_joint_pos_);
-    sp_->nominal_jpos_ = target_joint_pos_; // set nominal jpos
+    sp_->nominal_jpos_ = target_joint_pos_;  // set nominal jpos
     util::ReadParameter(node["state_machine"]["initialize"],
                         "b_only_joint_pos_control", b_stay_here_);
     util::ReadParameter(node["state_machine"]["initialize"], "wait_time",
