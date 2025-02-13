@@ -325,7 +325,7 @@ if __name__ == "__main__":
         # error = np.arccos(np.clip(np.dot(z_neg, direction_to_target), -1.0, 1.0))
 
         # # Compute the torque using the PID controller
-        # # dt = 1.0 / 240.0  # Assuming the simulation step is 1/240 seconds
+        # dt = 1.0 / 240.0  # Assuming the simulation step is 1/240 seconds
         # torque_magnitude = pid.compute(error, dt)
 
         # # Compute the torque direction (cross product to get the rotation axis)

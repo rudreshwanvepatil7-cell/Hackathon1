@@ -9,7 +9,123 @@ sys.path.append(cwd)
 sys.path.append(cwd + "/build/lib")  # include pybind module
 
 from config.crab.sim.pybullet.ihwbc.pybullet_params import *
-from util.python_utils import pybullet_util
+from util.python_utils import pybullet_util 
+
+# ---------------------------------- 
+# debug joint state 
+# ---------------------------------- 
+
+def get_joint_ori(robot, link_id): 
+
+    # joint_id = crab_link_idx.front_left__foot_link
+    
+    # Get orientation of a specific link (e.g. front left foot)
+    # getLinkState returns position and orientation in world frame
+    link_state = pb.getLinkState(robot, link_id)
+    link_pos   = link_state[0]  # Position in world frame
+    link_quat  = link_state[1]  # Orientation as quaternion in world frame
+    link_dcm   = np.array(pb.getMatrixFromQuaternion(link_quat)).reshape(3,3)  # Convert to rotation matrix
+    
+    return link_pos, link_quat 
+    
+def debug_joint_properties(robot, joint_id):
+    joint_info = pb.getJointInfo(robot, joint_id)
+    print(f"Joint {joint_info[1]}: ")
+    print(f"  Type: {joint_info[2]}")
+    print(f"  Damping: {joint_info[6]}")
+    print(f"  Friction: {joint_info[7]}")
+    print(f"  Lower limit: {joint_info[8]}")
+    print(f"  Upper limit: {joint_info[9]}")
+    print(f"  Max force: {joint_info[10]}")
+    print(f"  Max velocity: {joint_info[11]}") 
+
+# example usage: 
+#   joint_id = crab_joint_idx.front_left__cluster_1_pitch
+#   debug_joint_properties(robot, joint_id)
+
+def print_joint_state(robot, joint_id):
+    joint_state = pb.getJointState(robot, joint_id)
+    joint_info = pb.getJointInfo(robot, joint_id)
+    joint_name = joint_info[1].decode('utf-8')
+    
+    print(f"\nJoint {joint_name} (id: {joint_id}) state:")
+    print(f"Position: {joint_state[0]:.3f} rad ({np.degrees(joint_state[0]):.1f} deg)")
+    print(f"Velocity: {joint_state[1]:.3f} rad/s")
+    print(f"Reaction forces: {joint_state[2]}")
+    print(f"Applied motor torque: {joint_state[3]:.3f} N⋅m")
+
+# ---------------------------------- 
+# reset joint angles 
+# ---------------------------------- 
+
+def set_init_config_robot(robot):
+    
+    # Front Left Limb (4 DOF)
+    pb.resetJointState(robot, 0, np.radians(45), 0.0)  # Joint 1
+    pb.resetJointState(robot, 1, np.radians(-30), 0.0) # Joint 2
+    pb.resetJointState(robot, 2, np.radians(60), 0.0)  # Joint 3
+    pb.resetJointState(robot, 3, np.radians(-45), 0.0) # Joint 4
+
+    # Front Right Limb (4 DOF)
+    pb.resetJointState(robot, 4, np.radians(45), 0.0)  # Joint 1
+    pb.resetJointState(robot, 5, np.radians(-30), 0.0) # Joint 2
+    pb.resetJointState(robot, 6, np.radians(60), 0.0)  # Joint 3
+    pb.resetJointState(robot, 7, np.radians(-45), 0.0) # Joint 4
+
+    # Back Left Limb (4 DOF)
+    pb.resetJointState(robot, 8, np.radians(45), 0.0)  # Joint 1
+    pb.resetJointState(robot, 9, np.radians(-30), 0.0) # Joint 2
+    pb.resetJointState(robot, 10, np.radians(60), 0.0) # Joint 3
+    pb.resetJointState(robot, 11, np.radians(-45), 0.0) # Joint 4
+
+    # Back Right Limb (4 DOF)
+    pb.resetJointState(robot, 12, np.radians(45), 0.0) # Joint 1
+    pb.resetJointState(robot, 13, np.radians(-30), 0.0) # Joint 2
+    pb.resetJointState(robot, 14, np.radians(60), 0.0) # Joint 3
+    pb.resetJointState(robot, 15, np.radians(-45), 0.0) # Joint 4
+
+# ---------------------------------- 
+# test range of motion 
+# ---------------------------------- 
+
+def generate_momentum_test_sequence():
+    # Sequence of joint commands to create maximum angular momentum
+    sequences = []
+    
+    # Phase 1: Extend all limbs outward (like a starfish)
+    extend_limbs = np.zeros(28)  # 28 joint DOFs
+    extend_limbs[[2,3,4,5, 16,17,18,19]] = 0.5  # Leg joints
+    extend_limbs[[8,9,10,11, 22,23,24,25]] = 0.5  # Arm joints
+    sequences.append((extend_limbs, 1.0))  # (command, duration)
+    
+    # Phase 2: Rotate limbs in same direction to build angular momentum
+    twist_limbs = np.zeros(28)
+    twist_limbs[[1,7,15,21]] = 1.0  # First joint of each limb
+    sequences.append((twist_limbs, 0.5))
+    
+    # Phase 3: Quickly pull limbs in to increase rotation speed
+    contract_limbs = np.zeros(28)
+    contract_limbs[[2,3,4,5, 16,17,18,19]] = -0.5  # Leg joints
+    contract_limbs[[8,9,10,11, 22,23,24,25]] = -0.5  # Arm joints
+    sequences.append((contract_limbs, 0.3))
+    
+    return sequences
+
+def run_momentum_test(robot, dt):
+    # robot = init_robot()  # Initialize robot
+    sequences = generate_momentum_test_sequence()
+    
+    for command, duration in sequences:
+        steps = int(duration * 1/dt)  # Assuming 240Hz simulation
+        for _ in range(steps):
+            apply_control_input_to_pybullet(robot, command)
+            pb.stepSimulation()
+            
+            # Record orientation for analysis
+            pos, ori = pb.getBasePositionAndOrientation(robot)
+            rot = np.array(pb.getMatrixFromQuaternion(ori)).reshape(3,3)
+            z_axis = rot[:,2]
+            print(f"Current Z-axis orientation: {z_axis}")
 
 # ---------------------------------- 
 # PID controller 
