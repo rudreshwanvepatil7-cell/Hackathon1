@@ -95,9 +95,9 @@ void Approach::FirstVisit()
 
   // Get target vector and current body pose
   Eigen::Vector3d body_target_vector = sp_->body_target_vector_; 
-  Eigen::Isometry3d body_target_iso = robot_->GetLinkIsometry(crab_link::base_link);
 
   // Compute rotation to align -Z with target
+  Eigen::Isometry3d body_target_iso = robot_->GetLinkIsometry(crab_link::base_link);
   SetRotationDCM(body_target_vector, body_target_iso);
 
   // Convert to quaternion for the controller
