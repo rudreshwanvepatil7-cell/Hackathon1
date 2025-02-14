@@ -27,27 +27,45 @@ Approach::Approach( const StateId state_id,
 void SetRotationDCM( Eigen::Vector3d target_vector, 
                      Eigen::Isometry3d & body_iso ) 
 { 
-  // 1. Normalize the target vector
-    Eigen::Vector3d z_axis = -target_vector.normalized();  // -Z should point to target
-    
-    // 2. Choose a reference vector for computing x_axis
-    Eigen::Vector3d ref = Eigen::Vector3d::UnitZ();  // Use world Z as reference
-    if (z_axis.isApproxToConstant(1.0, 1e-6)) {
-        ref = Eigen::Vector3d::UnitY();  // Use Y if target is along Z
-    }
-    
-    // 3. Compute orthonormal basis
-    Eigen::Vector3d y_axis = z_axis.cross(ref).normalized();
-    Eigen::Vector3d x_axis = y_axis.cross(z_axis).normalized();
-    
-    // 4. Form rotation matrix
-    Eigen::Matrix3d R;
-    R.col(0) = x_axis;
-    R.col(1) = y_axis;
-    R.col(2) = z_axis;
-    
-    // 5. Set the rotation in the isometry
-    body_iso.linear() = R;
+  // Get current body orientation
+  Eigen::Matrix3d current_R = body_iso.linear();
+  Eigen::Vector3d current_neg_z = -current_R.col(2);  // Current -Z axis
+  
+  // Normalize target vector
+  Eigen::Vector3d target = target_vector.normalized();
+  
+  // Compute rotation axis and angle
+  Eigen::Vector3d rotation_axis = current_neg_z.cross(target);
+  
+  if (rotation_axis.norm() > 1e-6) {  // Check if vectors aren't parallel
+      rotation_axis.normalize();
+      double rotation_angle = std::acos(current_neg_z.dot(target));
+      
+      // Create rotation quaternion
+      Eigen::Quaterniond q = Eigen::Quaterniond(
+          Eigen::AngleAxisd(rotation_angle, rotation_axis));
+          
+      // Final rotation = new rotation * current rotation
+      Eigen::Matrix3d final_R = q * current_R;
+      
+      // Set the rotation in the isometry
+      body_iso.linear() = final_R;
+      
+      // Debug output
+      std::cout << "Current -Z: " << current_neg_z.transpose() << std::endl;
+      std::cout << "Target: " << target.transpose() << std::endl;
+      std::cout << "Rotation axis: " << rotation_axis.transpose() << std::endl;
+      std::cout << "Rotation angle (deg): " << rotation_angle * 180/M_PI << std::endl;
+  }
+  else {
+      // Vectors are parallel - no rotation needed or 180-degree rotation
+      if (current_neg_z.dot(target) < 0) {
+          // 180-degree rotation needed around any perpendicular axis
+          Eigen::Vector3d perp = current_neg_z.unitOrthogonal();
+          Eigen::Matrix3d final_R = Eigen::AngleAxisd(M_PI, perp).toRotationMatrix() * current_R;
+          body_iso.linear() = final_R;
+      }
+  }
 } 
 
 // First visit to the state
@@ -55,8 +73,8 @@ void Approach::FirstVisit()
 {
   // StateMachine::FirstVisit();
   
-  // Initialize PID controller with gains
-  orientation_pid_ = new PIDController(1.0, 0.0, 0.1);
+  // // Initialize PID controller with gains
+  // orientation_pid_ = new PIDController(1.0, 0.0, 0.1);
   prev_time_ = sp_->current_time_;
   
   std::cout << "crab_states: kApproach" << std::endl;
@@ -84,6 +102,7 @@ void Approach::FirstVisit()
 
   // Convert to quaternion for the controller
   Eigen::Quaterniond target_torso_quat(body_target_iso.linear());
+  std::cout << "Target quaternion: " << target_torso_quat << std::endl;
 
   // Debug output
   std::cout << "Target vector: " << body_target_vector.transpose() << std::endl;
