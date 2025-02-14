@@ -65,8 +65,7 @@ void Initialize::OneStep() {
 void Initialize::LastVisit() {}
 
 bool Initialize::EndOfState() {
-  // return !b_stay_here_ && (state_machine_time_ >= end_time_ + wait_time_);
-  return false; 
+  return !b_stay_here_ && (state_machine_time_ >= end_time_ + wait_time_);
 }
 
 StateId Initialize::GetNextState() { return crab_states::kReorient; }

@@ -176,7 +176,7 @@ CrabControlArchitecture::CrabControlArchitecture(PinocchioRobotSystem *robot,
       cfg);
 
   locomotion_state_machine_container_[crab_states::kReorient] =
-      new Contact(crab_states::kReorient, robot_, this);
+      new Reorient(crab_states::kReorient, robot_, this);
   locomotion_state_machine_container_[crab_states::kReorient]->SetParameters(
       cfg);
 }
@@ -200,7 +200,7 @@ CrabControlArchitecture::~CrabControlArchitecture() {
   delete locomotion_state_machine_container_[crab_states::kInitialize];
   delete locomotion_state_machine_container_[crab_states::kApproach];
   delete locomotion_state_machine_container_[crab_states::kContact];
-  delete locomotion_state_machine_container_[crab_states::kReorient]; 
+  delete locomotion_state_machine_container_[crab_states::kReorient];
 
 #if B_USE_FOXGLOVE
   delete param_subscriber_;
