@@ -61,7 +61,7 @@ if __name__ == "__main__":
     )
 
     # Set the initial linear velocity
-    initial_linear_velocity = [0.0, 0.0, 0.0]  # Example: zero initial velocity
+    initial_linear_velocity  = [0.0, 0.0, 0.0]  # Example: zero initial velocity
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
     pb.resetBaseVelocity(
@@ -90,6 +90,9 @@ if __name__ == "__main__":
         [0, 0, 0, 1], 
         useFixedBase=True 
     ) 
+    
+    target_pos, _ = pb.getBasePositionAndOrientation(green_ball)
+    print(f"pybullet target_pos = {target_pos}")
 
     # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=True)
 
@@ -118,7 +121,8 @@ if __name__ == "__main__":
         Config.PRINT_ROBOT_INFO,
     )
     # robot initial config setting
-    set_init_config_pybullet_robot(robot)
+    # set_init_config_pybullet_robot(robot)
+    set_0_config_robot(robot) 
 
     # robot joint and link dynamics setting
     pybullet_util.set_joint_friction(robot, joint_id_dict, 0)
@@ -163,8 +167,8 @@ if __name__ == "__main__":
     
     x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom ) 
     
-    # initialize PID controller 
-    pid = PIDController(kp = 1.0, ki = 0.0, kd = 0.1)
+    # # initialize PID controller 
+    # pid = PIDController(kp = 1.0, ki = 0.0, kd = 0.1)
 
     while True:
         # ----------------------------------
@@ -260,6 +264,12 @@ if __name__ == "__main__":
         # rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 
         # rpc_crab_sensor_data.lhand_target_vector_ = lhand_cyl_vector 
         # rpc_crab_sensor_data.rhand_target_vector_ = rhand_cyl_vector  
+        
+        # get position to target 
+        base_pos = pb.getLinkState(robot, crab_link_idx.base_link)[0]
+        
+        body_target_vector = np.array(target_pos) - np.array(base_pos) 
+        rpc_crab_sensor_data.body_target_vector_ = body_target_vector
 
         # ----------------------------------
         # compute control command
@@ -278,17 +288,6 @@ if __name__ == "__main__":
         rpc_trq_command = rpc_crab_command.joint_trq_cmd_
         rpc_joint_pos_command = rpc_crab_command.joint_pos_cmd_
         rpc_joint_vel_command = rpc_crab_command.joint_vel_cmd_ 
-
-        # # apply command to pybullet robot
-        # values = [
-        #     1, 0, 0, 0, 0, 0, 0, 
-        #     -1, 0, 0, 0, 0, 0, 0, 
-        #     1, 0, 0, 0, 0, 0, 0, 
-        #     -1, 0, 0, 0, 0, 0, 0 
-        # ]
-
-        # # Convert the list to a NumPy array
-        # rpc_trq_command = np.array(values)
         
         apply_control_input_to_pybullet(robot, rpc_trq_command) 
         

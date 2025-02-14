@@ -58,31 +58,44 @@ def print_joint_state(robot, joint_id):
 # reset joint angles 
 # ---------------------------------- 
 
-def set_init_config_robot(robot):
+def set_0_config_robot(robot):
     
     # Front Left Limb (4 DOF)
-    pb.resetJointState(robot, 0, np.radians(45), 0.0)  # Joint 1
-    pb.resetJointState(robot, 1, np.radians(-30), 0.0) # Joint 2
-    pb.resetJointState(robot, 2, np.radians(60), 0.0)  # Joint 3
-    pb.resetJointState(robot, 3, np.radians(-45), 0.0) # Joint 4
+    pb.resetJointState(robot, 0, np.radians(0), 0.0)  # cluster 1 roll 
+    pb.resetJointState(robot, 1, np.radians(0), 0.0)  # cluster 1 pitch 
+    pb.resetJointState(robot, 2, np.radians(0), 0.0)  # cluster 2 roll 
+    pb.resetJointState(robot, 3, np.radians(0), 0.0)  # cluster 2 pitch 
+    pb.resetJointState(robot, 4, np.radians(0), 0.0)  # cluster 3 roll 
+    pb.resetJointState(robot, 5, np.radians(0), 0.0)  # cluster 3 pitch 
+    pb.resetJointState(robot, 6, np.radians(0), 0.0)  # cluster 3 wrist 
+    
+    # Front Right 
+    pb.resetJointState(robot, 7, np.radians(0), 0.0)  # cluster 1 roll 
+    pb.resetJointState(robot, 8, np.radians(0), 0.0)  # cluster 1 pitch 
+    pb.resetJointState(robot, 9, np.radians(0), 0.0)  # cluster 2 roll 
+    pb.resetJointState(robot, 10, np.radians(0), 0.0) # cluster 2 pitch 
+    pb.resetJointState(robot, 11, np.radians(0), 0.0) # cluster 3 roll 
+    pb.resetJointState(robot, 12, np.radians(0), 0.0) # cluster 3 pitch 
+    pb.resetJointState(robot, 13, np.radians(0), 0.0) # cluster 3 wrist 
 
-    # Front Right Limb (4 DOF)
-    pb.resetJointState(robot, 4, np.radians(45), 0.0)  # Joint 1
-    pb.resetJointState(robot, 5, np.radians(-30), 0.0) # Joint 2
-    pb.resetJointState(robot, 6, np.radians(60), 0.0)  # Joint 3
-    pb.resetJointState(robot, 7, np.radians(-45), 0.0) # Joint 4
+    # Back Left 
+    pb.resetJointState(robot, 14, np.radians(0), 0.0) # cluster 1 roll 
+    pb.resetJointState(robot, 15, np.radians(0), 0.0) # cluster 1 pitch 
+    pb.resetJointState(robot, 16, np.radians(0), 0.0) # cluster 2 roll 
+    pb.resetJointState(robot, 17, np.radians(0), 0.0) # cluster 2 pitch 
+    pb.resetJointState(robot, 18, np.radians(0), 0.0) # cluster 3 roll 
+    pb.resetJointState(robot, 19, np.radians(0), 0.0) # cluster 3 pitch 
+    pb.resetJointState(robot, 20, np.radians(0), 0.0) # cluster 3 wrist 
 
-    # Back Left Limb (4 DOF)
-    pb.resetJointState(robot, 8, np.radians(45), 0.0)  # Joint 1
-    pb.resetJointState(robot, 9, np.radians(-30), 0.0) # Joint 2
-    pb.resetJointState(robot, 10, np.radians(60), 0.0) # Joint 3
-    pb.resetJointState(robot, 11, np.radians(-45), 0.0) # Joint 4
+    # Back Right 
+    pb.resetJointState(robot, 21, np.radians(0), 0.0) # cluster 1 roll 
+    pb.resetJointState(robot, 22, np.radians(0), 0.0) # cluster 1 pitch 
+    pb.resetJointState(robot, 23, np.radians(0), 0.0) # cluster 2 roll 
+    pb.resetJointState(robot, 24, np.radians(0), 0.0) # cluster 2 pitch 
+    pb.resetJointState(robot, 25, np.radians(0), 0.0) # cluster 3 roll 
+    pb.resetJointState(robot, 26, np.radians(0), 0.0) # cluster 3 pitch 
+    pb.resetJointState(robot, 27, np.radians(0), 0.0) # cluster 3 wrist 
 
-    # Back Right Limb (4 DOF)
-    pb.resetJointState(robot, 12, np.radians(45), 0.0) # Joint 1
-    pb.resetJointState(robot, 13, np.radians(-30), 0.0) # Joint 2
-    pb.resetJointState(robot, 14, np.radians(60), 0.0) # Joint 3
-    pb.resetJointState(robot, 15, np.radians(-45), 0.0) # Joint 4
 
 # ---------------------------------- 
 # test range of motion 
@@ -158,169 +171,79 @@ def get_sensor_data_from_pybullet(robot, previous_torso_velocity):
 
     # Front left
     joint_pos[0] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_roll)[0]
-    joint_pos[1] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_pitch)[
-        0
-    ]
+    joint_pos[1] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_pitch)[0]
     joint_pos[2] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_2_roll)[0]
-    joint_pos[3] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_2_pitch)[
-        0
-    ]
+    joint_pos[3] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_2_pitch)[0]
     joint_pos[4] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_roll)[0]
-    joint_pos[5] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_pitch)[
-        0
-    ]
-    joint_pos[6] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_wrist)[
-        0
-    ]
+    joint_pos[5] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_pitch)[0]
+    joint_pos[6] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_wrist)[0]
 
     # Front right
-    joint_pos[7] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_roll)[
-        0
-    ]
-    joint_pos[8] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_pitch)[
-        0
-    ]
-    joint_pos[9] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_2_roll)[
-        0
-    ]
-    joint_pos[10] = pb.getJointState(
-        robot, crab_joint_idx.front_right__cluster_2_pitch
-    )[0]
-    joint_pos[11] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_3_roll)[
-        0
-    ]
-    joint_pos[12] = pb.getJointState(
-        robot, crab_joint_idx.front_right__cluster_3_pitch
-    )[0]
-    joint_pos[13] = pb.getJointState(
-        robot, crab_joint_idx.front_right__cluster_3_wrist
-    )[0]
+    joint_pos[7] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_roll)[0]
+    joint_pos[8] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_pitch)[0]
+    joint_pos[9] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_2_roll)[0]
+    joint_pos[10] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_2_pitch)[0]
+    joint_pos[11] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_3_roll)[0]
+    joint_pos[12] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_3_pitch)[0]
+    joint_pos[13] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_3_wrist)[0]
 
     # Back left
     joint_pos[14] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_1_roll)[0]
-    joint_pos[15] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_1_pitch)[
-        0
-    ]
+    joint_pos[15] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_1_pitch)[0]
     joint_pos[16] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_2_roll)[0]
-    joint_pos[17] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_2_pitch)[
-        0
-    ]
+    joint_pos[17] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_2_pitch)[0]
     joint_pos[18] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_roll)[0]
-    joint_pos[19] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_pitch)[
-        0
-    ]
-    joint_pos[20] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_wrist)[
-        0
-    ]
+    joint_pos[19] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_pitch)[0]
+    joint_pos[20] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_wrist)[0]
 
     # Back right
-    joint_pos[21] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_1_roll)[
-        0
-    ]
-    joint_pos[22] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_1_pitch)[
-        0
-    ]
-    joint_pos[23] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_2_roll)[
-        0
-    ]
-    joint_pos[24] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_2_pitch)[
-        0
-    ]
-    joint_pos[25] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_roll)[
-        0
-    ]
-    joint_pos[26] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_pitch)[
-        0
-    ]
-    joint_pos[27] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_wrist)[
-        0
-    ]
+    joint_pos[21] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_1_roll)[0]
+    joint_pos[22] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_1_pitch)[0]
+    joint_pos[23] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_2_roll)[0]
+    joint_pos[24] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_2_pitch)[0]
+    joint_pos[25] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_roll)[0]
+    joint_pos[26] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_pitch)[0]
+    joint_pos[27] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_wrist)[0]
 
     imu_ang_vel = np.array(pb.getLinkState(robot, crab_link_idx.base_link, 1, 1)[7])
 
-    imu_dvel = pybullet_util.simulate_dVel_data(
-        robot, crab_link_idx.base_link, previous_torso_velocity
-    )
+    imu_dvel = pybullet_util.simulate_dVel_data(robot, crab_link_idx.base_link, previous_torso_velocity)
 
     # Front left
     joint_vel[0] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_roll)[1]
-    joint_vel[1] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_pitch)[
-        1
-    ]
+    joint_vel[1] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_pitch)[1]
     joint_vel[2] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_2_roll)[1]
-    joint_vel[3] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_2_pitch)[
-        1
-    ]
+    joint_vel[3] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_2_pitch)[1]
     joint_vel[4] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_roll)[1]
-    joint_vel[5] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_pitch)[
-        1
-    ]
-    joint_vel[6] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_wrist)[
-        1
-    ]
+    joint_vel[5] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_pitch)[1]
+    joint_vel[6] = pb.getJointState(robot, crab_joint_idx.front_left__cluster_3_wrist)[1]
 
     # Front right
-    joint_vel[7] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_roll)[
-        1
-    ]
-    joint_vel[8] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_pitch)[
-        1
-    ]
-    joint_vel[9] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_2_roll)[
-        1
-    ]
-    joint_vel[10] = pb.getJointState(
-        robot, crab_joint_idx.front_right__cluster_2_pitch
-    )[1]
-    joint_vel[11] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_3_roll)[
-        1
-    ]
-    joint_vel[12] = pb.getJointState(
-        robot, crab_joint_idx.front_right__cluster_3_pitch
-    )[1]
-    joint_vel[13] = pb.getJointState(
-        robot, crab_joint_idx.front_right__cluster_3_wrist
-    )[1]
+    joint_vel[7] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_roll)[1]
+    joint_vel[8] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_pitch)[1]
+    joint_vel[9] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_2_roll)[1]
+    joint_vel[10] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_2_pitch)[1]
+    joint_vel[11] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_3_roll)[1]
+    joint_vel[12] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_3_pitch)[1]
+    joint_vel[13] = pb.getJointState(robot, crab_joint_idx.front_right__cluster_3_wrist)[1]
 
     # Back left
     joint_vel[14] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_1_roll)[1]
-    joint_vel[15] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_1_pitch)[
-        1
-    ]
+    joint_vel[15] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_1_pitch)[1]
     joint_vel[16] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_2_roll)[1]
-    joint_vel[17] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_2_pitch)[
-        1
-    ]
+    joint_vel[17] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_2_pitch)[1]
     joint_vel[18] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_roll)[1]
-    joint_vel[19] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_pitch)[
-        1
-    ]
-    joint_vel[20] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_wrist)[
-        1
-    ]
+    joint_vel[19] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_pitch)[1]
+    joint_vel[20] = pb.getJointState(robot, crab_joint_idx.back_left__cluster_3_wrist)[1]
 
     # Back right
-    joint_vel[21] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_1_roll)[
-        1
-    ]
-    joint_vel[22] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_1_pitch)[
-        1
-    ]
-    joint_vel[23] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_2_roll)[
-        1
-    ]
-    joint_vel[24] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_2_pitch)[
-        1
-    ]
-    joint_vel[25] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_roll)[
-        1
-    ]
-    joint_vel[26] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_pitch)[
-        1
-    ]
-    joint_vel[27] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_wrist)[
-        1
-    ]
+    joint_vel[21] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_1_roll)[1]
+    joint_vel[22] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_1_pitch)[1]
+    joint_vel[23] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_2_roll)[1]
+    joint_vel[24] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_2_pitch)[1]
+    joint_vel[25] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_roll)[1]
+    joint_vel[26] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_pitch)[1]
+    joint_vel[27] = pb.getJointState(robot, crab_joint_idx.back_right__cluster_3_wrist)[1]
 
     # normal force measured on each foot
     FL_normal_force = 0

@@ -120,7 +120,7 @@ if __name__ == "__main__":
     
     # robot initial config setting
     # set_init_config_pybullet_robot(robot)
-    # set_init_config_robot(robot) 
+    set_0_config_robot(robot) 
 
     # robot joint and link dynamics setting
     pybullet_util.set_joint_friction(robot, joint_id_dict, 0)
@@ -200,16 +200,31 @@ if __name__ == "__main__":
         if Config.MEASURE_COMPUTATION_TIME:
             comp_time = timer.tocvalue()
             compuation_cal_list.append(comp_time)
+        
+        
+        # Get current angles
+        left_state  = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_roll)
+        right_state = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_roll)
+        
+        # print_joint_state(robot, crab_joint_idx.front_left__cluster_1_pitch)
+        
+        left_angle  = np.degrees(left_state[0])
+        right_angle = np.degrees(right_state[0]) 
+        
+        trq = 0 
+        # if abs(left_angle) < 1.57:    
+        #     print(f"left angle = {left_angle}")
+        #     trq = 0.1
 
         # apply command to pybullet robot: 
             # cluster_1_roll, cluster_1_pitch, 
             # cluster_2_roll, cluster_2_pitch, 
             # cluster_3_roll, cluster_3_pitch, cluster_3_wrist 
         values = [
-            0, -0.1, 0, 0, 0, 0, 0, 
-            0, -0.1, 0, 0, 0, 0, 0, 
-            0, 0, 0, 0, 0, 0, 0, 
-            0, 0, 0, 0, 0, 0, 0 
+            0, -trq, 0, 0, 0, 0, 0, 
+            0, -trq, 0, 0, 0, 0, 0, 
+            0, -trq, 0, 0, 0, 0, 0, 
+            0, -trq, 0, 0, 0, 0, 0 
         ] 
         
         ones_array = np.ones(28) 
@@ -222,20 +237,6 @@ if __name__ == "__main__":
         
         # use rpc_joint_pos_command and vel_command in PD controller 
         # local impedance controller 
-        
-        
-        # Get current angles
-        left_state = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_roll)
-        right_state = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_roll)
-        
-        left_angle = np.degrees(left_state[0])
-        right_angle = np.degrees(right_state[0])
-        
-        # Stop when both joints reach ~180 degrees
-        if abs(left_angle) >= 179 and abs(right_angle) >= 179:
-            break
-            
-        apply_control_input_to_pybullet(robot, rpc_trq_command)
         
         # save current torso velocity for next iteration
         previous_torso_velocity = pybullet_util.get_link_vel(
