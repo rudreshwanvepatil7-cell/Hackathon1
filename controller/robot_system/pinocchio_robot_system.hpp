@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Eigen/Dense>
+#include <map>
 #include <pinocchio/algorithm/aba.hpp>
 #include <pinocchio/algorithm/center-of-mass.hpp>
 #include <pinocchio/algorithm/centroidal.hpp>
@@ -11,9 +13,6 @@
 #include <pinocchio/algorithm/rnea.hpp>
 #include <pinocchio/fwd.hpp>
 #include <pinocchio/parsers/urdf.hpp>
-
-#include <Eigen/Dense>
-#include <map>
 #include <string>
 #include <unordered_map>
 
@@ -26,7 +25,7 @@
  */
 
 class PinocchioRobotSystem {
-public:
+ public:
   PinocchioRobotSystem(
       const std::string &urdf_file, const std::string &package_dir,
       const bool b_fixed_base, const bool b_print_info,
@@ -58,16 +57,16 @@ public:
   Eigen::Isometry3d GetLinkIsometry(const int link_idx);
   Eigen::Isometry3d GetLinkIsometry(const std::string &link_name);
   Eigen::Matrix<double, 6, 1> GetLinkSpatialVel(const int link_idx) const;
-  Eigen::Matrix<double, 6, 1>
-  GetLinkSpatialVel(const std::string &link_name) const;
+  Eigen::Matrix<double, 6, 1> GetLinkSpatialVel(
+      const std::string &link_name) const;
 
   Eigen::Matrix<double, 6, Eigen::Dynamic> GetLinkJacobian(const int link_idx);
   Eigen::Matrix<double, 6, 1> GetLinkJacobianDotQdot(const int link_idx);
 
   Eigen::Matrix<double, 6, 1> GetLinkBodySpatialVel(const int link_idx) const;
 
-  Eigen::Matrix<double, 6, Eigen::Dynamic>
-  GetLinkBodyJacobian(const int link_idx);
+  Eigen::Matrix<double, 6, Eigen::Dynamic> GetLinkBodyJacobian(
+      const int link_idx);
   Eigen::Matrix<double, 6, 1> GetLinkBodyJacobianDotQdot(const int link_idx);
 
   Eigen::Vector3d GetRobotComPos();
@@ -78,8 +77,8 @@ public:
   // floating base
   Eigen::Matrix3d GetBodyOriRot();
   Eigen::Vector3d GetBodyOriYPR();
-  Eigen::Vector3d GetBodyPos(); // base com x,y,z
-  Eigen::Vector3d GetBodyVel(); // base com wx, wy, wz in world frame
+  Eigen::Vector3d GetBodyPos();  // base com x,y,z
+  Eigen::Vector3d GetBodyVel();  // base com wx, wy, wz in world frame
   Eigen::Matrix3d GetBodyYawRotationMatrix();
 
   Eigen::Isometry3d GetTransform(const std::string &ref_frame,
@@ -147,7 +146,7 @@ public:
     std::cout << "============================================" << '\n';
   }
 
-private:
+ private:
   void _Initialize(std::vector<std::string> *unactuated_joint_list);
   void _InitializeRootFrame();
   void _UpdateCentroidalQuantities();

@@ -1,4 +1,5 @@
 #include "controller/draco_controller/draco_state_machines_wbic/mpc_locomotion.hpp"
+
 #include "controller/draco_controller/draco_control_architecture_wbic.hpp"
 #include "controller/draco_controller/draco_definition.hpp"
 #include "controller/draco_controller/draco_state_provider.hpp"
@@ -28,7 +29,7 @@ MPCLocomotion_WBIC::MPCLocomotion_WBIC(const StateId state_id,
   gait_command_ = std::make_shared<GaitCommand>();
 
   // contact states
-  prev_contact_states_ << 1.0, 1.0; // both feet in contact
+  prev_contact_states_ << 1.0, 1.0;  // both feet in contact
 }
 
 void MPCLocomotion_WBIC::FirstVisit() {
@@ -49,7 +50,7 @@ void MPCLocomotion_WBIC::FirstVisit() {
   gait_command_->vel_xy_des[1] = ctrl_arch_->mpc_gait_params_->y_vel_cmd_;
   gait_command_->yaw_rate = ctrl_arch_->mpc_gait_params_->yaw_rate_cmd_;
   // double des_height = robot_->GetRobotComPos()[2]; // CoM height
-  double des_height = sp_->des_com_height_; // CoM height
+  double des_height = sp_->des_com_height_;  // CoM height
   ctrl_arch_->convex_mpc_locomotion_->Initialize(*gait_command_, des_height);
   ctrl_arch_->convex_mpc_locomotion_->SetGait(
       ctrl_arch_->mpc_gait_params_->gait_number_);
@@ -128,8 +129,7 @@ void MPCLocomotion_WBIC::OneStep() {
 
   // update foot task & foot contact for WBC
   for (int foot = 0; foot < foot_side::NumFoot; foot++) {
-    if (mpc_interface->contact_state_[foot] > 0.0) // in contact
-    {
+    if (mpc_interface->contact_state_[foot] > 0.0) {  // in contact
       if (foot == foot_side::LFoot) {
         // contact(timing based contact switch)
         contact_vector.push_back(contact_map["lf_contact"]);

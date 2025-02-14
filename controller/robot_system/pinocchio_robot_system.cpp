@@ -1,16 +1,18 @@
 #include "controller/robot_system/pinocchio_robot_system.hpp"
+
 #include "util/util.hpp"
 
 PinocchioRobotSystem::PinocchioRobotSystem(
     const std::string &urdf_file, const std::string &package_dir,
     const bool b_fixed_base, const bool b_print_info,
     std::vector<std::string> *unactuated_joint_list)
-    : urdf_file_(urdf_file), package_dir_(package_dir),
-      b_fixed_base_(b_fixed_base), b_print_info_(b_print_info) {
+    : urdf_file_(urdf_file),
+      package_dir_(package_dir),
+      b_fixed_base_(b_fixed_base),
+      b_print_info_(b_print_info) {
   util::PrettyConstructor(1, "PinocchioRobotSystem");
   this->_Initialize(unactuated_joint_list);
-  if (b_print_info)
-    this->_PrintRobotInfo();
+  if (b_print_info) this->_PrintRobotInfo();
 }
 
 void PinocchioRobotSystem::_Initialize(
@@ -38,7 +40,7 @@ void PinocchioRobotSystem::_Initialize(
 
   n_q_ = model_.nq;
   n_qdot_ = model_.nv;
-  n_adof_ = n_qdot_ - n_float_; // note that virtual dof is not considered here
+  n_adof_ = n_qdot_ - n_float_;  // note that virtual dof is not considered here
 
   _InitializeRootFrame();
   total_mass_ = pinocchio::computeTotalMass(model_);
@@ -47,8 +49,7 @@ void PinocchioRobotSystem::_Initialize(
        i < static_cast<pinocchio::FrameIndex>(model_.nframes); ++i) {
     std::string frame_name = model_.frames[i].name;
     if (frame_name != "universe" && frame_name != "root_joint")
-      if (i % 2 == 0)
-        link_idx_map_[model_.getFrameId(frame_name)] = frame_name;
+      if (i % 2 == 0) link_idx_map_[model_.getFrameId(frame_name)] = frame_name;
   }
   // std::cout << "link_idx_map" << std::endl;
   // for (const auto &pair : link_idx_map_)
@@ -60,11 +61,11 @@ void PinocchioRobotSystem::_Initialize(
     std::string joint_name = model_.names[i];
     if (joint_name != "universe" && joint_name != "root_joint") {
       if (b_fixed_base_) {
-        joint_idx_map_[i - 1] = joint_name; // joint map excluding fixed joint
+        joint_idx_map_[i - 1] = joint_name;  // joint map excluding fixed joint
         joint_name_idx_map_[joint_name] = i - 1;
         actuator_name_idx_map_[joint_name] = i - 1;
       } else {
-        joint_idx_map_[i - 2] = joint_name; // joint map excluding fixed joint
+        joint_idx_map_[i - 2] = joint_name;  // joint map excluding fixed joint
         joint_name_idx_map_[joint_name] = i - 2;
         actuator_name_idx_map_[joint_name] = i - 2;
       }
@@ -114,7 +115,7 @@ void PinocchioRobotSystem::_Initialize(
 }
 
 void PinocchioRobotSystem::_InitializeRootFrame() {
-  int joint_offset = 2; // pinocchio model always has universal joint
+  int joint_offset = 2;  // pinocchio model always has universal joint
   root_frame_name_ = model_.frames[joint_offset].name;
   base_local_com_pos_ = model_.inertias[1].lever();
   std::cout << "=====================================" << std::endl;
@@ -155,8 +156,7 @@ void PinocchioRobotSystem::UpdateRobotModel(
   pinocchio::forwardKinematics(model_, data_, q_, qdot_);
   pinocchio::computeJointJacobians(model_, data_, q_);
 
-  if (b_update_centroid)
-    this->_UpdateCentroidalQuantities();
+  if (b_update_centroid) this->_UpdateCentroidalQuantities();
 }
 
 void PinocchioRobotSystem::_UpdateCentroidalQuantities() {
@@ -202,8 +202,8 @@ Eigen::Isometry3d PinocchioRobotSystem::GetLinkIsometry(const int link_idx) {
   return ret;
 }
 
-Eigen::Isometry3d
-PinocchioRobotSystem::GetLinkIsometry(const std::string &link_name) {
+Eigen::Isometry3d PinocchioRobotSystem::GetLinkIsometry(
+    const std::string &link_name) {
   Eigen::Isometry3d ret;
   const pinocchio::SE3 trans = pinocchio::updateFramePlacement(
       model_, data_, model_.getFrameId(link_name));
@@ -212,8 +212,8 @@ PinocchioRobotSystem::GetLinkIsometry(const std::string &link_name) {
   return ret;
 }
 
-Eigen::Matrix<double, 6, 1>
-PinocchioRobotSystem::GetLinkSpatialVel(const int link_idx) const {
+Eigen::Matrix<double, 6, 1> PinocchioRobotSystem::GetLinkSpatialVel(
+    const int link_idx) const {
   Eigen::Matrix<double, 6, 1> ret = Eigen::Matrix<double, 6, 1>::Zero();
   pinocchio::Motion fv = pinocchio::getFrameVelocity(
       model_, data_, link_idx, pinocchio::LOCAL_WORLD_ALIGNED);
@@ -222,8 +222,8 @@ PinocchioRobotSystem::GetLinkSpatialVel(const int link_idx) const {
   return ret;
 }
 
-Eigen::Matrix<double, 6, 1>
-PinocchioRobotSystem::GetLinkSpatialVel(const std::string &link_name) const {
+Eigen::Matrix<double, 6, 1> PinocchioRobotSystem::GetLinkSpatialVel(
+    const std::string &link_name) const {
   Eigen::Matrix<double, 6, 1> ret = Eigen::Matrix<double, 6, 1>::Zero();
   pinocchio::Motion fv =
       pinocchio::getFrameVelocity(model_, data_, model_.getFrameId(link_name),
@@ -233,8 +233,8 @@ PinocchioRobotSystem::GetLinkSpatialVel(const std::string &link_name) const {
   return ret;
 }
 
-Eigen::Matrix<double, 6, Eigen::Dynamic>
-PinocchioRobotSystem::GetLinkJacobian(const int link_idx) {
+Eigen::Matrix<double, 6, Eigen::Dynamic> PinocchioRobotSystem::GetLinkJacobian(
+    const int link_idx) {
   Eigen::Matrix<double, 6, Eigen::Dynamic> jac =
       Eigen::Matrix<double, 6, Eigen::Dynamic>::Zero(6, n_qdot_);
   pinocchio::getFrameJacobian(model_, data_, link_idx,
@@ -246,8 +246,8 @@ PinocchioRobotSystem::GetLinkJacobian(const int link_idx) {
   return ret;
 }
 
-Eigen::Matrix<double, 6, 1>
-PinocchioRobotSystem::GetLinkJacobianDotQdot(const int link_idx) {
+Eigen::Matrix<double, 6, 1> PinocchioRobotSystem::GetLinkJacobianDotQdot(
+    const int link_idx) {
   pinocchio::forwardKinematics(model_, data_, q_, qdot_, 0 * qdot_);
   pinocchio::Motion fa = pinocchio::getFrameClassicalAcceleration(
       model_, data_, link_idx, pinocchio::LOCAL_WORLD_ALIGNED);
@@ -259,8 +259,8 @@ PinocchioRobotSystem::GetLinkJacobianDotQdot(const int link_idx) {
   return ret;
 }
 
-Eigen::Matrix<double, 6, 1>
-PinocchioRobotSystem::GetLinkBodySpatialVel(const int link_idx) const {
+Eigen::Matrix<double, 6, 1> PinocchioRobotSystem::GetLinkBodySpatialVel(
+    const int link_idx) const {
   Eigen::Matrix<double, 6, 1> ret = Eigen::Matrix<double, 6, 1>::Zero();
   pinocchio::Motion fv =
       pinocchio::getFrameVelocity(model_, data_, link_idx, pinocchio::LOCAL);
@@ -281,8 +281,8 @@ PinocchioRobotSystem::GetLinkBodyJacobian(const int link_idx) {
   return ret;
 }
 
-Eigen::Matrix<double, 6, 1>
-PinocchioRobotSystem::GetLinkBodyJacobianDotQdot(const int link_idx) {
+Eigen::Matrix<double, 6, 1> PinocchioRobotSystem::GetLinkBodyJacobianDotQdot(
+    const int link_idx) {
   pinocchio::forwardKinematics(model_, data_, q_, qdot_, 0 * qdot_);
   pinocchio::Motion fa = pinocchio::getFrameClassicalAcceleration(
       model_, data_, link_idx, pinocchio::LOCAL);
@@ -351,17 +351,16 @@ Eigen::Matrix3d PinocchioRobotSystem::GetBodyYawRotationMatrix() {
   return util::SO3FromRPY(0.0, 0.0, ypr(0));
 }
 
-Eigen::Isometry3d
-PinocchioRobotSystem::GetTransform(const std::string &ref_frame,
-                                   const std::string &target_frame) {
+Eigen::Isometry3d PinocchioRobotSystem::GetTransform(
+    const std::string &ref_frame, const std::string &target_frame) {
   Eigen::Isometry3d ref_iso = GetLinkIsometry(ref_frame);
   Eigen::Isometry3d target_iso = GetLinkIsometry(target_frame);
 
   return ref_iso.inverse() * target_iso;
 }
 
-Eigen::Vector3d
-PinocchioRobotSystem::GetLocomotionControlPointsInBody(const int cp_idx) {
+Eigen::Vector3d PinocchioRobotSystem::GetLocomotionControlPointsInBody(
+    const int cp_idx) {
   // return GetTransform(root_frame_name_, foot_cp_string_vec_[cp_idx])
   //.translation() -
   // base_local_com_pos_;
@@ -400,8 +399,7 @@ PinocchioRobotSystem::GetLocomotionControlPointsIsometryInBody(
 
 std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>
 PinocchioRobotSystem::GetBaseToFootXYOffset() {
-
-  int NUM_FEET = 2; // TODO: make it general
+  int NUM_FEET = 2;  // TODO: make it general
   std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>
       offset(NUM_FEET, Eigen::Vector3d::Zero());
   for (int i = 0; i < NUM_FEET; ++i) {

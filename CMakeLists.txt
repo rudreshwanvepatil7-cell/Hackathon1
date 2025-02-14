@@ -35,7 +35,7 @@ option(BUILD_WITH_FOXGLOVE "compile with foxglove" OFF)
 
 option(BUILD_WITH_TELEOP "compile with teleop" OFF)
 
-option(BUILD_WITH_HPIPM "compile with HPIPM" OFF)
+option(BUILD_WITH_HPIPM "compile with HPIPM" ON)
 
 # unit-testing tools
 option(BUILD_WITH_GTESTS "build google tests" OFF)
