@@ -5,6 +5,9 @@ import numpy as np
 import signal
 import shutil
 import cv2
+import pickle
+import time
+from datetime import datetime
 
 cwd = os.getcwd()
 sys.path.append(cwd)
@@ -147,9 +150,14 @@ if __name__ == "__main__":
     rpc_crab_command = crab_interface_py.CrabCommand()
 
     # Run Simulation
-    dt = Config.CONTROLLER_DT
-    count = 0
-    jpg_count = 0
+    dt           = Config.CONTROLLER_DT
+    count        = 0
+    sim_time     = count * dt 
+    jpg_count    = 0
+    max_sim_time = 30.0  # seconds
+
+    # how many steps in simulation 
+    n_steps = int(max_sim_time / dt) 
 
     ## simulation options
     if Config.MEASURE_COMPUTATION_TIME:
@@ -167,7 +175,14 @@ if __name__ == "__main__":
     
     x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom ) 
 
-    while True:
+    # Initialize data arrays
+    time_array          = np.zeros(n_steps)
+    joint_positions     = np.zeros((n_steps, 28))  # 28 joints (7 joints × 4 legs)
+    joint_velocities    = np.zeros((n_steps, 28))
+    joint_torques       = np.zeros((n_steps, 28))
+
+    for count in range(n_steps):
+
         # ----------------------------------
         # Moving Camera Setting
         # ----------------------------------
@@ -225,6 +240,19 @@ if __name__ == "__main__":
         rpc_crab_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
         rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
 
+        # ---------------------------------- 
+        # save data 
+        # ---------------------------------- 
+
+        # Store data
+        time_array[count]       = sim_time
+        # joint_positions[count]  = rpc_crab_sensor_data.joint_pos_
+        # joint_velocities[count] = rpc_crab_sensor_data.joint_vel_
+        # joint_torques[count]    = rpc_crab_command.joint_trq_cmd_ 
+
+        print_joint_state(robot, 10) 
+        debug_joint_properties(robot, 10) 
+
         # ----------------------------------
         # Get Keyboard Event
         # ----------------------------------
@@ -244,23 +272,6 @@ if __name__ == "__main__":
         # ---------------------------------- 
         
         x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom, x_arrow, y_arrow, z_arrow, z_neg_arrow )
-        
-        # # Get the position of each end effector
-        # lfoot_pos = pb.getLinkState(robot, crab_link_idx.back_left__foot_link)[0]
-        # rfoot_pos = pb.getLinkState(robot, crab_link_idx.back_right__foot_link)[0]
-        # lhand_pos = pb.getLinkState(robot, crab_link_idx.front_left__foot_link)[0]
-        # rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
-
-        # # Compute the vector from the cylinder to each end effector
-        # lfoot_cyl_vector = np.array(cylinder_pos) - np.array(lfoot_pos) 
-        # rfoot_cyl_vector = np.array(cylinder_pos) - np.array(rfoot_pos) 
-        # lhand_cyl_vector = np.array(cylinder_pos) - np.array(lhand_pos) 
-        # rhand_cyl_vector = np.array(cylinder_pos) - np.array(rhand_pos) 
-        
-        # rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector 
-        # rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 
-        # rpc_crab_sensor_data.lhand_target_vector_ = lhand_cyl_vector 
-        # rpc_crab_sensor_data.rhand_target_vector_ = rhand_cyl_vector  
         
         # get position to target 
         base_pos = pb.getLinkState(robot, crab_link_idx.base_link)[0]
@@ -311,4 +322,14 @@ if __name__ == "__main__":
 
         pb.stepSimulation()  # step simulation
 
-        count += 1
+        # print(f"count = {count}") 
+        print(f"sim time = {sim_time}")
+
+        # count += 1
+        sim_time += dt  
+    
+    # # cleanup
+    # pb.disconnect()
+    # sys.exit(0) 
+
+    print("SIM DONE")
