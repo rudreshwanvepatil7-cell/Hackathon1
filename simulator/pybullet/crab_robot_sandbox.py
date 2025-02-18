@@ -156,7 +156,7 @@ if __name__ == "__main__":
     count        = 0
     sim_time     = count * dt 
     jpg_count    = 0
-    max_sim_time = 10.0  # seconds
+    max_sim_time = 30.0  # seconds
 
     # how many steps in simulation 
     n_steps = int(max_sim_time / dt) 
@@ -346,9 +346,15 @@ if __name__ == "__main__":
     joint_name = 'front_right__cluster_1_roll' 
     joint_id = crab_joint_idx.front_right__cluster_1_roll  
 
+    # get the joint history for front right cluster 1 roll  
     joint_hist = get_joint_hist(joints_hist_raw, joint_id)
 
-    plot_joint_position_history(robot, joint_hist, joint_id)
+    # plot the joint position history  
+    plot_joint_pos_hist(robot, joint_hist, joint_id) 
+
+    # plot the joint position history for front left limb joints 
+    plot_limb_joints(robot, joints_hist_raw) 
+    
 
     # save the history of the sim time and joints as a pickle file
     # save to the current working directory
