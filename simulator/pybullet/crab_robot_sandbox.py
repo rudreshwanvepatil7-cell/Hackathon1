@@ -337,24 +337,6 @@ if __name__ == "__main__":
 
         # count += 1
         sim_time += dt  
-    
-    # # cleanup
-    # pb.disconnect()
-    # sys.exit(0) 
-
-    # plot the joint position at the first time instance and for 1st joint 
-    joint_name = 'front_right__cluster_1_roll' 
-    joint_id = crab_joint_idx.front_right__cluster_1_roll  
-
-    # get the joint history for front right cluster 1 roll  
-    joint_hist = get_joint_hist(joints_hist_raw, joint_id)
-
-    # plot the joint position history  
-    plot_joint_pos_hist(robot, joint_hist, joint_id) 
-
-    # plot the joint position history for front left limb joints 
-    plot_limb_joints(robot, joints_hist_raw) 
-    
 
     # save the history of the sim time and joints as a pickle file
     # save to the current working directory
