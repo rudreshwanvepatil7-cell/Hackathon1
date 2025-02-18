@@ -51,3 +51,6 @@ note.txt
 cmake-build-debug/*
 .vscode/*
 *.asv
+
+# Pickle files
+*.pkl 
