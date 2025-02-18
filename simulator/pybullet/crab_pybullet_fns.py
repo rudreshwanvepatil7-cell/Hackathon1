@@ -54,7 +54,7 @@ def print_joint_state(robot, joint_id):
     print(f"Reaction forces: {joint_state[2]}")
     print(f"Applied motor torque: {joint_state[3]:.3f} N⋅m")
 
-def get_joint(robot, joint_id):
+def get_joint_data(robot, joint_id):
 
     joint_info  = pb.getJointInfo(robot, joint_id)
     joint_state = pb.getJointState(robot, joint_id) 
@@ -68,30 +68,55 @@ def get_joint(robot, joint_id):
         'upper_limit': joint_info[9]
     }
 
-def get_joints(robot):
-
-    joint_pos_data = []
+def get_joint_ids():
     # Get all joint indices from crab_joint_idx class
     joint_ids = [value for value in vars(crab_joint_idx).values() 
                 if isinstance(value, int)]  # Only get the integer values
     joint_ids.sort()  # Sort them in ascending order
-    
+    return joint_ids 
+
+def get_joints_data(robot):
+
+    joints_data = {}
+    joint_ids = get_joint_ids()
+
     for joint_id in joint_ids:
-        joint_pos_data.append(get_joint(robot, joint_id))
-    return joint_pos_data
+        joints_data[joint_id] = get_joint_data(robot, joint_id)
 
-def get_joint_pos_hist(joints_hist, joint_id):
+    return joints_data
 
-    # for all time steps in joints_hist, get the sim time and joints
-    sim_time_hist = []
-    joint_pos_hist = []
-    for time_step in joints_hist:
-        sim_time = time_step['sim_time'] 
-        joints   = time_step['joints']
-        joint_pos = joints[joint_id]['position']
-        sim_time_hist.append(sim_time)
-        joint_pos_hist.append(joint_pos)
-    return sim_time_hist, joint_pos_hist
+def get_joint_limits(robot, joint_id):
+    joint_limits = pb.getJointInfo(robot, joint_id)
+    return joint_limits[8], joint_limits[9] 
+
+def get_joint_hist(joints_hist_raw, joint_id):
+
+    # Initialize dictionary to store joint_hist
+    joint_hist = {
+        'joint_id': joint_id,
+        'sim_time': [],
+        'pos': [], 
+        'vel': [],
+        'torque': []
+    }
+
+    # Populate joint_hist from each timestep
+    for time_step in joints_hist_raw:
+
+        joint_hist['sim_time'].append(time_step['sim_time'])
+
+        joint_data = time_step['joints'][joint_id]
+        joint_hist['pos'].append(joint_data['position'])
+        joint_hist['vel'].append(joint_data['velocity']) 
+        joint_hist['torque'].append(joint_data['torque'])
+
+    return joint_hist
+
+def get_all_joints_hist(joints_hist_raw):
+    joints_hist = {}
+    for joint_id in get_joint_ids():
+        joints_hist[joint_id] = get_joint_hist(joints_hist_raw, joint_id)
+    return joints_hist
 
 # ---------------------------------- 
 # reset joint angles 

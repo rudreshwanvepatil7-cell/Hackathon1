@@ -155,7 +155,7 @@ if __name__ == "__main__":
     count        = 0
     sim_time     = count * dt 
     jpg_count    = 0
-    max_sim_time = 5.0  # seconds
+    max_sim_time = 10.0  # seconds
 
     # how many steps in simulation 
     n_steps = int(max_sim_time / dt) 
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     joint_torques       = np.zeros((n_steps, 28))
 
     # initialize an array to save the history of the sim time and joints 
-    joints_hist = []
+    joints_hist_raw = []
 
     for count in range(n_steps):
 
@@ -254,14 +254,13 @@ if __name__ == "__main__":
         # print_joint_state(robot, 10) 
         # debug_joint_properties(robot, 10) 
 
-        joint_pos_data = get_joint(robot, crab_joint_idx.front_right__cluster_1_roll) 
-        print(f"joint_pos_data = {joint_pos_data['joint_name']}")
-        print(f"joint_pos_data = {joint_pos_data['position']}")
+        joint_data = get_joint_data(robot, crab_joint_idx.front_right__cluster_1_roll) 
+        print(f"joint_data = {joint_data['joint_name']}")
+        print(f"joint_data = {joint_data['position']}")
 
-        joints = get_joints(robot)
-        # print(f"joints = {joints}") 
+        joints_data = get_joints_data(robot) 
 
-        joints_hist.append({ 'sim_time': sim_time, 'joints': joints } ) 
+        joints_hist_raw.append({ 'sim_time': sim_time, 'joints': joints_data } ) 
 
         # ----------------------------------
         # Get Keyboard Event
@@ -342,30 +341,41 @@ if __name__ == "__main__":
     # pb.disconnect()
     # sys.exit(0) 
 
-
     # plot the joint position at the first time instance and for 1st joint 
-    sim_time   = joints_hist[0]['sim_time'] 
-    joints     = joints_hist[0]['joints']
-    joint_name = joints[0]['joint_name'] 
-    joint_pos  = joints[0]['position'] 
+    joint_name = 'front_right__cluster_1_roll' 
 
-    sim_time, joint_pos = get_joint_pos_hist(joints_hist, crab_joint_idx.front_right__cluster_1_roll)
+    joint_hist = get_joint_hist(joints_hist_raw, crab_joint_idx.front_right__cluster_1_roll)
+
+    joint_pos = joint_hist['pos']
+    joint_vel = joint_hist['vel']
+    joint_torque = joint_hist['torque'] 
+    sim_time = joint_hist['sim_time'] 
+
+    joint_limits = get_joint_limits(robot, crab_joint_idx.front_right__cluster_1_roll) 
 
     print(f"joint_name = {joint_name}")
     print(f"joint_pos = {joint_pos}")
+    print(f"joint_limits = {joint_limits}")
 
     plt.plot(sim_time, joint_pos)
     plt.xlabel('Time (s)')
     plt.ylabel('Joint Position (rad)')
+    
+    # Add horizontal lines for joint limits
+    lower_limit, upper_limit = joint_limits
+    plt.axhline(y=upper_limit, color='r', linestyle='--', label='Upper Limit')
+    plt.axhline(y=lower_limit, color='r', linestyle='--', label='Lower Limit')
+    plt.legend()
+
     plt.title(f"{joint_name} Position vs Time")
     plt.show()
 
     # save the history of the sim time and joints as a pickle file
     # save to the current working directory
     cwd = os.getcwd()
-    pickle_path = os.path.join(cwd, 'joints_hist.pkl')
+    pickle_path = os.path.join(cwd, 'test/crab/', 'joints_hist_raw.pkl')
     with open(pickle_path, 'wb') as f:
-        pickle.dump(joints_hist, f)
+        pickle.dump(joints_hist_raw, f)
     print(f"Saved pickle file to: {pickle_path}")
 
     print("SIM DONE")
