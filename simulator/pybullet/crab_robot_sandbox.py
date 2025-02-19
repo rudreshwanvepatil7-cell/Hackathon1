@@ -5,10 +5,6 @@ import numpy as np
 import signal
 import shutil
 import cv2
-import pickle
-import time
-import matplotlib.pyplot as plt 
-from datetime import datetime 
 
 cwd = os.getcwd()
 sys.path.append(cwd)
@@ -27,8 +23,7 @@ import cv2
 import crab_interface_py
 
 # moved some functions to simulator.pybullet.crab_pybullet_fns
-from simulator.pybullet.crab_pybullet_fns import * 
-from plot.crab.plot_joint_limits import *  
+from simulator.pybullet.crab_pybullet_fns import *
 
 # ----------------------------------
 # main simulation loop
@@ -96,7 +91,14 @@ if __name__ == "__main__":
         useFixedBase=True 
     ) 
     
-    target_pos, _ = pb.getBasePositionAndOrientation(green_ball)
+    orange_ball = pb.loadURDF( 
+        cwd + "/robot_model/crab/orange_ball.urdf", 
+        [0.0, 4.0, -4.0], 
+        [0, 0, 0, 1], 
+        useFixedBase=True 
+    ) 
+    
+    target_pos, _ = pb.getBasePositionAndOrientation(orange_ball)
     print(f"pybullet target_pos = {target_pos}")
 
     # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=True)
@@ -126,8 +128,9 @@ if __name__ == "__main__":
         Config.PRINT_ROBOT_INFO,
     )
     # robot initial config setting
-    set_init_config_pybullet_robot(robot)
+    set_init_config_pybullet_robot(robot) 
     # set_0_config_robot(robot) 
+ 
 
     # robot joint and link dynamics setting
     pybullet_util.set_joint_friction(robot, joint_id_dict, 0)
@@ -152,14 +155,9 @@ if __name__ == "__main__":
     rpc_crab_command = crab_interface_py.CrabCommand()
 
     # Run Simulation
-    dt           = Config.CONTROLLER_DT
-    count        = 0
-    sim_time     = count * dt 
-    jpg_count    = 0
-    max_sim_time = 30.0  # seconds
-
-    # how many steps in simulation 
-    n_steps = int(max_sim_time / dt) 
+    dt = Config.CONTROLLER_DT
+    count = 0
+    jpg_count = 0
 
     ## simulation options
     if Config.MEASURE_COMPUTATION_TIME:
@@ -177,17 +175,7 @@ if __name__ == "__main__":
     
     x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom ) 
 
-    # Initialize data arrays
-    time_array          = np.zeros(n_steps)
-    joint_positions     = np.zeros((n_steps, 28))  # 28 joints (7 joints × 4 legs)
-    joint_velocities    = np.zeros((n_steps, 28))
-    joint_torques       = np.zeros((n_steps, 28))
-
-    # initialize an array to save the history of the sim time and joints 
-    joints_hist_raw = []
-
-    for count in range(n_steps):
-
+    while True:
         # ----------------------------------
         # Moving Camera Setting
         # ----------------------------------
@@ -245,24 +233,6 @@ if __name__ == "__main__":
         rpc_crab_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
         rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
 
-        # ---------------------------------- 
-        # save data 
-        # ---------------------------------- 
-
-        # Store data
-        time_array[count]       = sim_time
-
-        # print_joint_state(robot, 10) 
-        # debug_joint_properties(robot, 10) 
-
-        joint_data = get_joint_data(robot, crab_joint_idx.front_right__cluster_1_roll) 
-        print(f"joint_data = {joint_data['joint_name']}")
-        print(f"joint_data = {joint_data['position']}")
-
-        joints_data = get_joints_data(robot) 
-
-        joints_hist_raw.append({ 'sim_time': sim_time, 'joints': joints_data } ) 
-
         # ----------------------------------
         # Get Keyboard Event
         # ----------------------------------
@@ -282,6 +252,23 @@ if __name__ == "__main__":
         # ---------------------------------- 
         
         x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom, x_arrow, y_arrow, z_arrow, z_neg_arrow )
+        
+        # # Get the position of each end effector
+        # lfoot_pos = pb.getLinkState(robot, crab_link_idx.back_left__foot_link)[0]
+        # rfoot_pos = pb.getLinkState(robot, crab_link_idx.back_right__foot_link)[0]
+        # lhand_pos = pb.getLinkState(robot, crab_link_idx.front_left__foot_link)[0]
+        # rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
+
+        # # Compute the vector from the cylinder to each end effector
+        # lfoot_cyl_vector = np.array(cylinder_pos) - np.array(lfoot_pos) 
+        # rfoot_cyl_vector = np.array(cylinder_pos) - np.array(rfoot_pos) 
+        # lhand_cyl_vector = np.array(cylinder_pos) - np.array(lhand_pos) 
+        # rhand_cyl_vector = np.array(cylinder_pos) - np.array(rhand_pos) 
+        
+        # rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector 
+        # rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 
+        # rpc_crab_sensor_data.lhand_target_vector_ = lhand_cyl_vector 
+        # rpc_crab_sensor_data.rhand_target_vector_ = rhand_cyl_vector  
         
         # get position to target 
         base_pos = pb.getLinkState(robot, crab_link_idx.base_link)[0]
@@ -332,18 +319,4 @@ if __name__ == "__main__":
 
         pb.stepSimulation()  # step simulation
 
-        # print(f"count = {count}") 
-        print(f"sim time = {sim_time}")
-
-        # count += 1
-        sim_time += dt  
-
-    # save the history of the sim time and joints as a pickle file
-    # save to the current working directory
-    cwd = os.getcwd()
-    pickle_path = os.path.join(cwd, 'test/crab/', 'joints_hist_raw.pkl')
-    with open(pickle_path, 'wb') as f:
-        pickle.dump(joints_hist_raw, f)
-    print(f"Saved pickle file to: {pickle_path}")
-
-    print("SIM DONE")
+        count += 1
