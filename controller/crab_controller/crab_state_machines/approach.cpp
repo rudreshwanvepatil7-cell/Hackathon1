@@ -28,8 +28,8 @@ void SetRotationDCM( Eigen::Vector3d target_vector,
                      Eigen::Isometry3d & body_iso ) 
 { 
   // Get current body orientation
-  Eigen::Matrix3d current_R = body_iso.linear();
-  Eigen::Vector3d current_neg_z = -current_R.col(2);  // Current -Z axis
+  Eigen::Matrix3d R_current = body_iso.linear();
+  Eigen::Vector3d current_neg_z = -R_current.col(2);  // Current -Z axis
   
   // Normalize target vector
   Eigen::Vector3d target = target_vector.normalized();
@@ -43,10 +43,13 @@ void SetRotationDCM( Eigen::Vector3d target_vector,
       
       // Create rotation quaternion
       Eigen::Quaterniond q = Eigen::Quaterniond(
-          Eigen::AngleAxisd(rotation_angle, rotation_axis));
+          Eigen::AngleAxisd(rotation_angle, rotation_axis)); 
+
+      // convert the quaternion to a rotation matrix 
+      Eigen::Matrix3d R_new = q.toRotationMatrix();
           
       // Final rotation = new rotation * current rotation
-      Eigen::Matrix3d final_R = q * current_R;
+      Eigen::Matrix3d final_R = R_new * R_current ;
       
       // Set the rotation in the isometry
       body_iso.linear() = final_R;
@@ -62,7 +65,7 @@ void SetRotationDCM( Eigen::Vector3d target_vector,
       if (current_neg_z.dot(target) < 0) {
           // 180-degree rotation needed around any perpendicular axis
           Eigen::Vector3d perp = current_neg_z.unitOrthogonal();
-          Eigen::Matrix3d final_R = Eigen::AngleAxisd(M_PI, perp).toRotationMatrix() * current_R;
+          Eigen::Matrix3d final_R = Eigen::AngleAxisd(M_PI, perp).toRotationMatrix() * R_current;
           body_iso.linear() = final_R;
       }
   }
@@ -88,10 +91,8 @@ void Approach::FirstVisit()
   Eigen::Quaterniond init_torso_quat(R_w_torso);
 
   // // set target torso orientation
-  // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(1.57/6, 0., 0.); 
+  // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(1.57, 0., 0.); 
   // Eigen::Quaterniond target_torso_quat = init_torso_quat;
-
-  // std::cout << "set target_torso_quat = " << target_torso_quat.coeffs() << std::endl; 
 
   // Get target vector and current body pose
   Eigen::Vector3d body_target_vector = sp_->body_target_vector_; 

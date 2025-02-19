@@ -91,7 +91,14 @@ if __name__ == "__main__":
         useFixedBase=True 
     ) 
     
-    target_pos, _ = pb.getBasePositionAndOrientation(green_ball)
+    orange_ball = pb.loadURDF( 
+        cwd + "/robot_model/crab/orange_ball.urdf", 
+        [0.0, 4.0, -4.0], 
+        [0, 0, 0, 1], 
+        useFixedBase=True 
+    ) 
+    
+    target_pos, _ = pb.getBasePositionAndOrientation(orange_ball)
     print(f"pybullet target_pos = {target_pos}")
 
     # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=True)
@@ -121,8 +128,9 @@ if __name__ == "__main__":
         Config.PRINT_ROBOT_INFO,
     )
     # robot initial config setting
-    set_init_config_pybullet_robot(robot)
+    set_init_config_pybullet_robot(robot) 
     # set_0_config_robot(robot) 
+ 
 
     # robot joint and link dynamics setting
     pybullet_util.set_joint_friction(robot, joint_id_dict, 0)
