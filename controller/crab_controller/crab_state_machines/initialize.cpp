@@ -68,8 +68,8 @@ bool Initialize::EndOfState() {
   return !b_stay_here_ && (state_machine_time_ >= end_time_ + wait_time_);
 }
 
-StateId Initialize::GetNextState() { return crab_states::kReorient; }
-// StateId Initialize::GetNextState() { return crab_states::kApproach; }
+// StateId Initialize::GetNextState() { return crab_states::kReorient; }
+StateId Initialize::GetNextState() { return crab_states::kApproach; }
 
 void Initialize::SetParameters(const YAML::Node &node) {
   try {
