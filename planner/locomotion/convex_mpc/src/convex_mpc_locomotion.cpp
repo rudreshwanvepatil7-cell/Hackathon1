@@ -435,8 +435,8 @@ void ConvexMPCLocomotion::Solve() {
   des_body_vel_[1] = des_com_vel_in_world_[1];
   des_body_vel_[2] = 0.0;
 
-  des_body_rpy_[0] = yaw_rate_des_ == 0 ? stand_traj_[0] : roll_des_;
-  des_body_rpy_[1] = 0.0;
+  des_body_rpy_[0] = roll_des_;
+  des_body_rpy_[1] = pitch_des_;
   des_body_rpy_[2] = yaw_rate_des_ == 0 ? stand_traj_[2] : yaw_des_;
 
   // TODO(SH): check this!!
@@ -1038,13 +1038,37 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
 
 void ConvexMPCLocomotion::_SetLeanAngle() {
   Eigen::Vector3d com_pos = robot_->GetRobotComPos();
-  double r = 0;
-  for (int foot = 0; foot < foot_side::NumFoot; foot++) {
-    r += (foot_pos_[foot] - com_pos).norm() / foot_side::NumFoot;
+  yaw_des_ = robot_->GetBodyOriYPR()[0] + yaw_rate_des_ * dt_;
+
+  if (gait_number_ == gait::kWalking) {
+    // Base pos = avg(contact feet)
+    Eigen::Vector3d base_pos(0., 0., 0.);
+    int total_contact = 0;
+    for (int foot = 0; foot < foot_side::NumFoot; foot++) {
+      if (contact_states_[foot] > 0.) {
+        base_pos += foot_pos_[foot];
+        total_contact += 1;
+      }
+    }
+    base_pos /= total_contact;
+    double r = (base_pos - com_pos).norm();
+
+    // calculate axis of rotation (desired direction of movement)
+    Eigen::Vector3d axis(x_vel_des_, y_vel_des_, 0.);
+    axis = (util::EulerZYXtoQuat(Eigen::Vector3d(0., 0., yaw_des_)) * axis)
+               .normalized();
+    if (yaw_rate_des_ > 0.) axis *= -1;
+    // lean = arctan(yaw_rate^2 * r/g)
+    Eigen::Quaterniond ori_quat(
+        Eigen::AngleAxisd(yaw_rate_des_ * yaw_rate_des_ * r / 9.81, axis));
+    Eigen::Vector3d rpy = util::QuatToEulerXYZ(ori_quat);
+    roll_des_ = rpy[0];
+    pitch_des_ = rpy[1];
+    std::cout << "roll_des_: " << rpy[0] << std::endl;
+  } else {
+    roll_des_ = robot_->GetBodyOriYPR()[2];
+    pitch_des_ = robot_->GetBodyOriYPR()[1];
   }
-  double theta = atan(yaw_rate_des_ * yaw_rate_des_ * r / 9.81);
-  if (yaw_rate_des_ > 0.) theta *= -1;
-  roll_des_ = theta;
 }
 
 void ConvexMPCLocomotion::_SetupBodyCommand() {
@@ -1054,10 +1078,6 @@ void ConvexMPCLocomotion::_SetupBodyCommand() {
   y_vel_des_ = y_vel_des_ * (1 - filter) + y_vel_cmd_ * filter;
   yaw_rate_des_ = yaw_rate_des_ * (1 - filter) + yaw_rate_cmd_ * filter;
 
-  yaw_des_ = robot_->GetBodyOriYPR()[0] + yaw_rate_des_ * dt_;
-  // std::cout << "yaw_des_:\n" << yaw_des_ << std::endl << std::endl;
-  // yaw_des_ = wbo_ypr_[0] + yaw_rate_des_ * dt_;
-  pitch_des_ = 0.0;
   _SetLeanAngle();
 }
 
