@@ -190,118 +190,24 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     // no contact
   }
 
-  // equality constraints mat & vec
-  Eigen::MatrixXd eq_mat, eq_float_mat, eq_int_mat;
-  Eigen::VectorXd eq_vec, eq_float_vec, eq_int_vec;
-
-  if (b_contact_) {
-    if (b_floating_base_) {
-      if (b_internal_constraint_) {
-        // floating base: o, internal constraint: o, contact: o
-        eq_float_mat.setZero(num_floating_, num_qdot_ + dim_contact_);
-        eq_float_vec.setZero(num_floating_);
-
-        eq_float_mat.leftCols(num_qdot_) = sf_ * M_;
-        eq_float_mat.rightCols(dim_contact_) =
-            -sf_ * ni.transpose() * jc.transpose();
-        eq_float_vec = sf_ * ni.transpose() * (cori_ + grav_);
-
-        eq_int_mat.setZero(num_passive_, num_qdot_ + dim_contact_);
-        eq_int_vec.setZero(num_passive_);
-
-        eq_int_mat.leftCols(num_qdot_) = ji;
-        eq_int_vec = jidot_qdot_vec;
-
-        eq_mat.setZero(num_floating_ + num_passive_, num_qdot_ + dim_contact_);
-        eq_vec.setZero(num_floating_ + num_passive_);
-
-        eq_mat.topRows(num_floating_) = eq_float_mat;
-        eq_mat.bottomRows(num_passive_) = eq_int_mat;
-        eq_vec.head(num_floating_) = eq_float_vec;
-        eq_vec.tail(num_passive_) = eq_int_vec;
-
-        // std::cout <<
-        // "======================================================="
-        //<< std::endl;
-        // std::cout << "eq_mat" << std::endl;
-        // std::cout << eq_mat << std::endl;
-        // std::exit(0);
-
-      } else {
-        // floating base: o, internal constraint: x, contact: o
-        eq_float_mat.setZero(num_floating_, num_qdot_ + dim_contact_);
-        eq_float_vec.setZero(num_floating_);
-
-        eq_float_mat.leftCols(num_qdot_) = sf_ * M_;
-        eq_float_mat.rightCols(dim_contact_) =
-            -sf_ * ni.transpose() * jc.transpose();
-        eq_float_vec = sf_ * ni.transpose() * (cori_ + grav_);
-
-        eq_mat = eq_float_mat;
-        eq_vec = eq_float_vec;
-      }
-    } else {
-      if (b_internal_constraint_) {
-        // floating base: x, internal constraint: o, contact: o
-        eq_int_mat.setZero(num_passive_, num_qdot_ + dim_contact_);
-        eq_int_mat.leftCols(num_qdot_) = ji;
-        eq_int_vec = jidot_qdot_vec;
-
-        eq_mat = eq_int_mat;
-        eq_vec = eq_int_vec;
-
-      } else {
-        // floating base: x, internal constraint: x, contact: o
-        eq_mat.setZero(0, num_qdot_ + dim_contact_);
-        eq_vec.setZero(0);
-      }
-    }
-  } else {
-    if (b_floating_base_) {
-      if (b_internal_constraint_) {
-        // floating base: o, internal constraint: o, contact: x
-        eq_float_mat = sf_ * M_;
-        eq_float_vec = sf_ * ni.transpose() * (cori_ + grav_);
-
-        eq_int_mat = ji;
-        eq_int_vec = jidot_qdot_vec;
-
-        eq_mat.setZero(num_floating_ + num_passive_, num_qdot_);
-        eq_vec.setZero(num_floating_ + num_passive_);
-
-        eq_mat.topRows(num_floating_) = eq_float_mat;
-        eq_mat.bottomRows(num_passive_) = eq_int_mat;
-        eq_vec.head(num_floating_) = eq_float_vec;
-        eq_vec.tail(num_passive_) = eq_int_vec;
-      } else {
-        // floating base: o, internal contstraint: x, contact: x
-        eq_float_mat = sf_ * M_;
-        eq_float_vec = sf_ * ni.transpose() * (cori_ + grav_);
-
-        eq_mat = eq_float_mat;
-        eq_vec = eq_float_vec;
-      }
-    } else {
-      if (b_internal_constraint_) {
-        // floating base: x, internal constraint: o, contact: x
-        eq_int_mat = ji;
-        eq_int_vec = jidot_qdot_vec;
-
-        eq_mat = eq_int_mat;
-        eq_vec = eq_int_vec;
-
-      } else {
-        // floating base: x, internal constraint: x, contact: x
-        eq_mat.setZero(0, num_qdot_);
-        eq_vec.setZero(0);
-      }
-    }
-  }
-
   //=============================================================
   // inequality constraint setup
   //=============================================================
-  // Uf >= contact_cone_vec
+  /*
+  SETUP_INEQUALITY_CONSTRAINTS():
+      Initialize ineq_mat, ineq_vec
+      
+      IF NOT using_torque_limits THEN
+          IF has_contacts THEN
+              # Only friction cone constraints
+              ineq_mat = [0 | Uf]  # Right block is friction cone matrix
+              ineq_vec = -uf_vec   # Friction cone bounds
+          ELSE
+              # No constraints
+              ineq_mat = empty
+              ineq_vec = empty
+          END
+  */
   Eigen::MatrixXd ineq_mat;
   Eigen::VectorXd ineq_vec;
   if (!b_trq_limit_) {
@@ -319,6 +225,21 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
       ineq_vec.setZero(0);
     }
   } else {
+    /*
+    ELSE
+        # Compute torque limit constraints
+        l_trq_mat = Sa^T * Snf * [M | -Jc^T]
+        l_trq_vec = -τ_min + Sa^T * Snf * (N^T(cori + grav) + Ji^T λ_int)
+        
+        r_trq_mat = l_trq_mat
+        r_trq_vec = τ_max - Sa^T * Snf * (N^T(cori + grav) + Ji^T λ_int)
+        
+        # Combine upper and lower torque limits
+        ineq_trq_mat = [l_trq_mat]
+                      [r_trq_mat]
+        ineq_trq_vec = [l_trq_vec]
+                      [r_trq_vec]
+    */
     Eigen::MatrixXd ineq_trq_mat;
     Eigen::VectorXd ineq_trq_vec;
 
@@ -326,8 +247,6 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     Eigen::VectorXd l_trq_vec, r_trq_vec;
     l_trq_mat.setZero(num_qdot_ - num_floating_, num_qdot_ + dim_contact_);
     r_trq_mat.setZero(num_qdot_ - num_floating_, num_qdot_ + dim_contact_);
-    // l_trq_vec.setZero(num_qdot_ - num_floating_);
-    // r_trq_vec.setZero(num_qdot_ - num_floating_);
 
     l_trq_mat.leftCols(num_qdot_) = sa_ni_trc_bar.transpose() * snf_ * M_;
     l_trq_mat.rightCols(dim_contact_) =
@@ -353,6 +272,24 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     ineq_trq_vec.head(num_qdot_ - num_floating_) = l_trq_vec;
     ineq_trq_vec.tail(num_qdot_ - num_floating_) = r_trq_vec;
 
+    /*
+        IF has_contacts THEN
+            # Add friction cone constraints
+            ineq_contact_mat = [0 | Uf]
+            ineq_contact_vec = -uf_vec
+            
+            # Combine torque and contact constraints
+            ineq_mat = [ineq_trq_mat   ]
+                      [ineq_contact_mat]
+            ineq_vec = [ineq_trq_vec   ]
+                      [ineq_contact_vec]
+        ELSE
+            # Only torque constraints
+            ineq_mat = ineq_trq_mat
+            ineq_vec = ineq_trq_vec
+        END
+    END
+    */
     if (b_contact_) {
       // trq limit: o, contact: o
       Eigen::MatrixXd ineq_contact_mat;
