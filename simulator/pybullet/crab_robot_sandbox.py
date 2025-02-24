@@ -251,7 +251,7 @@ if __name__ == "__main__":
         # compute distance from end effectors to cylinder 
         # ---------------------------------- 
         
-        x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow = update_arrows( base_com_pos, rot_world_basecom, target_pos, x_arrow, y_arrow, z_arrow, z_neg_arrow )
+        x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow = update_arrows( base_com_pos, rot_world_basecom, target_pos, x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow )
         
         # get position to target 
         base_pos = pb.getLinkState(robot, crab_link_idx.base_link)[0]

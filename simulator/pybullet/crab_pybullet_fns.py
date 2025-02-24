@@ -419,13 +419,13 @@ def update_arrows(base_com_pos, rot_world_basecom, target_pos, x_arrow=None, y_a
     y_end = base_com_pos + 2 * rot_world_basecom[:, 1]
     z_end = base_com_pos + 2 * rot_world_basecom[:, 2]
     z_neg = base_com_pos - 2 * rot_world_basecom[:, 2]
+    
+    target_arrow = create_arrow(arrow_start_pos, target_pos, color=[1, 1, 0], replace_id=target_arrow) 
 
     x_arrow = create_arrow(arrow_start_pos, x_end, replace_id=x_arrow)
     y_arrow = create_arrow(arrow_start_pos, y_end, color=[0, 1, 0], replace_id=y_arrow)
     z_arrow = create_arrow(arrow_start_pos, z_end, color=[0, 0, 1], replace_id=z_arrow)
     z_neg_arrow = create_arrow(arrow_start_pos, z_neg, color=[0, 1, 1], replace_id=z_neg_arrow)
-    
-    target_arrow = create_arrow(arrow_start_pos, target_pos, color=[1, 0, 0], replace_id=target_arrow) 
 
     return x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow 
 
