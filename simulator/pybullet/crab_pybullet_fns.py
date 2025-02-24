@@ -412,7 +412,8 @@ def create_arrow(start_pos, end_pos, color=[1, 0, 0], line_width=2, replace_id=N
     else: 
         return pb.addUserDebugLine(start_pos, end_pos, lineColorRGB=color, lineWidth=line_width, replaceItemUniqueId=replace_id)
 
-def update_arrows(base_com_pos, rot_world_basecom, x_arrow=None, y_arrow=None, z_arrow=None, z_neg_arrow=None):
+def update_arrows(base_com_pos, rot_world_basecom, target_pos, x_arrow=None, y_arrow=None, z_arrow=None, z_neg_arrow=None, target_arrow=None):
+    
     arrow_start_pos = base_com_pos
     x_end = base_com_pos + 2 * rot_world_basecom[:, 0]
     y_end = base_com_pos + 2 * rot_world_basecom[:, 1]
@@ -423,8 +424,10 @@ def update_arrows(base_com_pos, rot_world_basecom, x_arrow=None, y_arrow=None, z
     y_arrow = create_arrow(arrow_start_pos, y_end, color=[0, 1, 0], replace_id=y_arrow)
     z_arrow = create_arrow(arrow_start_pos, z_end, color=[0, 0, 1], replace_id=z_arrow)
     z_neg_arrow = create_arrow(arrow_start_pos, z_neg, color=[0, 1, 1], replace_id=z_neg_arrow)
+    
+    target_arrow = create_arrow(arrow_start_pos, target_pos, color=[1, 0, 0], replace_id=target_arrow) 
 
-    return x_arrow, y_arrow, z_arrow, z_neg_arrow
+    return x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow 
 
 # ---------------------------------- 
 

@@ -173,7 +173,7 @@ if __name__ == "__main__":
     ## for dvel quantity
     previous_torso_velocity = np.array([0.0, 0.0, 0.0]) 
     
-    x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom ) 
+    x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow = update_arrows( base_com_pos, rot_world_basecom, target_pos ) 
 
     while True:
         # ----------------------------------
@@ -251,24 +251,7 @@ if __name__ == "__main__":
         # compute distance from end effectors to cylinder 
         # ---------------------------------- 
         
-        x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom, x_arrow, y_arrow, z_arrow, z_neg_arrow )
-        
-        # # Get the position of each end effector
-        # lfoot_pos = pb.getLinkState(robot, crab_link_idx.back_left__foot_link)[0]
-        # rfoot_pos = pb.getLinkState(robot, crab_link_idx.back_right__foot_link)[0]
-        # lhand_pos = pb.getLinkState(robot, crab_link_idx.front_left__foot_link)[0]
-        # rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
-
-        # # Compute the vector from the cylinder to each end effector
-        # lfoot_cyl_vector = np.array(cylinder_pos) - np.array(lfoot_pos) 
-        # rfoot_cyl_vector = np.array(cylinder_pos) - np.array(rfoot_pos) 
-        # lhand_cyl_vector = np.array(cylinder_pos) - np.array(lhand_pos) 
-        # rhand_cyl_vector = np.array(cylinder_pos) - np.array(rhand_pos) 
-        
-        # rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector 
-        # rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 
-        # rpc_crab_sensor_data.lhand_target_vector_ = lhand_cyl_vector 
-        # rpc_crab_sensor_data.rhand_target_vector_ = rhand_cyl_vector  
+        x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow = update_arrows( base_com_pos, rot_world_basecom, target_pos, x_arrow, y_arrow, z_arrow, z_neg_arrow )
         
         # get position to target 
         base_pos = pb.getLinkState(robot, crab_link_idx.base_link)[0]
