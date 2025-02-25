@@ -4,6 +4,41 @@
 #include "controller/whole_body_controller/internal_constraint.hpp"
 #include "controller/whole_body_controller/task.hpp"
 
+// Add these constants
+const double WARNING_THRESHOLD = 0.2; 
+const double JOINT_LIMIT_PENALTY_SCALE = 10.0;
+
+// Add the function declaration
+double computeExpLimitPenalty(double pos, double lower, double upper) {
+    double range = upper - lower;
+    double dist_to_lower = (pos - lower) / range;
+    double dist_to_upper = (upper - pos) / range;
+    
+    if (dist_to_lower < WARNING_THRESHOLD || dist_to_upper < WARNING_THRESHOLD) {
+        double penalty = 0.0;
+        if (dist_to_lower < WARNING_THRESHOLD) {
+            penalty += JOINT_LIMIT_PENALTY_SCALE * 
+                      std::exp((WARNING_THRESHOLD - dist_to_lower) / WARNING_THRESHOLD);
+        }
+        if (dist_to_upper < WARNING_THRESHOLD) {
+            penalty += JOINT_LIMIT_PENALTY_SCALE * 
+                      std::exp((WARNING_THRESHOLD - dist_to_upper) / WARNING_THRESHOLD);
+        }
+        return penalty;
+    }
+    return 0.0;
+}
+
+double computeLogBarrierPenalty(double pos, double lower, double upper, double mu) {
+    double dist_to_lower = pos - lower;
+    double dist_to_upper = upper - pos;
+    
+    // Add small epsilon to prevent log(0)
+    const double eps = 1e-6;
+    
+    return -mu * (std::log(dist_to_lower + eps) + std::log(dist_to_upper + eps));
+}
+
 IHWBC::IHWBC(const std::vector<bool> &act_qdot_list)
     : WBC(act_qdot_list), dim_cone_constraint_(0), lambda_qddot_(0.),
       b_first_visit_(true) {
@@ -16,7 +51,7 @@ IHWBC::IHWBC(const std::vector<bool> &act_qdot_list)
 void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) {
     if (positions.size() == 0 || joint_pos_limits_lower_.size() == 0) return;
     
-    const double WARNING_THRESHOLD = 0.2; // 20% threshold 
+    // const double WARNING_THRESHOLD = 0.2; // 20% threshold 
     
     for (int i = 0; i < positions.size(); ++i) {
         double pos = positions[i];
@@ -81,6 +116,27 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     cost_t_vec += (jtdot_qdot - des_xddot).transpose() * weight_mat * jt;
   }
   cost_t_mat += lambda_qddot_ * M_; // regularization term
+
+  // Add joint limit penalties to diagonal of cost matrix
+  for (int i = 0; i < current_joint_positions_.size(); ++i) 
+  {
+    // double penalty = computeExpLimitPenalty(
+    //     current_joint_positions_[i],
+    //     joint_pos_limits_lower_[i],
+    //     joint_pos_limits_upper_[i]
+    // );
+    double penalty = computeLogBarrierPenalty(
+        current_joint_positions_[i],
+        joint_pos_limits_lower_[i],
+        joint_pos_limits_upper_[i],
+        JOINT_LIMIT_PENALTY_SCALE
+    );
+    if (penalty > 0) {
+        // Add to diagonal of cost matrix to penalize motion in this joint
+        cost_t_mat(i, i) += penalty; 
+        std::cout << "Penalty added to joint " << i << ": " << penalty << std::endl;
+    }
+  }
 
   // // check contact dimension
   if (b_first_visit_) {
