@@ -14,7 +14,7 @@ class Config(object):
 
     MEASURE_COMPUTATION_TIME = False
 
-    VIDEO_RECORD = False
+    VIDEO_RECORD = False 
     RECORD_FREQ = 50
     RENDER_WIDTH = 1920
     RENDER_HEIGHT = 1080

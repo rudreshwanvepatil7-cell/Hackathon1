@@ -6,7 +6,7 @@
 
 // Add these constants
 const double WARNING_THRESHOLD = 0.2; 
-const double JOINT_LIMIT_PENALTY_SCALE = 10.0; 
+const double JOINT_LIMIT_PENALTY_SCALE = 100.0; 
 
 //=============================================================
 // Compute Joint Limit Penalty Functions 
@@ -120,9 +120,6 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   assert(task_map.size() > 0);
   b_contact_ = contact_map.size() > 0 ? true : false; 
 
-  // check joint limits  
-  CheckJointLimits(current_joint_positions_); 
-
   //----------------------------------
   // cost setup
   //----------------------------------
@@ -153,7 +150,11 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   }
   cost_t_mat += lambda_qddot_ * M_; // regularization term
 
+  //----------------------------------
   // Add joint limit penalties to diagonal of cost matrix!!!!!!! 
+  //----------------------------------
+  CheckJointLimits(current_joint_positions_); 
+  AddJointLimitPenalties(cost_t_mat);  
 
   // // check contact dimension
   if (b_first_visit_) {
@@ -405,7 +406,7 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   //----------------------------------
   // inequality constraint setup
   //----------------------------------
-  
+
   // Uf >= contact_cone_vec
   Eigen::MatrixXd ineq_mat;
   Eigen::VectorXd ineq_vec;
