@@ -13,6 +13,38 @@ IHWBC::IHWBC(const std::vector<bool> &act_qdot_list)
   // lambda_rf_ = Eigen::VectorXd::Ones(12);
 }
 
+void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) {
+    if (positions.size() == 0 || joint_pos_limits_lower_.size() == 0) return;
+    
+    const double WARNING_THRESHOLD = 0.2; // 20% threshold 
+
+    std::cout << "Checking joint limits..." << std::endl;
+    std::cout << "Positions: " << positions.transpose() << std::endl;
+    std::cout << "Lower limits: " << joint_pos_limits_lower_.transpose() << std::endl;
+    std::cout << "Upper limits: " << joint_pos_limits_upper_.transpose() << std::endl;
+    
+    for (int i = 0; i < positions.size(); ++i) {
+        double pos = positions[i];
+        double lower = joint_pos_limits_lower_[i];
+        double upper = joint_pos_limits_upper_[i];
+        double range = upper - lower;
+        
+        // Calculate distance to limits as percentage of range
+        double dist_to_lower = (pos - lower) / range;
+        double dist_to_upper = (upper - pos) / range;
+        
+        // Only print warning if approaching limits
+        if (dist_to_lower < WARNING_THRESHOLD || dist_to_upper < WARNING_THRESHOLD) {
+            std::cout << "WARNING: Joint " << i << " approaching limits!\n"
+                      << "  Current: " << pos << " rad (" << (pos * 180.0/M_PI) << " deg)\n"
+                      << "  Limits: [" << lower << ", " << upper << "] rad\n"
+                      << "  Distance to lower: " << (dist_to_lower * 100) << "%\n"
+                      << "  Distance to upper: " << (dist_to_upper * 100) << "%\n"
+                      << "---\n";
+        }
+    }
+}
+
 void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
                   const std::map<std::string, Contact *> &contact_map,
                   const std::unordered_map<std::string, InternalConstraint *>
@@ -21,7 +53,10 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
                   Eigen::VectorXd &qddot_cmd, Eigen::VectorXd &trq_cmd) {
 
   assert(task_map.size() > 0);
-  b_contact_ = contact_map.size() > 0 ? true : false;
+  b_contact_ = contact_map.size() > 0 ? true : false; 
+
+  // check joint limits  
+  CheckJointLimits(current_joint_positions_); 
 
   //=============================================================
   // cost setup
@@ -526,14 +561,26 @@ void IHWBC::_SolveQP() {
 }
 
 void IHWBC::SetParameters(const YAML::Node &node) {
-  try {
-    util::ReadParameter(node, "lambda_qddot", lambda_qddot_);
-    util::ReadParameter(node, "lambda_rf", lambda_rf_);
-    util::ReadParameter(node, "b_trq_limit", b_trq_limit_);
-  } catch (std::runtime_error &e) {
-    std::cerr << "Error reading parameter [" << e.what() << "] at file: ["
-              << __FILE__ << "]" << std::endl
-              << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
+    try {
+        util::ReadParameter(node, "lambda_qddot", lambda_qddot_);
+        util::ReadParameter(node, "lambda_rf", lambda_rf_);
+        util::ReadParameter(node, "b_trq_limit", b_trq_limit_);
+
+        // Add this section to read joint position limits
+        if (node["joint_pos_limits"]) {
+            std::vector<double> lower_limits, upper_limits;
+            util::ReadParameter(node["joint_pos_limits"], "lower", lower_limits);
+            util::ReadParameter(node["joint_pos_limits"], "upper", upper_limits);
+            
+            // Convert to Eigen vectors
+            joint_pos_limits_lower_ = Eigen::Map<Eigen::VectorXd>(lower_limits.data(), lower_limits.size());
+            joint_pos_limits_upper_ = Eigen::Map<Eigen::VectorXd>(upper_limits.data(), upper_limits.size());
+        }
+
+    } catch (std::runtime_error &e) {
+        std::cerr << "Error reading parameter [" << e.what() << "] at file: ["
+                  << __FILE__ << "]" << std::endl
+                  << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
 }

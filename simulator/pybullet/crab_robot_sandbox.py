@@ -98,7 +98,7 @@ if __name__ == "__main__":
         useFixedBase=True 
     ) 
     
-    target_pos, _ = pb.getBasePositionAndOrientation(orange_ball)
+    target_pos, _ = pb.getBasePositionAndOrientation(green_ball)
     print(f"pybullet target_pos = {target_pos}")
 
     # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=True)

@@ -91,7 +91,18 @@ CrabController::CrabController(CrabTCIContainer *tci_container,
           cfg["wbc"]["joint_integrator"], "max_pos_err");
       joint_integrator_->SetCutoffFrequency(pos_cutoff_freq, vel_cutoff_freq);
       joint_integrator_->SetMaxPositionError(pos_max_error);
-    } else {
+
+      // set joint positions  
+      Eigen::VectorXd joint_pos = robot_->GetJointPos(); 
+      static_cast<IHWBC *>(ihwbc_)->SetJointPositions(joint_pos);  
+
+      // Print initial joint positions for debugging
+      std::cout << "Setting initial joint positions in IHWBC:" << std::endl;
+      std::cout << "Joint positions: " << joint_pos.transpose() << std::endl;
+
+    } 
+    else 
+    {
       throw std::invalid_argument("No Matching Whole Body Controller!");
     }
 
@@ -218,6 +229,10 @@ void CrabController::GetCommand(void *command) {
     // TODO: clean up this
     if (ihwbc_ != nullptr) {
       ihwbc_->UpdateSetting(M, Minv, cori, grav);
+
+      // Add this line to update joint positions before solving
+      Eigen::VectorXd current_joint_pos = robot_->GetJointPos();
+      static_cast<IHWBC *>(ihwbc_)->SetJointPositions(current_joint_pos);
 
       static_cast<IHWBC *>(ihwbc_)->Solve(
           tci_container_->task_map_, tci_container_->contact_map_,

@@ -40,6 +40,16 @@ public:
     joint_trq_limits_ = trq_limit;
   }
 
+  void SetJointPositions(const Eigen::VectorXd& joint_positions) {
+    current_joint_positions_ = joint_positions;
+    CheckJointLimits(joint_positions);
+  } 
+
+  Eigen::VectorXd GetJointPositions() const {
+    std::cout << "Current joint positions: " << current_joint_positions_.transpose() << std::endl;
+    return current_joint_positions_; 
+  }
+
 protected:
   void _SetQPCost(const Eigen::MatrixXd &cost_mat,
                   const Eigen::VectorXd &cost_vec);
@@ -86,4 +96,12 @@ protected:
   /// QP inequality constraint.
   GolDIdnani::GMatr<double> CI_;
   GolDIdnani::GVect<double> ci0_;
+
+  // Only keep these members for joint limit checking
+  Eigen::VectorXd current_joint_positions_;  // Current joint positions
+  Eigen::VectorXd joint_pos_limits_lower_;  // Lower joint position limits
+  Eigen::VectorXd joint_pos_limits_upper_;  // Upper joint position limits
+
+  // Simplify to just check limits without penalties
+  void CheckJointLimits(const Eigen::VectorXd& positions);
 };
