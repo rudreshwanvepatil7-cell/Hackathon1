@@ -17,11 +17,6 @@ void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) {
     if (positions.size() == 0 || joint_pos_limits_lower_.size() == 0) return;
     
     const double WARNING_THRESHOLD = 0.2; // 20% threshold 
-
-    std::cout << "Checking joint limits..." << std::endl;
-    std::cout << "Positions: " << positions.transpose() << std::endl;
-    std::cout << "Lower limits: " << joint_pos_limits_lower_.transpose() << std::endl;
-    std::cout << "Upper limits: " << joint_pos_limits_upper_.transpose() << std::endl;
     
     for (int i = 0; i < positions.size(); ++i) {
         double pos = positions[i];

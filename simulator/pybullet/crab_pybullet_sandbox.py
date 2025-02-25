@@ -61,7 +61,7 @@ if __name__ == "__main__":
     )
 
     # Set the initial linear velocity
-    initial_linear_velocity = [0.0, 0.0, 0.0]  # Example: zero initial velocity
+    initial_linear_velocity  = [0.0, 0.0, 0.0]  # Example: zero initial velocity
     initial_angular_velocity = [0.0, 0.0, 0.0]  # No initial angular velocity
 
     pb.resetBaseVelocity(
@@ -90,11 +90,21 @@ if __name__ == "__main__":
         [0, 0, 0, 1], 
         useFixedBase=True 
     ) 
+    
+    orange_ball = pb.loadURDF( 
+        cwd + "/robot_model/crab/orange_ball.urdf", 
+        [0.0, 4.0, -4.0], 
+        [0, 0, 0, 1], 
+        useFixedBase=True 
+    ) 
+    
+    target_pos, _ = pb.getBasePositionAndOrientation(green_ball)
+    print(f"pybullet target_pos = {target_pos}")
 
     # ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=True)
 
     # Create a large plane to simulate a background
-    plane_shape  = pb.createCollisionShape(pb.GEOM_PLANE)
+    plane_shape = pb.createCollisionShape(pb.GEOM_PLANE)
     plane_visual = pb.createVisualShape(pb.GEOM_PLANE, rgbaColor=[0, 0, 0, 1])
     plane = pb.createMultiBody(0, plane_shape, plane_visual)
 
@@ -117,10 +127,10 @@ if __name__ == "__main__":
         Config.INITIAL_BASE_JOINT_QUAT,
         Config.PRINT_ROBOT_INFO,
     )
-    
     # robot initial config setting
-    # set_init_config_pybullet_robot(robot)
-    set_0_config_robot(robot) 
+    set_init_config_pybullet_robot(robot) 
+    # set_0_config_robot(robot) 
+ 
 
     # robot joint and link dynamics setting
     pybullet_util.set_joint_friction(robot, joint_id_dict, 0)
@@ -138,6 +148,11 @@ if __name__ == "__main__":
     rot_basejoint_to_basecom = np.dot(
         rot_world_basejoint.transpose(), rot_world_basecom
     )
+
+    # TODO: pnc interface, sensor_data, command class
+    rpc_crab_interface = crab_interface_py.CrabInterface()
+    rpc_crab_sensor_data = crab_interface_py.CrabSensorData()
+    rpc_crab_command = crab_interface_py.CrabCommand()
 
     # Run Simulation
     dt = Config.CONTROLLER_DT
@@ -158,94 +173,104 @@ if __name__ == "__main__":
     ## for dvel quantity
     previous_torso_velocity = np.array([0.0, 0.0, 0.0]) 
     
-    # create arrows 
-    x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom ) 
-    
-    # ---------------------------------- 
-    # SIM LOOP 
-    # ---------------------------------- 
-    
-    # sequences = generate_momentum_test_sequence() 
-    
-    # for command, duration in sequences:
-        
-    #     steps = int(duration * 1/dt)  # Assuming 240Hz simulation
-        
-    #     for _ in range(steps):
-        
-    #         apply_control_input_to_pybullet(robot, command)
-    #         pb.stepSimulation()
-            
-    #         # Record orientation for analysis
-    #         pos, ori = pb.getBasePositionAndOrientation(robot)
-    #         rot = np.array(pb.getMatrixFromQuaternion(ori)).reshape(3,3)
-    #         z_axis = rot[:,2]
-    #         print(f"Current Z-axis orientation: {z_axis}")
+    # x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow = update_arrows( base_com_pos, rot_world_basecom, target_pos ) 
 
-    while True: 
+    while True:
+        # ----------------------------------
+        # Moving Camera Setting
+        # ----------------------------------
+
+        # base_pos, base_ori = pb.getBasePositionAndOrientation(robot)
+        # pb.resetDebugVisualizerCamera(cameraDistance=12.5,
+        #                               cameraYaw=120,
+        #                               cameraPitch=-45,
+        #                               cameraTargetPosition=base_pos +
+        #                               np.array([0.5, 0.3, -base_pos[2] + 1.5]))
+
+        # ----------------------------------
+        # Debugging
+        # ----------------------------------
+
+        base_com_pos, base_com_quat = pb.getBasePositionAndOrientation(robot)
+        rot_world_basecom = util.quat_to_rot(base_com_quat)
+        rot_world_basejoint = np.dot(
+            rot_world_basecom, rot_basejoint_to_basecom.transpose()
+        )
+        base_joint_pos = base_com_pos - np.dot(
+            rot_world_basejoint, pos_basejoint_to_basecom
+        )
+        base_joint_quat = util.rot_to_quat(rot_world_basejoint)
+
+        base_com_lin_vel, base_com_ang_vel = pb.getBaseVelocity(robot)
+        trans_joint_com = liegroup.RpToTrans(
+            rot_basejoint_to_basecom, pos_basejoint_to_basecom
+        )
+        adjoint_joint_com = liegroup.Adjoint(trans_joint_com)
+        twist_basecom_in_world = np.zeros(6)
+        twist_basecom_in_world[0:3] = base_com_ang_vel
+        twist_basecom_in_world[3:6] = base_com_lin_vel
+        augrot_basecom_world = np.zeros((6, 6))
+        augrot_basecom_world[0:3, 0:3] = rot_world_basecom.transpose()
+        augrot_basecom_world[3:6, 3:6] = rot_world_basecom.transpose()
+        twist_basecom_in_basecom = np.dot(augrot_basecom_world, twist_basecom_in_world)
+        twist_basejoint_in_basejoint = np.dot(
+            adjoint_joint_com, twist_basecom_in_basecom
+        )
+        augrot_world_basejoint = np.zeros((6, 6))
+        augrot_world_basejoint[0:3, 0:3] = rot_world_basejoint
+        augrot_world_basejoint[3:6, 3:6] = rot_world_basejoint
+        twist_basejoint_in_world = np.dot(
+            augrot_world_basejoint, twist_basejoint_in_basejoint
+        )
+        base_joint_ang_vel = twist_basejoint_in_world[0:3]
+        base_joint_lin_vel = twist_basejoint_in_world[3:6]
+
+        # pdb.set_trace()
+
+        # pass debugged data to rpc interface (for ground truth estimation)
+        rpc_crab_sensor_data.base_joint_pos_ = base_joint_pos
+        rpc_crab_sensor_data.base_joint_quat_ = base_joint_quat
+        rpc_crab_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
+        rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
+
+        # ----------------------------------
+        # Get Keyboard Event
+        # ----------------------------------
+
+        keys = pb.getKeyboardEvents()
+        if pybullet_util.is_key_triggered(keys, "1"):
+            pass
+
+        # ----------------------------------
+        # Get Sensor Data
+        # ----------------------------------
         
-        # ---------------------------------- 
-        # compute distance from end effectors to cylinder 
-        # ---------------------------------- 
-        
-        x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom, x_arrow, y_arrow, z_arrow, z_neg_arrow )
+        rpc_crab_sensor_data = get_assign_sensor_data(robot, rpc_crab_sensor_data, dt, previous_torso_velocity) 
 
         # ----------------------------------
         # compute control command
         # ----------------------------------
 
         if Config.MEASURE_COMPUTATION_TIME:
-            timer.tic()
-
-        if Config.MEASURE_COMPUTATION_TIME:
-            comp_time = timer.tocvalue()
-            compuation_cal_list.append(comp_time)
+            timer.tic() 
         
-        
-        # Get current angles
-        left_state  = pb.getJointState(robot, crab_joint_idx.front_left__cluster_1_roll)
-        right_state = pb.getJointState(robot, crab_joint_idx.front_right__cluster_1_roll)
-        
-        # print_joint_state(robot, crab_joint_idx.front_left__cluster_1_pitch)
-        
-        left_angle  = np.degrees(left_state[0])
-        right_angle = np.degrees(right_state[0]) 
-        
-        trq = 0 
-        # if abs(left_angle) < 1.57:    
-        #     print(f"left angle = {left_angle}")
-        #     trq = 0.1
-
-        # apply command to pybullet robot: 
-            # cluster_1_roll, cluster_1_pitch, 
-            # cluster_2_roll, cluster_2_pitch, 
-            # cluster_3_roll, cluster_3_pitch, cluster_3_wrist 
-        values = [
-            0, -trq, 0, 0, 0, 0, 0, 
-            0, -trq, 0, 0, 0, 0, 0, 
-            0, -trq, 0, 0, 0, 0, 0, 
-            0, -trq, 0, 0, 0, 0, 0 
-        ] 
-        
-        ones_array = np.ones(28) 
-
-        # Convert the list to a NumPy array
-        rpc_trq_command = np.array(values)
-        # rpc_trq_command = ones_array 
-        
-        apply_control_input_to_pybullet(robot, rpc_trq_command) 
-        
-        # use rpc_joint_pos_command and vel_command in PD controller 
-        # local impedance controller 
-        
-        # save current torso velocity for next iteration
-        previous_torso_velocity = pybullet_util.get_link_vel(
-            robot, crab_link_idx.base_link
-        )[3:6] 
+        # Apply the torque to the robot's base link
+        # torque = torque_magnitude * torque_direction
+        torque = np.array([2.0, 0.0, 0.0]) 
+        pb.applyExternalTorque(robot, -1, torque, pb.WORLD_FRAME)
 
         # ----------------------------------
-        # Step simulation 
+        # Save Image file
         # ----------------------------------
+
+        if (Config.VIDEO_RECORD) and (count % Config.RECORD_FREQ == 0):
+            camera_data = pb.getDebugVisualizerCamera()
+            frame = pybullet_util.get_camera_image_from_debug_camera(
+                camera_data, Config.RENDER_WIDTH, Config.RENDER_HEIGHT
+            )
+            filename = video_dir + "/step%06d.jpg" % jpg_count
+            cv2.imwrite(filename, frame)
+            jpg_count += 1
 
         pb.stepSimulation()  # step simulation
 
