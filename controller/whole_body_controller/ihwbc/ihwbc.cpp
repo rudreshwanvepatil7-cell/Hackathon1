@@ -6,7 +6,11 @@
 
 // Add these constants
 const double WARNING_THRESHOLD = 0.2; 
-const double JOINT_LIMIT_PENALTY_SCALE = 10.0;
+const double JOINT_LIMIT_PENALTY_SCALE = 10.0; 
+
+//=============================================================
+// Compute Joint Limit Penalty Functions 
+//=============================================================
 
 // Add the function declaration
 double computeExpLimitPenalty(double pos, double lower, double upper) {
@@ -39,13 +43,27 @@ double computeLogBarrierPenalty(double pos, double lower, double upper, double m
     return -mu * (std::log(dist_to_lower + eps) + std::log(dist_to_upper + eps));
 }
 
-IHWBC::IHWBC(const std::vector<bool> &act_qdot_list)
-    : WBC(act_qdot_list), dim_cone_constraint_(0), lambda_qddot_(0.),
-      b_first_visit_(true) {
-  util::PrettyConstructor(3, "IHWBC");
 
-  // assume surface contact:TODO make generic
-  // lambda_rf_ = Eigen::VectorXd::Ones(12);
+void IHWBC::AddJointLimitPenalties(Eigen::MatrixXd& cost_t_mat) {
+  for (int i = 0; i < current_joint_positions_.size(); ++i) 
+  {
+    // double penalty = computeExpLimitPenalty(
+    //     current_joint_positions_[i],
+    //     joint_pos_limits_lower_[i],
+    //     joint_pos_limits_upper_[i]
+    // );
+    double penalty = computeLogBarrierPenalty(
+        current_joint_positions_[i],
+        joint_pos_limits_lower_[i],
+        joint_pos_limits_upper_[i],
+        JOINT_LIMIT_PENALTY_SCALE
+    );
+    if (penalty > 0) {
+        // Add to diagonal of cost matrix to penalize motion in this joint
+        cost_t_mat(i, i) += penalty; 
+        std::cout << "Penalty added to joint " << i << ": " << penalty << std::endl;
+    }
+  }
 }
 
 void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) {
@@ -75,6 +93,23 @@ void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) {
     }
 }
 
+//=============================================================
+// Constructor 
+//=============================================================
+
+IHWBC::IHWBC(const std::vector<bool> &act_qdot_list)
+    : WBC(act_qdot_list), dim_cone_constraint_(0), lambda_qddot_(0.),
+      b_first_visit_(true) {
+  util::PrettyConstructor(3, "IHWBC");
+
+  // assume surface contact:TODO make generic
+  // lambda_rf_ = Eigen::VectorXd::Ones(12);
+}
+
+//=============================================================
+// Solve 
+//=============================================================
+
 void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
                   const std::map<std::string, Contact *> &contact_map,
                   const std::unordered_map<std::string, InternalConstraint *>
@@ -88,9 +123,10 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   // check joint limits  
   CheckJointLimits(current_joint_positions_); 
 
-  //=============================================================
+  //----------------------------------
   // cost setup
-  //=============================================================
+  //----------------------------------
+
   Eigen::MatrixXd cost_mat, cost_t_mat, cost_rf_mat;
   Eigen::VectorXd cost_vec, cost_t_vec, cost_rf_vec;
 
@@ -117,26 +153,7 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   }
   cost_t_mat += lambda_qddot_ * M_; // regularization term
 
-  // Add joint limit penalties to diagonal of cost matrix
-  for (int i = 0; i < current_joint_positions_.size(); ++i) 
-  {
-    // double penalty = computeExpLimitPenalty(
-    //     current_joint_positions_[i],
-    //     joint_pos_limits_lower_[i],
-    //     joint_pos_limits_upper_[i]
-    // );
-    double penalty = computeLogBarrierPenalty(
-        current_joint_positions_[i],
-        joint_pos_limits_lower_[i],
-        joint_pos_limits_upper_[i],
-        JOINT_LIMIT_PENALTY_SCALE
-    );
-    if (penalty > 0) {
-        // Add to diagonal of cost matrix to penalize motion in this joint
-        cost_t_mat(i, i) += penalty; 
-        std::cout << "Penalty added to joint " << i << ": " << penalty << std::endl;
-    }
-  }
+  // Add joint limit penalties to diagonal of cost matrix!!!!!!! 
 
   // // check contact dimension
   if (b_first_visit_) {
@@ -179,9 +196,10 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     cost_mat = cost_t_mat;
     cost_vec = cost_t_vec;
   }
-  //=============================================================
+
+  //----------------------------------
   // equality constraint (Dynamics) setup
-  //=============================================================
+  //----------------------------------
 
   // internal constraints setup
   Eigen::MatrixXd ji = Eigen::MatrixXd::Zero(num_passive_, num_qdot_);
@@ -384,9 +402,10 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     }
   }
 
-  //=============================================================
+  //----------------------------------
   // inequality constraint setup
-  //=============================================================
+  //----------------------------------
+  
   // Uf >= contact_cone_vec
   Eigen::MatrixXd ineq_mat;
   Eigen::VectorXd ineq_vec;
@@ -525,6 +544,10 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   }
 }
 
+//=============================================================
+// ComputeTaskCosts 
+//============================================================= 
+
 void IHWBC::ComputeTaskCosts(
     const std::unordered_map<std::string, Task *> &task_map,
     const std::map<std::string, ForceTask *> &force_task_map,
@@ -570,6 +593,10 @@ void IHWBC::ComputeTaskCosts(
   }
 }
 
+//=============================================================
+// _SetQPCost 
+//============================================================= 
+
 void IHWBC::_SetQPCost(const Eigen::MatrixXd &cost_mat,
                        const Eigen::VectorXd &cost_vec) {
   for (int i(0); i < num_qp_vars_; ++i) {
@@ -579,6 +606,10 @@ void IHWBC::_SetQPCost(const Eigen::MatrixXd &cost_mat,
     g0_[i] = cost_vec[i];
   }
 }
+
+//=============================================================
+// _SetQPEqualityConstraint 
+//============================================================= 
 
 void IHWBC::_SetQPEqualityConstraint(const Eigen::MatrixXd &eq_mat,
                                      const Eigen::VectorXd &eq_vec) {
@@ -590,6 +621,10 @@ void IHWBC::_SetQPEqualityConstraint(const Eigen::MatrixXd &eq_mat,
   }
 }
 
+//=============================================================
+// _SetQPInEqualityConstraint 
+//============================================================= 
+
 void IHWBC::_SetQPInEqualityConstraint(const Eigen::MatrixXd &ineq_mat,
                                        const Eigen::VectorXd &ineq_vec) {
   for (int i(0); i < num_ineq_const_; ++i) {
@@ -599,6 +634,10 @@ void IHWBC::_SetQPInEqualityConstraint(const Eigen::MatrixXd &ineq_mat,
     ci0_[i] = ineq_vec[i];
   }
 }
+
+//=============================================================
+// _SolveQP 
+//============================================================= 
 
 void IHWBC::_SolveQP() {
   double qp_result = solve_quadprog(G_, g0_, CE_, ce0_, CI_, ci0_, x_);
@@ -610,6 +649,10 @@ void IHWBC::_SolveQP() {
   qddot_sol_ = qp_sol.head(num_qdot_);
   rf_sol_ = qp_sol.tail(dim_contact_);
 }
+
+//=============================================================
+// SetParameters 
+//============================================================= 
 
 void IHWBC::SetParameters(const YAML::Node &node) {
     try {

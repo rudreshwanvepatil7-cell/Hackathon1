@@ -103,5 +103,9 @@ protected:
   Eigen::VectorXd joint_pos_limits_upper_;  // Upper joint position limits
 
   // Simplify to just check limits without penalties
-  void CheckJointLimits(const Eigen::VectorXd& positions);
+  void CheckJointLimits(const Eigen::VectorXd& positions); 
+
+  // Add joint limit penalties to the cost matrix
+  void AddJointLimitPenalties(Eigen::MatrixXd& cost_t_mat);  
+  
 };
