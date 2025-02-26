@@ -66,7 +66,7 @@ def check_if_kf_estimator(kf_pos, est_pos):
 
 
 ##YAML parse
-with open("config/draco/pnc.yaml", "r") as yaml_file:
+with open("config/draco/sim/pybullet/wbic/pnc.yaml", "r") as yaml_file:
     try:
         config = yaml.safe_load(yaml_file)
         ip_address = config["ip_address"]

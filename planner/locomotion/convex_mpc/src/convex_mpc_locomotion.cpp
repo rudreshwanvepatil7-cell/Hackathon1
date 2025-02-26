@@ -122,26 +122,17 @@ void ConvexMPCLocomotion::Solve() {
     stand_traj_[0] = 0.0;                         // roll
     stand_traj_[1] = 0.0;                         // pitch
     stand_traj_[2] = robot_->GetBodyOriYPR()[0];  // yaw
-    // stand_traj_[0] = wbo_ypr_[2];           // roll
-    // stand_traj_[1] = wbo_ypr_[1];           // pitch
-    // stand_traj_[2] = wbo_ypr_[0];           // yaw
-    stand_traj_[3] = robot_->GetRobotComPos()[0];
-    stand_traj_[4] = robot_->GetRobotComPos()[1];
+    stand_traj_.tail<3>() = robot_->GetRobotComPos();
     stand_traj_[5] = des_body_height_;
 
-    des_com_pos_in_world_[0] = stand_traj_[3];
-    des_com_pos_in_world_[1] = stand_traj_[4];
+    des_com_pos_in_world_ = stand_traj_.tail<3>();
 
     // for CRBI computation
     stand_base_traj_[0] = 0.0;                         // roll
     stand_base_traj_[1] = 0.0;                         // pitch
     stand_base_traj_[2] = robot_->GetBodyOriYPR()[0];  // yaw
-    // stand_base_traj_[0] = wbo_ypr_[2];           // roll
-    // stand_base_traj_[1] = wbo_ypr_[1];           // pitch
-    // stand_base_traj_[2] = wbo_ypr_[0];            // yaw
-    stand_base_traj_.tail<3>() = robot_->GetBodyPos();  // base com x,y,z
-    des_base_com_pos_in_world_[0] = stand_base_traj_[3];
-    des_base_com_pos_in_world_[1] = stand_base_traj_[4];
+    stand_base_traj_.tail<3>(),
+        des_base_com_pos_in_world_ = robot_->GetBodyPos();  // base com x,y,z
   }
 
   // pick gait
@@ -156,16 +147,11 @@ void ConvexMPCLocomotion::Solve() {
   des_com_vel_in_body_ =
       Eigen::Vector3d(x_vel_des_, y_vel_des_, 0.0);  // in local body frame
 
-  // std::cout << "stand_traj_:" << stand_traj_[2] << std::endl;
-
   des_com_vel_in_world_ =
       yaw_rate_des_ == 0.0
           ? util::SO3FromRPY(0.0, 0.0, stand_traj_[2]) * des_com_vel_in_body_
           : util::SO3FromRPY(0.0, 0.0, robot_->GetBodyOriYPR()[0]) *
                 des_com_vel_in_body_;
-  // std::cout << "des_com_vel_in_world:\n"
-  //           << des_com_vel_in_world_ << std::endl
-  //           << std::endl;
 
   // integral-esque pitch and roll compensation from MIT Cheetah
   Eigen::Vector3d com_vel_in_world = robot_->GetRobotComLinVel();
@@ -193,11 +179,8 @@ void ConvexMPCLocomotion::Solve() {
 
   // first visit initialization for CoM pos, swing foot trajectory
   if (b_first_visit_) {
-    des_com_pos_in_world_[0] = robot_->GetRobotComPos()[0];
-    des_com_pos_in_world_[1] = robot_->GetRobotComPos()[1];
-
-    des_base_com_pos_in_world_[0] = robot_->GetBodyPos()[0];
-    des_base_com_pos_in_world_[1] = robot_->GetBodyPos()[1];
+    des_com_pos_in_world_ = robot_->GetRobotComPos();
+    des_base_com_pos_in_world_ = robot_->GetBodyPos();
 
     for (int foot = 0; foot < foot_side::NumFoot; ++foot) {
       // initialize swing foot trajectory
@@ -546,28 +529,12 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
     // save des xy pos for wbc
     des_com_pos_in_world_[0] = x_start;
     des_com_pos_in_world_[1] = y_start;
+    des_com_pos_in_world_[2] = stand_traj_[5];
 
     // initial state
     // rpy
     des_state_traj_initial.head<3>() =
-        yaw_rate_des_ == 0.0
-            ? Eigen::Vector3d(stand_traj_[0], stand_traj_[1], stand_traj_[2])
-            : Eigen::Vector3d(0.0, 0.0, robot_->GetBodyOriYPR()[0]);
-    // des_state_traj_initial.head<3>() = Eigen::Vector3d(
-    // rpy_comp_[0], rpy_comp_[1],
-    // robot_->GetBodyOriYPR()[0]);
-    // des_state_traj_initial.head<3>() =
-    // yaw_rate_des_ == 0.0
-    //? Eigen::Vector3d(rpy_comp_[0], rpy_comp_[1], stand_traj_[2])
-    //: Eigen::Vector3d(rpy_comp_[0], rpy_comp_[1],
-    // robot_->GetBodyOriYPR()[0]);
-    // yaw_des_);
-    //: Eigen::Vector3d(0.0, 0.0, yaw_des_);
-    //: Eigen::Vector3d(wbo_ypr_[2], wbo_ypr_[1],
-    // wbo_ypr_[0]);
-    //? Eigen::Vector3d(rpy_comp_[0], rpy_comp_[1], stand_traj_[2])
-    //: Eigen::Vector3d(rpy_comp_[0], rpy_comp_[1], wbo_ypr_[0]);
-    //: Eigen::Vector3d(0.0, 0.0, wbo_ypr_[0]);
+        Eigen::Vector3d(roll_des_, pitch_des_, yaw_des_);
     // x,y,z
     des_state_traj_initial.segment<3>(3) =
         Eigen::Vector3d(x_start, y_start, des_body_height_);
@@ -579,63 +546,24 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
 
     // initial desired state traj
     des_state_traj_[0] = des_state_traj_initial;
+    Eigen::Vector3d cur_com_vel_in_world(des_com_vel_in_world_);
 
     for (int i = 1; i < n_horizon_ + 1; ++i) {
-      des_state_traj_[i][0] = des_state_traj_[i - 1][0];  // roll
-      des_state_traj_[i][1] = des_state_traj_[i - 1][1];  // pitch
+      // pos and angle
+      des_state_traj_[i].head<6>() = _ComputeNextComState(
+          des_state_traj_[i - 1].head<3>(),
+          des_state_traj_[i - 1].segment<3>(3), cur_com_vel_in_world);
 
-      if (yaw_rate_des_ == 0.0)
-        des_state_traj_[i][2] = stand_traj_[2];
-      else
-        des_state_traj_[i][2] =
-            des_state_traj_[i - 1][2] + dt_mpc_ * yaw_rate_des_;
-      // x
-      if (des_com_vel_in_world_[0] == 0.0)
-        des_state_traj_[i][3] = stand_traj_[3];
-      else {
-        des_state_traj_[i][3] =
-            des_state_traj_[i - 1][3] +
-            dt_mpc_ *
-                util::SO3FromRPY(0.0, 0.0, des_state_traj_[i - 1][2])(0, 0) *
-                des_com_vel_in_body_[0];
-        des_state_traj_[i][4] =
-            des_state_traj_[i - 1][4] +
-            dt_mpc_ *
-                util::SO3FromRPY(0.0, 0.0, des_state_traj_[i - 1][2])(1, 0) *
-                des_com_vel_in_body_[0];
-      }
-      // y
-      if (des_com_vel_in_world_[1] == 0.0)
-        des_state_traj_[i][4] = stand_traj_[4];
-      else
-        des_state_traj_[i][4] =
-            des_state_traj_[i - 1][4] + dt_mpc_ * des_com_vel_in_body_[1];
-
-      // z
-      des_state_traj_[i][5] = des_state_traj_[i - 1][5];
-
-      // vel
+      // vel and rotvel
       des_state_traj_[i].tail<6>() = des_state_traj_[i - 1].tail<6>();
     }
 
     // update with current states
-    des_state_traj_[0][0] = robot_->GetBodyOriYPR()[2];
-    des_state_traj_[0][1] = robot_->GetBodyOriYPR()[1];
-    des_state_traj_[0][2] = robot_->GetBodyOriYPR()[0];
-    // des_state_traj_[0][2] = wbo_ypr_[0];
-    // des_state_traj_[0].head<3>() << wbo_ypr_[2], wbo_ypr_[1],
-    // wbo_ypr_[0];
-    des_state_traj_[0][3] = robot_->GetRobotComPos()[0];
-    des_state_traj_[0][4] = robot_->GetRobotComPos()[1];
-    des_state_traj_[0][5] = robot_->GetRobotComPos()[2];  // com height
-    // des_state_traj_[0][5] = robot_->GetBodyPos()[2];
-    Eigen::Vector3d torso_ang_vel =
+    des_state_traj_[0].head<3>() = robot_->GetBodyOriYPR().reverse();
+    des_state_traj_[0].segment<3>(3) = robot_->GetRobotComPos();
+    des_state_traj_[0].segment<3>(6) =
         robot_->GetLinkSpatialVel(robot_->GetRootFrameName()).head<3>();
-    des_state_traj_[0].segment<3>(6) = torso_ang_vel;
     des_state_traj_[0].segment<3>(9) = robot_->GetRobotComLinVel();
-    // des_state_traj_[0][8] = wbo_ang_vel_[2]; // wbo ang vel
-    // des_state_traj_[0].segment<3>(6) = wbo_ang_vel_;
-    // des_state_traj_[0][11] = robot_->GetBodyVel()[2];
   }
   // set initial state
   convex_mpc_->setX0(
@@ -661,11 +589,7 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
   aligned_vector<Vector3d> feet_pos_relative_to_body;
   feet_pos_relative_to_body.resize(2);
   Eigen::Vector3d com_pos = robot_->GetRobotComPos();
-  // Eigen::Vector3d body_pos = robot_->GetBodyPos();
-  // com_pos[2] = body_pos[2];
-  // com_pos[2] = des_body_height_;
   for (int foot(0); foot < foot_side::NumFoot; foot++) {
-    // feet_pos_relative_to_body[foot] = foot_pos_[foot] - robot_->GetBodyPos();
     feet_pos_relative_to_body[foot] = foot_pos_[foot] - com_pos;
   }
   // set constant feet pos relative to CoM
@@ -687,15 +611,13 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
   // output: inertia trajectory (aligned_vector< Eigen::Matrix3d>)
   aligned_vector<Eigen::Vector3d> des_base_ori_traj(n_horizon_);
   aligned_vector<Eigen::Vector3d> des_base_pos_traj(n_horizon_);
-  aligned_vector<Eigen::Vector3d> des_com_pos_traj(n_horizon_);
   if (crbi_) {
     //========================================================
     // desired base trajectory generation
     //========================================================
     des_base_ori_traj[0] =
-        yaw_rate_des_ == 0.0
-            ? Eigen::Vector3d(0.0, 0.0, stand_base_traj_[2])
-            : Eigen::Vector3d(roll_des_, 0.0, robot_->GetBodyOriYPR()[0]);
+        yaw_rate_des_ == 0.0 ? Eigen::Vector3d(0.0, 0.0, stand_base_traj_[2])
+                             : Eigen::Vector3d(roll_des_, pitch_des_, yaw_des_);
 
     // initial state compensation strategy
     Eigen::Vector3d curr_base_com_pos_in_world = robot_->GetBodyPos();
@@ -715,75 +637,17 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
       y_start = curr_base_com_pos_in_world[1] - max_pos_error;
 
     // save des xy pos for wbc
-    des_base_com_pos_in_world_[0] = x_start;
-    des_base_com_pos_in_world_[1] = y_start;
+    des_base_com_pos_in_world_.head<2>() << x_start, y_start;
 
-    des_base_pos_traj[0] =
-        Eigen::Vector3d(des_base_com_pos_in_world_[0],
-                        des_base_com_pos_in_world_[1], stand_base_traj_[5]);
+    des_base_pos_traj[0] = des_base_com_pos_in_world_.head<3>();
 
-    // des com x, y & com z height
-    des_com_pos_traj[0] = Eigen::Vector3d(
-        des_com_pos_in_world_[0], des_com_pos_in_world_[1], stand_traj_[5]);
+    Eigen::Vector3d com_vel_in_world(des_com_vel_in_world_);
 
     for (int i = 1; i < n_horizon_; i++) {
-      des_base_ori_traj[i] = des_base_ori_traj[i - 1] +
-                             dt_mpc_ * Eigen::Vector3d(0.0, 0.0, yaw_rate_des_);
-      //==================================
-      // base CoM ref
-      //==================================
-      // x
-      if (des_com_vel_in_world_[0] == 0.0)
-        des_base_pos_traj[i][0] = stand_base_traj_[3];
-      else {
-        des_base_pos_traj[i][0] =
-            des_base_pos_traj[i - 1][0] +
-            dt_mpc_ *
-                util::SO3FromRPY(0.0, 0.0, des_base_ori_traj[i - 1][2])(0, 0) *
-                des_com_vel_in_body_[0];
-      }
-      // y
-      if (des_com_vel_in_world_[1] == 0.0)
-        des_base_pos_traj[i][1] = stand_base_traj_[4];
-      else
-        des_base_pos_traj[i][1] =
-            des_base_pos_traj[i - 1][1] +
-            dt_mpc_ *
-                util::SO3FromRPY(0.0, 0.0, des_base_ori_traj[i - 1][2])(1, 0) *
-                des_com_vel_in_body_[0];
-      // des_base_pos_traj[i][1] =
-      //     des_base_pos_traj[i - 1][1] + dt_mpc_ * des_com_vel_in_body_[1];
-      // z
-      des_base_pos_traj[i][2] = des_base_pos_traj[i - 1][2];
-
-      //==================================
-      // com ref
-      //==================================
-      // x
-      if (des_com_vel_in_world_[0] == 0.0)
-        des_com_pos_traj[i][0] = stand_traj_[3];
-      else {
-        des_com_pos_traj[i][0] =
-            des_com_pos_traj[i - 1][0] +
-            dt_mpc_ *
-                util::SO3FromRPY(des_base_ori_traj[i - 1][0], 0.0,
-                                 des_base_ori_traj[i - 1][2])(0, 0) *
-                des_com_vel_in_body_[0];
-        des_com_pos_traj[i][1] =
-            des_com_pos_traj[i - 1][1] +
-            dt_mpc_ *
-                util::SO3FromRPY(des_base_ori_traj[i - 1][0], 0.0,
-                                 des_base_ori_traj[i - 1][2])(1, 0) *
-                des_com_vel_in_body_[0];
-      }
-      // y
-      if (des_com_vel_in_world_[1] == 0.0)
-        des_com_pos_traj[i][1] = stand_traj_[4];
-      else
-        des_com_pos_traj[i][1] =
-            des_com_pos_traj[i - 1][1] + dt_mpc_ * des_com_vel_in_body_[1];
-      // z
-      des_com_pos_traj[i][2] = des_com_pos_traj[i - 1][2];
+      Vector6d next_com_state = _ComputeNextComState(
+          des_base_ori_traj[i - 1], des_base_pos_traj[i - 1], com_vel_in_world);
+      des_base_ori_traj[i] = next_com_state.head<3>();
+      des_base_pos_traj[i] = next_com_state.tail<3>();
     }
 
     //========================================================
@@ -822,10 +686,6 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
       Eigen::Vector3d prev_contact_foot_pos = Eigen::Vector3d::Zero();
       Eigen::Quaterniond prev_contact_foot_quat =
           Eigen::Quaterniond::Identity();
-
-      // std::cout << "foot: " << foot
-      //<< " des foot pos: " << des_foot_pos_traj_[foot][0].transpose()
-      //<< " swing state: " << swing_states[foot] << '\n';
 
       // iterate over the prediction horizon
       for (int i = 1; i < n_horizon_; i++) {
@@ -965,7 +825,7 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
   for (int foot = 0; foot < 2; ++foot) {
     for (int i = 0; i < n_horizon_; ++i) {
       feet_pos_relative_to_body_traj[foot][i] =
-          des_foot_pos_traj_[foot][i] - des_com_pos_traj[i];
+          des_foot_pos_traj_[foot][i] - des_state_traj_[i].segment<3>(3);
     }
   }
   convex_mpc_->setFeetRelativeToBodyTrajectory(feet_pos_relative_to_body_traj);
@@ -1036,8 +896,17 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
 #endif
 }
 
+void ConvexMPCLocomotion::_SetupBodyCommand() {
+  // filter body velocity command
+  double filter = 0.1;
+  x_vel_des_ = x_vel_des_ * (1 - filter) + x_vel_cmd_ * filter;
+  y_vel_des_ = y_vel_des_ * (1 - filter) + y_vel_cmd_ * filter;
+  yaw_rate_des_ = yaw_rate_des_ * (1 - filter) + yaw_rate_cmd_ * filter;
+
+  _SetLeanAngle();
+}
+
 void ConvexMPCLocomotion::_SetLeanAngle() {
-  Eigen::Vector3d com_pos = robot_->GetRobotComPos();
   yaw_des_ = robot_->GetBodyOriYPR()[0] + yaw_rate_des_ * dt_;
 
   if (gait_number_ == gait::kWalking) {
@@ -1051,12 +920,11 @@ void ConvexMPCLocomotion::_SetLeanAngle() {
       }
     }
     base_pos /= total_contact;
-    double r = (base_pos - com_pos).norm();
+    double r = (base_pos - robot_->GetRobotComPos()).norm();
 
     // calculate axis of rotation (desired direction of movement)
     Eigen::Vector3d axis(x_vel_des_, y_vel_des_, 0.);
-    axis = (util::EulerZYXtoQuat(Eigen::Vector3d(0., 0., yaw_des_)) * axis)
-               .normalized();
+    axis.normalize();
     if (yaw_rate_des_ > 0.) axis *= -1;
     // lean = arctan(yaw_rate^2 * r/g)
     Eigen::Quaterniond ori_quat(
@@ -1064,21 +932,22 @@ void ConvexMPCLocomotion::_SetLeanAngle() {
     Eigen::Vector3d rpy = util::QuatToEulerXYZ(ori_quat);
     roll_des_ = rpy[0];
     pitch_des_ = rpy[1];
-    std::cout << "roll_des_: " << rpy[0] << std::endl;
   } else {
-    roll_des_ = robot_->GetBodyOriYPR()[2];
-    pitch_des_ = robot_->GetBodyOriYPR()[1];
+    roll_des_ = 0.0;
+    pitch_des_ = 0.0;
   }
 }
 
-void ConvexMPCLocomotion::_SetupBodyCommand() {
-  // filter body velocity command
-  double filter = 0.1;
-  x_vel_des_ = x_vel_des_ * (1 - filter) + x_vel_cmd_ * filter;
-  y_vel_des_ = y_vel_des_ * (1 - filter) + y_vel_cmd_ * filter;
-  yaw_rate_des_ = yaw_rate_des_ * (1 - filter) + yaw_rate_cmd_ * filter;
-
-  _SetLeanAngle();
+Vector6d ConvexMPCLocomotion::_ComputeNextComState(
+    const Eigen::Vector3d &cur_ori, const Eigen::Vector3d &cur_pos,
+    Eigen::Vector3d &world_com_vel) {
+  Vector6d com_state;
+  com_state.head<3>() =
+      cur_ori + dt_mpc_ * Eigen::Vector3d(0.0, 0.0, yaw_rate_des_);
+  com_state.tail<3>() = cur_pos + dt_mpc_ * world_com_vel;
+  world_com_vel =
+      util::SO3FromRPY(0.0, 0.0, yaw_rate_des_ * dt_mpc_) * world_com_vel;
+  return com_state;
 }
 
 void ConvexMPCLocomotion::_InitializeConvexMPC() {

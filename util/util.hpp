@@ -1,13 +1,13 @@
 #pragma once
 
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <list>
 #include <stdio.h>
 
 #include <Eigen/Dense>
 #include <Eigen/QR>
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <list>
 
 #include "configuration.hpp"
 #include "third_party/yaml/include/yaml/yaml.h"
@@ -25,7 +25,7 @@ constexpr int kMagneta = 8;
 constexpr int kBoldMagneta = 9;
 constexpr int kCyan = 10;
 constexpr int kBoldCyan = 11;
-}; // namespace color
+};  // namespace color
 
 namespace util {
 // =========================================================================
@@ -39,7 +39,7 @@ void SaveVector(const std::vector<double> &_vec, std::string _name,
                 bool b_param = false);
 void SaveValue(double _value, std::string _name, bool b_param = false);
 void CleaningFile(std::string file_name_, std::string &ret_file_, bool b_param);
-static std::list<std::string> gs_fileName_string; // global & static
+static std::list<std::string> gs_fileName_string;  // global & static
 
 template <typename YamlType>
 YamlType ReadParameter(const YAML::Node &node, const std::string &name) {
@@ -129,6 +129,8 @@ Eigen::Vector3d RPYFromSO3(const Eigen::Matrix3d &R);
 // euler angles to rotation matrix
 Eigen::Matrix3d SO3FromRPY(double r, double p, double y);
 
+Eigen::Matrix3d SO3FromRPY(const Eigen::Vector3d &rpy);
+
 Eigen::Matrix3d CoordinateRotation(const CoordinateAxis axis,
                                    const double theta);
 
@@ -172,4 +174,4 @@ Eigen::MatrixXd HStack(const Eigen::MatrixXd &a, const Eigen::MatrixXd &b);
 Eigen::MatrixXd VStack(const Eigen::MatrixXd &a, const Eigen::MatrixXd &b);
 Eigen::MatrixXd BlockDiagonalMatrix(const Eigen::MatrixXd &a,
                                     const Eigen::MatrixXd &b);
-} // namespace util
+}  // namespace util

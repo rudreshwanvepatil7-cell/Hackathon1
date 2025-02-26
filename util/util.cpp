@@ -1,11 +1,10 @@
 #include "util/util.hpp"
 
+#include <configuration.hpp>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include <configuration.hpp>
 
 namespace util {
 
@@ -84,20 +83,20 @@ void PrettyConstructor(const int &_num_tab, const std::string &_name) {
     }
     content = content + "||--" + _name;
     switch (_num_tab) {
-    case 1:
-      color = color::kBoldGreen;
-      break;
-    case 2:
-      color = color::kBoldYellow;
-      break;
-    case 3:
-      color = color::kBoldBlue;
-      break;
-    case 4:
-      color = color::kBoldMagneta;
-      break;
-    default:
-      assert(false);
+      case 1:
+        color = color::kBoldGreen;
+        break;
+      case 2:
+        color = color::kBoldYellow;
+        break;
+      case 3:
+        color = color::kBoldBlue;
+        break;
+      case 4:
+        color = color::kBoldMagneta;
+        break;
+      default:
+        assert(false);
     }
   } else {
     content += _name;
@@ -114,45 +113,45 @@ void PrettyConstructor(const int &_num_tab, const std::string &_name) {
 
 void ColorPrint(const int &_color, const std::string &_name, bool line_change) {
   switch (_color) {
-  case color::kRed:
-    printf("\033[0;31m");
-    break;
-  case color::kBoldRed:
-    printf("\033[1;31m");
-    break;
-  case color::kGreen:
-    printf("\033[0;32m");
-    break;
-  case color::kBoldGreen:
-    printf("\033[1;32m");
-    break;
-  case color::kYellow:
-    printf("\033[0;33m");
-    break;
-  case color::kBoldYellow:
-    printf("\033[1;33m");
-    break;
-  case color::kBlue:
-    printf("\033[0;34m");
-    break;
-  case color::kBoldBlue:
-    printf("\033[1;34m");
-    break;
-  case color::kMagneta:
-    printf("\033[0;35m");
-    break;
-  case color::kBoldMagneta:
-    printf("\033[1;35m");
-    break;
-  case color::kCyan:
-    printf("\033[0;36m");
-    break;
-  case color::kBoldCyan:
-    printf("\033[1;36m");
-    break;
-  default:
-    std::cout << "No Such Color" << std::endl;
-    exit(0);
+    case color::kRed:
+      printf("\033[0;31m");
+      break;
+    case color::kBoldRed:
+      printf("\033[1;31m");
+      break;
+    case color::kGreen:
+      printf("\033[0;32m");
+      break;
+    case color::kBoldGreen:
+      printf("\033[1;32m");
+      break;
+    case color::kYellow:
+      printf("\033[0;33m");
+      break;
+    case color::kBoldYellow:
+      printf("\033[1;33m");
+      break;
+    case color::kBlue:
+      printf("\033[0;34m");
+      break;
+    case color::kBoldBlue:
+      printf("\033[1;34m");
+      break;
+    case color::kMagneta:
+      printf("\033[0;35m");
+      break;
+    case color::kBoldMagneta:
+      printf("\033[1;35m");
+      break;
+    case color::kCyan:
+      printf("\033[0;36m");
+      break;
+    case color::kBoldCyan:
+      printf("\033[1;36m");
+      break;
+    default:
+      std::cout << "No Such Color" << std::endl;
+      exit(0);
   }
   if (line_change)
     printf("%s\n", _name.c_str());
@@ -185,8 +184,7 @@ void PrettyPrint(Eigen::MatrixXd const &mm, std::ostream &os,
     // }
 
     if (vecmode) {
-      if (!prefix.empty())
-        os << prefix;
+      if (!prefix.empty()) os << prefix;
       for (int ir(0); ir < mm.rows(); ++ir) {
         os << PrettyString(mm.coeff(ir, 0));
       }
@@ -194,8 +192,7 @@ void PrettyPrint(Eigen::MatrixXd const &mm, std::ostream &os,
 
     } else {
       for (int ir(0); ir < mm.rows(); ++ir) {
-        if (!prefix.empty())
-          os << prefix;
+        if (!prefix.empty()) os << prefix;
         for (int ic(0); ic < mm.cols(); ++ic) {
           os << PrettyString(mm.coeff(ir, ic));
         }
@@ -320,7 +317,6 @@ Eigen::Vector3d QuatToExp(const Eigen::Quaternion<double> &quat) {
 }
 
 Eigen::Quaternion<double> ExpToQuat(const Eigen::Vector3d &exp) {
-
   double theta = exp.norm();
   Eigen::Quaternion<double> ret;
 
@@ -407,7 +403,7 @@ Eigen::Vector3d QuatToEulerZYX(const Eigen::Quaterniond &quat_in) {
   double sinp = 2 * (quat_in.w() * quat_in.y() - quat_in.z() * quat_in.x());
   double pitch;
   if (std::abs(sinp) >= 1)
-    pitch = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+    pitch = std::copysign(M_PI / 2, sinp);  // use 90 degrees if out of range
   else
     pitch = std::asin(sinp);
 
@@ -441,7 +437,7 @@ Eigen::Vector3d QuatToEulerXYZ(const Eigen::Quaterniond &quat_in) {
   double sinp = 2 * (quat_in.w() * quat_in.y() - quat_in.z() * quat_in.x());
   double pitch;
   if (std::abs(sinp) >= 1)
-    pitch = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+    pitch = std::copysign(M_PI / 2, sinp);  // use 90 degrees if out of range
   else
     pitch = std::asin(sinp);
 
@@ -495,6 +491,10 @@ Eigen::Matrix3d SO3FromRPY(double r, double p, double y) {
   // Eigen::Matrix3d rot2 = m.transpose().eval();
   // return m.transpose().eval();
   return q.normalized().toRotationMatrix();
+}
+
+Eigen::Matrix3d SO3FromRPY(const Eigen::Vector3d &rpy) {
+  return SO3FromRPY(rpy[0], rpy[1], rpy[2]);
 }
 
 /*!
@@ -613,7 +613,6 @@ Eigen::Vector2d Clamp2DVector(const Eigen::Vector2d &vec_in,
 
 void PseudoInverse(Eigen::MatrixXd const &matrix, double sigmaThreshold,
                    Eigen::MatrixXd &invMatrix, Eigen::VectorXd *opt_sigmaOut) {
-
   if ((1 == matrix.rows()) && (1 == matrix.cols())) {
     // workaround for Eigen2
     invMatrix.resize(1, 1);
@@ -629,8 +628,8 @@ void PseudoInverse(Eigen::MatrixXd const &matrix, double sigmaThreshold,
     return;
   }
 
-  Eigen::JacobiSVD<Eigen::MatrixXd> svd(matrix, Eigen::ComputeThinU |
-                                                    Eigen::ComputeThinV);
+  Eigen::JacobiSVD<Eigen::MatrixXd> svd(
+      matrix, Eigen::ComputeThinU | Eigen::ComputeThinV);
   // not sure if we need to svd.sort()... probably not
   int const nrows(svd.singularValues().rows());
   Eigen::MatrixXd invS;
@@ -661,7 +660,6 @@ Eigen::MatrixXd PseudoInverse(const Eigen::MatrixXd &matrix,
 
 Eigen::MatrixXd GetNullSpace(const Eigen::MatrixXd &J, const double threshold,
                              const Eigen::MatrixXd *W) {
-
   Eigen::MatrixXd ret(J.cols(), J.cols());
   Eigen::MatrixXd J_pinv;
   W ? util::WeightedPseudoInverse(J, *W, threshold, J_pinv)
@@ -713,4 +711,4 @@ Eigen::MatrixXd BlockDiagonalMatrix(const Eigen::MatrixXd &a,
   return ret;
 }
 
-} // namespace util
+}  // namespace util

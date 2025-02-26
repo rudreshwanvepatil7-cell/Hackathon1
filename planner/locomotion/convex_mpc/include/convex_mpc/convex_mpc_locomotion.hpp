@@ -206,6 +206,9 @@ class ConvexMPCLocomotion {
   // gaits
   void _SetupBodyCommand();
   void _SetLeanAngle();
+  Vector6d _ComputeNextComState(const Eigen::Vector3d &cur_ori,
+                                const Eigen::Vector3d &cur_pos,
+                                Eigen::Vector3d &world_com_vel);
   double x_vel_des_ = 0.0;
   double y_vel_des_ = 0.0;
   double yaw_rate_des_ = 0.0;
