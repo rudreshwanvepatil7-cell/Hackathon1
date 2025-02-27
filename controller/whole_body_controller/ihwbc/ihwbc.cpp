@@ -12,28 +12,57 @@ const double JOINT_LIMIT_PENALTY_SCALE = 100.0;
 // Compute Joint Limit Penalty Functions 
 //=============================================================
 
-// Add the function declaration
-double computeExpLimitPenalty(double pos, double lower, double upper) {
-    double range = upper - lower;
-    double dist_to_lower = (pos - lower) / range;
-    double dist_to_upper = (upper - pos) / range;
+// // Add the function declaration
+// double computeExpLimitPenalty(double pos, double lower, double upper) 
+// {
+//     double range = upper - lower;
+//     double dist_to_lower = (pos - lower) / range;
+//     double dist_to_upper = (upper - pos) / range;
     
-    if (dist_to_lower < WARNING_THRESHOLD || dist_to_upper < WARNING_THRESHOLD) {
-        double penalty = 0.0;
-        if (dist_to_lower < WARNING_THRESHOLD) {
-            penalty += JOINT_LIMIT_PENALTY_SCALE * 
-                      std::exp((WARNING_THRESHOLD - dist_to_lower) / WARNING_THRESHOLD);
-        }
-        if (dist_to_upper < WARNING_THRESHOLD) {
-            penalty += JOINT_LIMIT_PENALTY_SCALE * 
-                      std::exp((WARNING_THRESHOLD - dist_to_upper) / WARNING_THRESHOLD);
-        }
-        return penalty;
-    }
-    return 0.0;
+//     if (dist_to_lower < WARNING_THRESHOLD || dist_to_upper < WARNING_THRESHOLD) 
+//     {
+//         double penalty = 0.0;
+//         if (dist_to_lower < WARNING_THRESHOLD) 
+//         {
+//             penalty += JOINT_LIMIT_PENALTY_SCALE * 
+//                       std::exp((WARNING_THRESHOLD - dist_to_lower) / WARNING_THRESHOLD);
+//         }
+//         if (dist_to_upper < WARNING_THRESHOLD) 
+//         {
+//             penalty += JOINT_LIMIT_PENALTY_SCALE * 
+//                       std::exp((WARNING_THRESHOLD - dist_to_upper) / WARNING_THRESHOLD);
+//         }
+//         return penalty;
+//     }
+//     return 0.0;
+// }
+
+double computeExpLimitPenalty(double pos, double lower, double upper)  
+{
+    // Safety check
+    if (lower >= upper) return 0.0;
+    
+    // Normalized position in [0,1]
+    double range = upper - lower;
+    double norm_pos = (pos - lower) / range;
+    
+    // Calculate distance to nearest limit (as percentage of range)
+    double dist_to_limit = std::min(norm_pos, 1.0 - norm_pos);
+    
+    // Continuous penalty that grows exponentially when approaching limits
+    // The penalty is zero in the middle and approaches infinity at the limits
+    // double base_penalty = 0.5 * (1.0 / (dist_to_limit + 1e-6) - 1.0);
+    double base_penalty = 0.5 - dist_to_limit; 
+    
+    // Apply exponential scaling - always active but grows rapidly near limits
+    // double penalty = exp(k_exp_ * base_penalty) - 1.0;
+    double penalty = exp(base_penalty); 
+
+    return penalty;
 }
 
-double computeLogBarrierPenalty(double pos, double lower, double upper, double mu) {
+double computeLogBarrierPenalty(double pos, double lower, double upper, double mu) 
+{
     double dist_to_lower = pos - lower;
     double dist_to_upper = upper - pos;
     
@@ -44,21 +73,18 @@ double computeLogBarrierPenalty(double pos, double lower, double upper, double m
 }
 
 
-void IHWBC::AddJointLimitPenalties(Eigen::MatrixXd& cost_t_mat) {
+void IHWBC::AddJointLimitPenalties(Eigen::MatrixXd& cost_t_mat) 
+{
   for (int i = 0; i < current_joint_positions_.size(); ++i) 
   {
-    // double penalty = computeExpLimitPenalty(
-    //     current_joint_positions_[i],
-    //     joint_pos_limits_lower_[i],
-    //     joint_pos_limits_upper_[i]
-    // );
-    double penalty = computeLogBarrierPenalty(
+    // double penalty = computeLogBarrierPenalty(
+    double penalty = computeExpLimitPenalty(
         current_joint_positions_[i],
         joint_pos_limits_lower_[i],
-        joint_pos_limits_upper_[i],
-        JOINT_LIMIT_PENALTY_SCALE
+        joint_pos_limits_upper_[i] 
     );
-    if (penalty > 0) {
+    if (penalty > 0) 
+    {
         // Add to diagonal of cost matrix to penalize motion in this joint
         cost_t_mat(i, i) += penalty; 
         std::cout << "Penalty added to joint " << i << ": " << penalty << std::endl;
@@ -66,12 +92,14 @@ void IHWBC::AddJointLimitPenalties(Eigen::MatrixXd& cost_t_mat) {
   }
 }
 
-void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) {
+void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) 
+{
     if (positions.size() == 0 || joint_pos_limits_lower_.size() == 0) return;
     
     // const double WARNING_THRESHOLD = 0.2; // 20% threshold 
     
-    for (int i = 0; i < positions.size(); ++i) {
+    for (int i = 0; i < positions.size(); ++i) 
+    {
         double pos = positions[i];
         double lower = joint_pos_limits_lower_[i];
         double upper = joint_pos_limits_upper_[i];
@@ -82,7 +110,8 @@ void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) {
         double dist_to_upper = (upper - pos) / range;
         
         // Only print warning if approaching limits
-        if (dist_to_lower < WARNING_THRESHOLD || dist_to_upper < WARNING_THRESHOLD) {
+        if (dist_to_lower < WARNING_THRESHOLD || dist_to_upper < WARNING_THRESHOLD) 
+        {
             std::cout << "WARNING: Joint " << i << " approaching limits!\n"
                       << "  Current: " << pos << " rad (" << (pos * 180.0/M_PI) << " deg)\n"
                       << "  Limits: [" << lower << ", " << upper << "] rad\n"
@@ -99,7 +128,8 @@ void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) {
 
 IHWBC::IHWBC(const std::vector<bool> &act_qdot_list)
     : WBC(act_qdot_list), dim_cone_constraint_(0), lambda_qddot_(0.),
-      b_first_visit_(true) {
+      b_first_visit_(true) 
+{
   util::PrettyConstructor(3, "IHWBC");
 
   // assume surface contact:TODO make generic
@@ -115,7 +145,8 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
                   const std::unordered_map<std::string, InternalConstraint *>
                       &internal_constraint_map,
                   std::map<std::string, ForceTask *> &force_task_map,
-                  Eigen::VectorXd &qddot_cmd, Eigen::VectorXd &trq_cmd) {
+                  Eigen::VectorXd &qddot_cmd, Eigen::VectorXd &trq_cmd) 
+{
 
   assert(task_map.size() > 0);
   b_contact_ = contact_map.size() > 0 ? true : false; 
@@ -130,7 +161,8 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   // task cost
   cost_t_mat.setZero(num_qdot_, num_qdot_);
   cost_t_vec.setZero(num_qdot_);
-  for (const auto &[task_str, task_ptr] : task_map) {
+  for (const auto &[task_str, task_ptr] : task_map) 
+  {
     Eigen::MatrixXd jt = task_ptr->Jacobian();
     Eigen::VectorXd jtdot_qdot = task_ptr->JacobianDotQdot();
     Eigen::VectorXd des_xddot = task_ptr->OpCommand();
@@ -157,8 +189,10 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   AddJointLimitPenalties(cost_t_mat);  
 
   // // check contact dimension
-  if (b_first_visit_) {
-    for (const auto &[contact_str, contact_ptr] : contact_map) {
+  if (b_first_visit_) 
+  {
+    for (const auto &[contact_str, contact_ptr] : contact_map) 
+    {
       dim_contact_ += contact_ptr->Dim();
       dim_cone_constraint_ += contact_ptr->UfVector().size();
       b_first_visit_ = false;
@@ -169,12 +203,14 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   cost_vec.setZero(num_qdot_ + dim_contact_);
 
   // reaction force cost
-  if (b_contact_) {
+  if (b_contact_) 
+  {
     // exist contact
     cost_rf_mat.setZero(dim_contact_, dim_contact_);
     cost_rf_vec.setZero(dim_contact_);
     int row_idx(0);
-    for (const auto &[force_task_str, force_task_ptr] : force_task_map) {
+    for (const auto &[force_task_str, force_task_ptr] : force_task_map) 
+    {
       // lfoot, rfoot order & wrench (torque, force order)
       Eigen::MatrixXd weight_mat = force_task_ptr->Weight().asDiagonal();
       Eigen::VectorXd des_rf = force_task_ptr->DesiredRf();
@@ -192,7 +228,9 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
         cost_rf_mat;
     cost_vec.head(cost_t_vec.size()) = cost_t_vec;
     cost_vec.tail(cost_rf_vec.size()) = cost_rf_vec;
-  } else {
+  } 
+  else 
+  {
     // no contact
     cost_mat = cost_t_mat;
     cost_vec = cost_t_vec;
@@ -211,10 +249,12 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   Eigen::MatrixXd ni;
   Eigen::MatrixXd sa_ni_trc_bar; // TODO: sa_ni_trc_bar using just pseudo inv
                                  // (not dynamically consistent pseudo inv)
-  if (b_internal_constraint_) {
+  if (b_internal_constraint_) 
+  {
     // exist passive joint
     int row_idx(0);
-    for (const auto [ic_str, ic_ptr] : internal_constraint_map) {
+    for (const auto [ic_str, ic_ptr] : internal_constraint_map) 
+    {
       Eigen::MatrixXd j_i = ic_ptr->Jacobian();
       Eigen::VectorXd jidot_qdot = ic_ptr->JacobianDotQdot();
       int dim = ic_ptr->Dim();
@@ -258,7 +298,9 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     // std::cout << ni << std::endl;
     // std::cout << sf_ * grav_ << std::endl;
 
-  } else {
+  } 
+  else 
+  {
     // no passive joint
     ni.setIdentity(num_qdot_, num_qdot_);
     ji_transpose_lambda_int_jidot_qdot_vec.setZero(num_qdot_);
@@ -268,7 +310,8 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   // contact setup
   Eigen::MatrixXd jc, uf_mat;
   Eigen::VectorXd uf_vec;
-  if (b_contact_) {
+  if (b_contact_) 
+  {
     // contact exist
     jc.setZero(dim_contact_, num_qdot_);
     uf_mat.setZero(dim_cone_constraint_, dim_contact_);
@@ -291,7 +334,9 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
       contact_row_idx += dim_contact;
       contact_cone_row_idx += dim_cone_constraint;
     }
-  } else {
+  } 
+  else 
+  {
     // no contact
   }
 
@@ -299,9 +344,12 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   Eigen::MatrixXd eq_mat, eq_float_mat, eq_int_mat;
   Eigen::VectorXd eq_vec, eq_float_vec, eq_int_vec;
 
-  if (b_contact_) {
-    if (b_floating_base_) {
-      if (b_internal_constraint_) {
+  if (b_contact_) 
+  {
+    if (b_floating_base_) 
+    {
+      if (b_internal_constraint_) 
+      {
         // floating base: o, internal constraint: o, contact: o
         eq_float_mat.setZero(num_floating_, num_qdot_ + dim_contact_);
         eq_float_vec.setZero(num_floating_);
@@ -332,7 +380,9 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
         // std::cout << eq_mat << std::endl;
         // std::exit(0);
 
-      } else {
+      } 
+      else 
+      {
         // floating base: o, internal constraint: x, contact: o
         eq_float_mat.setZero(num_floating_, num_qdot_ + dim_contact_);
         eq_float_vec.setZero(num_floating_);
@@ -345,8 +395,11 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
         eq_mat = eq_float_mat;
         eq_vec = eq_float_vec;
       }
-    } else {
-      if (b_internal_constraint_) {
+    } 
+    else 
+    {
+      if (b_internal_constraint_) 
+      {
         // floating base: x, internal constraint: o, contact: o
         eq_int_mat.setZero(num_passive_, num_qdot_ + dim_contact_);
         eq_int_mat.leftCols(num_qdot_) = ji;
@@ -355,15 +408,21 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
         eq_mat = eq_int_mat;
         eq_vec = eq_int_vec;
 
-      } else {
+      } 
+      else 
+      {
         // floating base: x, internal constraint: x, contact: o
         eq_mat.setZero(0, num_qdot_ + dim_contact_);
         eq_vec.setZero(0);
       }
     }
-  } else {
-    if (b_floating_base_) {
-      if (b_internal_constraint_) {
+  } 
+  else 
+  {
+    if (b_floating_base_) 
+    {
+      if (b_internal_constraint_) 
+      {
         // floating base: o, internal constraint: o, contact: x
         eq_float_mat = sf_ * M_;
         eq_float_vec = sf_ * ni.transpose() * (cori_ + grav_);
@@ -378,7 +437,9 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
         eq_mat.bottomRows(num_passive_) = eq_int_mat;
         eq_vec.head(num_floating_) = eq_float_vec;
         eq_vec.tail(num_passive_) = eq_int_vec;
-      } else {
+      } 
+      else 
+      {
         // floating base: o, internal contstraint: x, contact: x
         eq_float_mat = sf_ * M_;
         eq_float_vec = sf_ * ni.transpose() * (cori_ + grav_);
@@ -386,8 +447,11 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
         eq_mat = eq_float_mat;
         eq_vec = eq_float_vec;
       }
-    } else {
-      if (b_internal_constraint_) {
+    } 
+    else 
+    {
+      if (b_internal_constraint_) 
+      {
         // floating base: x, internal constraint: o, contact: x
         eq_int_mat = ji;
         eq_int_vec = jidot_qdot_vec;
@@ -395,7 +459,9 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
         eq_mat = eq_int_mat;
         eq_vec = eq_int_vec;
 
-      } else {
+      } 
+      else 
+      {
         // floating base: x, internal constraint: x, contact: x
         eq_mat.setZero(0, num_qdot_);
         eq_vec.setZero(0);
@@ -410,8 +476,10 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   // Uf >= contact_cone_vec
   Eigen::MatrixXd ineq_mat;
   Eigen::VectorXd ineq_vec;
-  if (!b_trq_limit_) {
-    if (b_contact_) {
+  if (!b_trq_limit_) 
+  {
+    if (b_contact_) 
+    {
       // trq limit : x, contact: o
       ineq_mat.setZero(dim_cone_constraint_, num_qdot_ + dim_contact_);
       ineq_vec.setZero(dim_cone_constraint_);
@@ -419,12 +487,16 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
       ineq_mat.rightCols(dim_contact_) = uf_mat;
       ineq_vec = -uf_vec;
 
-    } else {
+    } 
+    else 
+    {
       // trq limit: x, contact: x
       ineq_mat.setZero(0, num_qdot_);
       ineq_vec.setZero(0);
     }
-  } else {
+  } 
+  else 
+  {
     Eigen::MatrixXd ineq_trq_mat;
     Eigen::VectorXd ineq_trq_vec;
 
@@ -459,7 +531,8 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     ineq_trq_vec.head(num_qdot_ - num_floating_) = l_trq_vec;
     ineq_trq_vec.tail(num_qdot_ - num_floating_) = r_trq_vec;
 
-    if (b_contact_) {
+    if (b_contact_) 
+    {
       // trq limit: o, contact: o
       Eigen::MatrixXd ineq_contact_mat;
       Eigen::VectorXd ineq_contact_vec;
@@ -479,7 +552,9 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
       ineq_vec.head(ineq_trq_mat.rows()) = ineq_trq_vec;
       ineq_vec.tail(ineq_contact_mat.rows()) = ineq_contact_vec;
 
-    } else {
+    } 
+    else 
+    {
       // trq limit: o, contact: x
       ineq_mat = ineq_trq_mat;
       ineq_vec = ineq_trq_vec;
@@ -516,14 +591,17 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   _SolveQP();
 
   // compute torque command
-  if (b_contact_) {
+  if (b_contact_) 
+  {
     // contact: o
     trq_cmd = sa_.rightCols(num_qdot_ - num_floating_).transpose() *
               sa_ni_trc_bar.transpose() * snf_ *
               (M_ * qddot_sol_ + ni.transpose() * (cori_ + grav_) -
                (jc * ni).transpose() * rf_sol_ +
                ji_transpose_lambda_int_jidot_qdot_vec);
-  } else {
+  } 
+  else 
+  {
     // contact: x
     trq_cmd = sa_.rightCols(num_qdot_ - num_floating_).transpose() *
               sa_ni_trc_bar.transpose() * snf_ *
@@ -539,7 +617,8 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
 
   // TODO: make it general
   int i(0);
-  for (const auto &kv : force_task_map) {
+  for (const auto &kv : force_task_map) 
+  {
     kv.second->UpdateCmd(rf_sol_.segment(i, dim_contact_ / 2));
     i += dim_contact_ / 2;
   }
@@ -553,12 +632,14 @@ void IHWBC::ComputeTaskCosts(
     const std::unordered_map<std::string, Task *> &task_map,
     const std::map<std::string, ForceTask *> &force_task_map,
     std::unordered_map<std::string, double> &task_unweighted_cost_map,
-    std::unordered_map<std::string, double> &task_weighted_cost_map) {
+    std::unordered_map<std::string, double> &task_weighted_cost_map) 
+{
   if (task_unweighted_cost_map.empty())
     return;
 
   // save cost associated with each task
-  for (const auto &[task_str, task_ptr] : task_map) {
+  for (const auto &[task_str, task_ptr] : task_map) 
+  {
     Eigen::MatrixXd jac_t = task_ptr->Jacobian();
     Eigen::MatrixXd jacdot_t_qdot = task_ptr->JacobianDotQdot();
     Eigen::VectorXd xddot_des_t = task_ptr->OpCommand();
@@ -570,7 +651,8 @@ void IHWBC::ComputeTaskCosts(
                                           task_ptr->Weight().asDiagonal() *
                                           cost_t_sum_vec;
   }
-  for (const auto &[force_task_str, force_task_ptr] : force_task_map) {
+  for (const auto &[force_task_str, force_task_ptr] : force_task_map) 
+  {
     Eigen::VectorXd Fr_error =
         force_task_ptr->DesiredRf() - force_task_ptr->CmdRf();
     Eigen::MatrixXd weight_mat = force_task_ptr->Weight().asDiagonal();
@@ -578,15 +660,18 @@ void IHWBC::ComputeTaskCosts(
     task_weighted_cost_map[force_task_str] =
         Fr_error.transpose() * weight_mat * Fr_error;
   }
-  if (task_unweighted_cost_map.count("qddot_regularization_task")) {
+  if (task_unweighted_cost_map.count("qddot_regularization_task")) 
+  {
     task_unweighted_cost_map["qddot_regularization_task"] =
         qddot_sol_.transpose() * qddot_sol_;
   }
-  if (task_weighted_cost_map.count("qddot_regularization_task")) {
+  if (task_weighted_cost_map.count("qddot_regularization_task")) 
+  {
     task_weighted_cost_map["qddot_regularization_task"] =
         lambda_qddot_ * qddot_sol_.transpose() * qddot_sol_;
   }
-  if (task_unweighted_cost_map.count("Fr_regularization_task")) {
+  if (task_unweighted_cost_map.count("Fr_regularization_task")) 
+  {
     task_unweighted_cost_map["Fr_regularization_task"] =
         rf_sol_.transpose() * rf_sol_;
     task_weighted_cost_map["Fr_regularization_task"] =
@@ -599,9 +684,12 @@ void IHWBC::ComputeTaskCosts(
 //============================================================= 
 
 void IHWBC::_SetQPCost(const Eigen::MatrixXd &cost_mat,
-                       const Eigen::VectorXd &cost_vec) {
-  for (int i(0); i < num_qp_vars_; ++i) {
-    for (int j(0); j < num_qp_vars_; ++j) {
+                       const Eigen::VectorXd &cost_vec) 
+{
+  for (int i(0); i < num_qp_vars_; ++i) 
+  {
+    for (int j(0); j < num_qp_vars_; ++j) 
+    {
       G_[i][j] = cost_mat(i, j);
     }
     g0_[i] = cost_vec[i];
@@ -613,9 +701,12 @@ void IHWBC::_SetQPCost(const Eigen::MatrixXd &cost_mat,
 //============================================================= 
 
 void IHWBC::_SetQPEqualityConstraint(const Eigen::MatrixXd &eq_mat,
-                                     const Eigen::VectorXd &eq_vec) {
-  for (int i(0); i < num_eq_const_; ++i) {
-    for (int j(0); j < num_qp_vars_; ++j) {
+                                     const Eigen::VectorXd &eq_vec) 
+{
+  for (int i(0); i < num_eq_const_; ++i) 
+  {
+    for (int j(0); j < num_qp_vars_; ++j) 
+    {
       CE_[j][i] = eq_mat(i, j);
     }
     ce0_[i] = eq_vec[i];
@@ -627,9 +718,12 @@ void IHWBC::_SetQPEqualityConstraint(const Eigen::MatrixXd &eq_mat,
 //============================================================= 
 
 void IHWBC::_SetQPInEqualityConstraint(const Eigen::MatrixXd &ineq_mat,
-                                       const Eigen::VectorXd &ineq_vec) {
-  for (int i(0); i < num_ineq_const_; ++i) {
-    for (int j(0); j < num_qp_vars_; ++j) {
+                                       const Eigen::VectorXd &ineq_vec) 
+{
+  for (int i(0); i < num_ineq_const_; ++i) 
+  {
+    for (int j(0); j < num_qp_vars_; ++j) 
+    {
       CI_[j][i] = ineq_mat(i, j);
     }
     ci0_[i] = ineq_vec[i];
@@ -640,7 +734,8 @@ void IHWBC::_SetQPInEqualityConstraint(const Eigen::MatrixXd &ineq_mat,
 // _SolveQP 
 //============================================================= 
 
-void IHWBC::_SolveQP() {
+void IHWBC::_SolveQP() 
+{
   double qp_result = solve_quadprog(G_, g0_, CE_, ce0_, CI_, ci0_, x_);
 
   Eigen::VectorXd qp_sol = Eigen::VectorXd::Zero(num_qp_vars_);
@@ -655,14 +750,17 @@ void IHWBC::_SolveQP() {
 // SetParameters 
 //============================================================= 
 
-void IHWBC::SetParameters(const YAML::Node &node) {
-    try {
+void IHWBC::SetParameters(const YAML::Node &node) 
+{
+    try 
+    {
         util::ReadParameter(node, "lambda_qddot", lambda_qddot_);
         util::ReadParameter(node, "lambda_rf", lambda_rf_);
         util::ReadParameter(node, "b_trq_limit", b_trq_limit_);
 
         // Add this section to read joint position limits
-        if (node["joint_pos_limits"]) {
+        if (node["joint_pos_limits"]) 
+        {
             std::vector<double> lower_limits, upper_limits;
             util::ReadParameter(node["joint_pos_limits"], "lower", lower_limits);
             util::ReadParameter(node["joint_pos_limits"], "upper", upper_limits);
@@ -672,7 +770,9 @@ void IHWBC::SetParameters(const YAML::Node &node) {
             joint_pos_limits_upper_ = Eigen::Map<Eigen::VectorXd>(upper_limits.data(), upper_limits.size());
         }
 
-    } catch (std::runtime_error &e) {
+    } 
+    catch (std::runtime_error &e) 
+    {
         std::cerr << "Error reading parameter [" << e.what() << "] at file: ["
                   << __FILE__ << "]" << std::endl
                   << std::endl;

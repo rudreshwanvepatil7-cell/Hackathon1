@@ -10,7 +10,8 @@ class Task;
 class Contact;
 class InternalConstraint;
 class ForceTask;
-class IHWBC : public WBC {
+class IHWBC : public WBC 
+{
 public:
   IHWBC(const std::vector<bool> &act_qdot_list);
   virtual ~IHWBC() = default;
@@ -36,16 +37,19 @@ public:
   double GetLambdaQddot() const { return lambda_qddot_; }
 
   // setter
-  void SetTrqLimit(const Eigen::Matrix<double, Eigen::Dynamic, 2> &trq_limit) {
+  void SetTrqLimit(const Eigen::Matrix<double, Eigen::Dynamic, 2> &trq_limit) 
+  {
     joint_trq_limits_ = trq_limit;
   }
 
-  void SetJointPositions(const Eigen::VectorXd& joint_positions) {
+  void SetJointPositions(const Eigen::VectorXd& joint_positions) 
+  {
     current_joint_positions_ = joint_positions;
     CheckJointLimits(joint_positions);
   } 
 
-  Eigen::VectorXd GetJointPositions() const {
+  Eigen::VectorXd GetJointPositions() const 
+  {
     std::cout << "Current joint positions: " << current_joint_positions_.transpose() << std::endl;
     return current_joint_positions_; 
   }
