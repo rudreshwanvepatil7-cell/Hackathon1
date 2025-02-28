@@ -1,0 +1,245 @@
+<mujoco model="crab_robot">
+  <compiler angle="radian" meshdir="./"/>
+
+  <option timestep="0.00125" impratio="60" tolerance="1e-12" gravity="0 0 0" iterations="10"/>
+
+  <asset>
+    <mesh name="base_link" file="/home/emily/rpc/robot_model/crab/meshes/base_link/base_link_simple.stl"/>
+    <mesh name="proximal_link" file="/home/emily/rpc/robot_model/crab/meshes/776_meshes/proximal_link.STL"/>
+    <mesh name="distal_link" file="/home/emily/rpc/robot_model/crab/meshes/776_meshes/distal_link.STL"/>
+    <mesh name="end_link" file="/home/emily/rpc/robot_model/crab/meshes/776_meshes/end_link.STL"/>
+    <mesh name="wrist_link" file="/home/emily/rpc/robot_model/crab/meshes/5555_meshes/wrist_link.STL"/>
+  </asset>
+
+  <worldbody>
+    <body name="base_link">
+      <inertial pos="1.59866e-08 0.012585 1.27306e-11" quat="0.500006 0.499965 -0.500035 0.499994" mass="119" diaginertia="149.258 96.1632 57.7298"/>
+      <joint name="base_joint" type="free" limited="false" actuatorfrclimited="false"/>
+      <geom type="mesh" rgba="0.5 0.5 0.7 1" mesh="base_link"/>
+      <geom size="0.127 0.25" pos="1.25 1 0.000199082" quat="0.707388 0 0.706825 0" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+      <geom size="0.127 0.25" pos="-1.25 0.999602 -0.000199081" quat="0.000563312 0.707388 0.000562864 -0.706825" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+      <geom size="0.127 0.25" pos="1.25 -1 0.000199082" quat="0.707388 0 0.706825 0" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+      <geom size="0.127 0.25" pos="-1.25 -1.0004 -0.000199081" quat="0.000563312 0.707388 0.000562864 -0.706825" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+      <site name="imu" pos="0 0 0"/>
+      <body name="front_right__cluster_1_proximal_link" pos="1.5 1 0.000398163" quat="0.707388 0 0.706825 0">
+        <inertial pos="0.046798 0.012731 0.19914" quat="0.671746 0.213265 0.316607 0.634851" mass="16.527" diaginertia="0.185581 0.152797 0.102802"/>
+        <joint name="front_right__cluster_1_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+        <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="proximal_link"/>
+        <body name="front_right__cluster_1_distal_link" pos="0.127 0 0.34925" quat="0.706998 0.706998 0.0123774 -0.0123774">
+          <inertial pos="-0.0992135 0.206673 0.0272132" quat="0.453823 0.503379 -0.445561 0.584919" mass="8.67091" diaginertia="0.494318 0.46179 0.061677"/>
+          <joint name="front_right__cluster_1_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+          <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="distal_link"/>
+          <geom pos="-0.134924 0.224015 0" quat="0.706998 -0.706998 -0.0123774 0.0123774" type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="end_link"/>
+          <geom size="0.1016 0.25" pos="-0.143675 0.473861 0" quat="0.706998 -0.706998 -0.0123774 0.0123774" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+          <body name="front_right__cluster_2_proximal_link" pos="-0.152425 0.723708 0" quat="0.706998 -0.706998 -0.0123774 0.0123774">
+            <inertial pos="0.034064 0.015225 0.20259" quat="0.686346 0.127566 0.222924 0.680413" mass="10.138" diaginertia="0.0981416 0.0789755 0.0478309"/>
+            <joint name="front_right__cluster_2_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+            <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="proximal_link"/>
+            <body name="front_right__cluster_2_distal_link" pos="0.1016 0 0.34925" quat="0.707105 0.707108 0 0">
+              <inertial pos="-0.0771514 0.219461 0.0233658" quat="0.462552 0.47813 -0.473885 0.576949" mass="7.58403" diaginertia="0.392075 0.375777 0.0396222"/>
+              <joint name="front_right__cluster_2_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+              <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="distal_link"/>
+              <geom pos="-0.1016 0.2032 0" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="end_link"/>
+              <geom size="0.092075 0.25" pos="-0.1016 0.4532 -9.18301e-07" quat="0.707105 -0.707108 0 0" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+              <body name="front_right__cluster_3_proximal_link" pos="-0.1016 0.7032 -1.8366e-06" quat="0.707105 -0.707108 0 0">
+                <inertial pos="0.026668 0.014315 0.20188" quat="0.696543 0.0795451 0.170776 0.692341" mass="9.0522" diaginertia="0.0754392 0.0616876 0.0333272"/>
+                <joint name="front_right__cluster_3_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="proximal_link"/>
+                <body name="front_right__cluster_3_distal_link" pos="0.0889 0 0.34925" quat="0.707105 0.707108 0 0">
+                  <inertial pos="-0.0727041 0.237528 0.0166008" quat="0.473139 0.481424 -0.484023 0.556859" mass="6.9917" diaginertia="0.341329 0.32973 0.032835"/>
+                  <joint name="front_right__cluster_3_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+                  <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="distal_link"/>
+                  <geom size="0.092075 0.25" pos="-0.0889 0.4532 -9.18301e-07" quat="0.707105 -0.707108 0 0" type="capsule" rgba="0.89804 0.91765 0.92941 1"/>
+                  <body name="front_right__cluster_3_wrist_link" pos="-0.0889 0.7032 -1.8366e-06" quat="0.707105 -0.707108 0 0">
+                    <inertial pos="9.9701e-06 -0.00027566 0.041402" quat="0.0555933 0.704944 -0.0553839 0.704908" mass="2.5013" diaginertia="0.010225 0.00552746 0.00547194"/>
+                    <joint name="front_right__cluster_3_wrist" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                    <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="wrist_link"/>
+                    <geom size="0.25 0.25 0.05" pos="0 0 0.15" type="box" rgba="1 1 1 1"/>
+                    <site name="front_right" pos="0 0 0"/>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="front_left__cluster_1_proximal_link" pos="-1.5 0.999204 -0.000398163" quat="0.000563312 0.707388 0.000562864 -0.706825">
+        <inertial pos="0.046798 0.012731 0.19914" quat="0.671746 0.213265 0.316607 0.634851" mass="16.527" diaginertia="0.185581 0.152797 0.102802"/>
+        <joint name="front_left__cluster_1_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+        <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="proximal_link"/>
+        <body name="front_left__cluster_1_distal_link" pos="0.127 0 0.34925" quat="0.706998 0.706998 0.0123774 -0.0123774">
+          <inertial pos="-0.0992135 0.206673 0.0272132" quat="0.453823 0.503379 -0.445561 0.584919" mass="8.67091" diaginertia="0.494318 0.46179 0.061677"/>
+          <joint name="front_left__cluster_1_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+          <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="distal_link"/>
+          <geom pos="-0.134924 0.224015 0" quat="0.706998 -0.706998 -0.0123774 0.0123774" type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="end_link"/>
+          <geom size="0.1016 0.25" pos="-0.143675 0.473861 0" quat="0.706998 -0.706998 -0.0123774 0.0123774" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+          <body name="front_left__cluster_2_proximal_link" pos="-0.152425 0.723708 0" quat="0.706998 -0.706998 -0.0123774 0.0123774">
+            <inertial pos="0.034064 0.015225 0.20259" quat="0.686346 0.127566 0.222924 0.680413" mass="10.138" diaginertia="0.0981416 0.0789755 0.0478309"/>
+            <joint name="front_left__cluster_2_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+            <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="proximal_link"/>
+            <body name="front_left__cluster_2_distal_link" pos="0.1016 0 0.34925" quat="0.707105 0.707108 0 0">
+              <inertial pos="-0.0771514 0.219461 0.0233658" quat="0.462552 0.47813 -0.473885 0.576949" mass="7.58403" diaginertia="0.392075 0.375777 0.0396222"/>
+              <joint name="front_left__cluster_2_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+              <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="distal_link"/>
+              <geom pos="-0.1016 0.2032 0" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="end_link"/>
+              <geom size="0.092075 0.25" pos="-0.1016 0.4532 -9.18301e-07" quat="0.707105 -0.707108 0 0" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+              <body name="front_left__cluster_3_proximal_link" pos="-0.1016 0.7032 -1.8366e-06" quat="0.707105 -0.707108 0 0">
+                <inertial pos="0.026668 0.014315 0.20188" quat="0.696543 0.0795451 0.170776 0.692341" mass="9.0522" diaginertia="0.0754392 0.0616876 0.0333272"/>
+                <joint name="front_left__cluster_3_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="proximal_link"/>
+                <body name="front_left__cluster_3_distal_link" pos="0.0889 0 0.34925" quat="0.707105 0.707108 0 0">
+                  <inertial pos="-0.0727041 0.237528 0.0166008" quat="0.473139 0.481424 -0.484023 0.556859" mass="6.9917" diaginertia="0.341329 0.32973 0.032835"/>
+                  <joint name="front_left__cluster_3_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+                  <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="distal_link"/>
+                  <geom size="0.092075 0.25" pos="-0.0889 0.4532 -9.18301e-07" quat="0.707105 -0.707108 0 0" type="capsule" rgba="0.89804 0.91765 0.92941 1"/>
+                  <body name="front_left__cluster_3_wrist_link" pos="-0.0889 0.7032 -1.8366e-06" quat="0.707105 -0.707108 0 0">
+                    <inertial pos="9.9701e-06 -0.00027566 0.041402" quat="0.0555933 0.704944 -0.0553839 0.704908" mass="2.5013" diaginertia="0.010225 0.00552746 0.00547194"/>
+                    <joint name="front_left__cluster_3_wrist" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                    <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="wrist_link"/>
+                    <geom size="0.25 0.25 0.05" pos="0 0 0.15" type="box" rgba="1 1 1 1"/>
+                    <site name="front_left" pos="0 0 0"/>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="back_right__cluster_1_proximal_link" pos="1.5 -1 0.000398163" quat="0.707388 0 0.706825 0">
+        <inertial pos="0.046798 0.012731 0.19914" quat="0.671746 0.213265 0.316607 0.634851" mass="16.527" diaginertia="0.185581 0.152797 0.102802"/>
+        <joint name="back_right__cluster_1_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+        <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="proximal_link"/>
+        <body name="back_right__cluster_1_distal_link" pos="0.127 0 0.34925" quat="0.706998 0.706998 0.0123774 -0.0123774">
+          <inertial pos="-0.0992135 0.206673 0.0272132" quat="0.453823 0.503379 -0.445561 0.584919" mass="8.67091" diaginertia="0.494318 0.46179 0.061677"/>
+          <joint name="back_right__cluster_1_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+          <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="distal_link"/>
+          <geom pos="-0.134924 0.224015 0" quat="0.706998 -0.706998 -0.0123774 0.0123774" type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="end_link"/>
+          <geom size="0.1016 0.25" pos="-0.143675 0.473861 0" quat="0.706998 -0.706998 -0.0123774 0.0123774" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+          <body name="back_right__cluster_2_proximal_link" pos="-0.152425 0.723708 0" quat="0.706998 -0.706998 -0.0123774 0.0123774">
+            <inertial pos="0.034064 0.015225 0.20259" quat="0.686346 0.127566 0.222924 0.680413" mass="10.138" diaginertia="0.0981416 0.0789755 0.0478309"/>
+            <joint name="back_right__cluster_2_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+            <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="proximal_link"/>
+            <body name="back_right__cluster_2_distal_link" pos="0.1016 0 0.34925" quat="0.707105 0.707108 0 0">
+              <inertial pos="-0.0771514 0.219461 0.0233658" quat="0.462552 0.47813 -0.473885 0.576949" mass="7.58403" diaginertia="0.392075 0.375777 0.0396222"/>
+              <joint name="back_right__cluster_2_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+              <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="distal_link"/>
+              <geom pos="-0.1016 0.2032 0" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="end_link"/>
+              <geom size="0.092075 0.25" pos="-0.1016 0.4532 -9.18301e-07" quat="0.707105 -0.707108 0 0" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+              <body name="back_right__cluster_3_proximal_link" pos="-0.1016 0.7032 -1.8366e-06" quat="0.707105 -0.707108 0 0">
+                <inertial pos="0.026668 0.014315 0.20188" quat="0.696543 0.0795451 0.170776 0.692341" mass="9.0522" diaginertia="0.0754392 0.0616876 0.0333272"/>
+                <joint name="back_right__cluster_3_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="proximal_link"/>
+                <body name="back_right__cluster_3_distal_link" pos="0.0889 0 0.34925" quat="0.707105 0.707108 0 0">
+                  <inertial pos="-0.0727041 0.237528 0.0166008" quat="0.473139 0.481424 -0.484023 0.556859" mass="6.9917" diaginertia="0.341329 0.32973 0.032835"/>
+                  <joint name="back_right__cluster_3_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+                  <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="distal_link"/>
+                  <geom size="0.092075 0.25" pos="-0.0889 0.4532 -9.18301e-07" quat="0.707105 -0.707108 0 0" type="capsule" rgba="0.89804 0.91765 0.92941 1"/>
+                  <body name="back_right__cluster_3_wrist_link" pos="-0.0889 0.7032 -1.8366e-06" quat="0.707105 -0.707108 0 0">
+                    <inertial pos="9.9701e-06 -0.00027566 0.041402" quat="0.0555933 0.704944 -0.0553839 0.704908" mass="2.5013" diaginertia="0.010225 0.00552746 0.00547194"/>
+                    <joint name="back_right__cluster_3_wrist" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                    <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="wrist_link"/>
+                    <geom size="0.25 0.25 0.05" pos="0 0 0.15" type="box" rgba="1 1 1 1"/>
+                    <site name="back_right" pos="0 0 0"/>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="back_left__cluster_1_proximal_link" pos="-1.5 -1.0008 -0.000398163" quat="0.000563312 0.707388 0.000562864 -0.706825">
+        <inertial pos="0.046798 0.012731 0.19914" quat="0.671746 0.213265 0.316607 0.634851" mass="16.527" diaginertia="0.185581 0.152797 0.102802"/>
+        <joint name="back_left__cluster_1_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+        <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="proximal_link"/>
+        <body name="back_left__cluster_1_distal_link" pos="0.127 0 0.34925" quat="0.706998 0.706998 0.0123774 -0.0123774">
+          <inertial pos="-0.0992135 0.206673 0.0272132" quat="0.453823 0.503379 -0.445561 0.584919" mass="8.67091" diaginertia="0.494318 0.46179 0.061677"/>
+          <joint name="back_left__cluster_1_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+          <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="distal_link"/>
+          <geom pos="-0.134924 0.224015 0" quat="0.706998 -0.706998 -0.0123774 0.0123774" type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="end_link"/>
+          <geom size="0.1016 0.25" pos="-0.143675 0.473861 0" quat="0.706998 -0.706998 -0.0123774 0.0123774" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+          <body name="back_left__cluster_2_proximal_link" pos="-0.152425 0.723708 0" quat="0.706998 -0.706998 -0.0123774 0.0123774">
+            <inertial pos="0.034064 0.015225 0.20259" quat="0.686346 0.127566 0.222924 0.680413" mass="10.138" diaginertia="0.0981416 0.0789755 0.0478309"/>
+            <joint name="back_left__cluster_2_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+            <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="proximal_link"/>
+            <body name="back_left__cluster_2_distal_link" pos="0.1016 0 0.34925" quat="0.707105 0.707108 0 0">
+              <inertial pos="-0.0771514 0.219461 0.0233658" quat="0.462552 0.47813 -0.473885 0.576949" mass="7.58403" diaginertia="0.392075 0.375777 0.0396222"/>
+              <joint name="back_left__cluster_2_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+              <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="distal_link"/>
+              <geom pos="-0.1016 0.2032 0" quat="0.707105 -0.707108 0 0" type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="end_link"/>
+              <geom size="0.092075 0.25" pos="-0.1016 0.4532 -9.18301e-07" quat="0.707105 -0.707108 0 0" type="capsule" rgba="0.898039 0.917647 0.929412 1"/>
+              <body name="back_left__cluster_3_proximal_link" pos="-0.1016 0.7032 -1.8366e-06" quat="0.707105 -0.707108 0 0">
+                <inertial pos="0.026668 0.014315 0.20188" quat="0.696543 0.0795451 0.170776 0.692341" mass="9.0522" diaginertia="0.0754392 0.0616876 0.0333272"/>
+                <joint name="back_left__cluster_3_roll" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="proximal_link"/>
+                <body name="back_left__cluster_3_distal_link" pos="0.0889 0 0.34925" quat="0.707105 0.707108 0 0">
+                  <inertial pos="-0.0727041 0.237528 0.0166008" quat="0.473139 0.481424 -0.484023 0.556859" mass="6.9917" diaginertia="0.341329 0.32973 0.032835"/>
+                  <joint name="back_left__cluster_3_pitch" pos="0 0 0" axis="0 0 1" range="-3.14 0"/>
+                  <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="distal_link"/>
+                  <geom size="0.092075 0.25" pos="-0.0889 0.4532 -9.18301e-07" quat="0.707105 -0.707108 0 0" type="capsule" rgba="0.89804 0.91765 0.92941 1"/>
+                  <body name="back_left__cluster_3_wrist_link" pos="-0.0889 0.7032 -1.8366e-06" quat="0.707105 -0.707108 0 0">
+                    <inertial pos="9.9701e-06 -0.00027566 0.041402" quat="0.0555933 0.704944 -0.0553839 0.704908" mass="2.5013" diaginertia="0.010225 0.00552746 0.00547194"/>
+                    <joint name="back_left__cluster_3_wrist" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                    <geom type="mesh" rgba="0.89804 0.91765 0.92941 1" mesh="wrist_link"/>
+                    <geom size="0.25 0.25 0.05" pos="0 0 0.15" type="box" rgba="1 1 1 1"/>
+                    <site name="back_left" pos="0 0 0"/>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position name="front_right__cluster_1_roll" joint="front_right__cluster_1_roll" kp="20" dampratio="1" />
+    <position name="front_right__cluster_1_pitch" joint="front_right__cluster_1_pitch" kp="150" dampratio="1" />
+    <position name="front_right__cluster_2_roll" joint="front_right__cluster_2_roll" kp="20" dampratio="1" />
+    <position name="front_right__cluster_2_pitch" joint="front_right__cluster_2_pitch" kp="150" dampratio="1" />
+    <position name="front_right__cluster_3_roll" joint="front_right__cluster_3_roll" kp="20" dampratio="1" />
+    <position name="front_right__cluster_3_pitch" joint="front_right__cluster_3_pitch" kp="150" dampratio="1" />
+    <position name="front_right__cluster_3_wrist" joint="front_right__cluster_3_wrist" kp="5" dampratio="1" />
+    <position name="front_left__cluster_1_roll" joint="front_left__cluster_1_roll" kp="20" dampratio="1" />
+    <position name="front_left__cluster_1_pitch" joint="front_left__cluster_1_pitch" kp="150" dampratio="1" />
+    <position name="front_left__cluster_2_roll" joint="front_left__cluster_2_roll" kp="20" dampratio="1" />
+    <position name="front_left__cluster_2_pitch" joint="front_left__cluster_2_pitch" kp="150" dampratio="1" />
+    <position name="front_left__cluster_3_roll" joint="front_left__cluster_3_roll" kp="20" dampratio="1" />
+    <position name="front_left__cluster_3_pitch" joint="front_left__cluster_3_pitch" kp="150" dampratio="1" />
+    <position name="front_left__cluster_3_wrist" joint="front_left__cluster_3_wrist" kp="5" dampratio="1" />
+    <position name="back_right__cluster_1_roll" joint="back_right__cluster_1_roll" kp="20" dampratio="1" />
+    <position name="back_right__cluster_1_pitch" joint="back_right__cluster_1_pitch" kp="150" dampratio="1" />
+    <position name="back_right__cluster_2_roll" joint="back_right__cluster_2_roll" kp="20" dampratio="1" />
+    <position name="back_right__cluster_2_pitch" joint="back_right__cluster_2_pitch" kp="150" dampratio="1" />
+    <position name="back_right__cluster_3_roll" joint="back_right__cluster_3_roll" kp="20" dampratio="1" />
+    <position name="back_right__cluster_3_pitch" joint="back_right__cluster_3_pitch" kp="150" dampratio="1" />
+    <position name="back_right__cluster_3_wrist" joint="back_right__cluster_3_wrist" kp="5" dampratio="1" />
+    <position name="back_left__cluster_1_roll" joint="back_left__cluster_1_roll" kp="20" dampratio="1" />
+    <position name="back_left__cluster_1_pitch" joint="back_left__cluster_1_pitch" kp="150" dampratio="1" />
+    <position name="back_left__cluster_2_roll" joint="back_left__cluster_2_roll" kp="20" dampratio="1" />
+    <position name="back_left__cluster_2_pitch" joint="back_left__cluster_2_pitch" kp="150" dampratio="1" />
+    <position name="back_left__cluster_3_roll" joint="back_left__cluster_3_roll" kp="20" dampratio="1" />
+    <position name="back_left__cluster_3_pitch" joint="back_left__cluster_3_pitch" kp="150" dampratio="1" />
+    <position name="back_left__cluster_3_wrist" joint="back_left__cluster_3_wrist" kp="5" dampratio="1" />
+  </actuator>
+
+  <sensor>
+    <gyro site="imu" name="gyro"/>
+    <velocimeter site="imu" name="local_linvel"/>
+    <accelerometer site="imu" name="accelerometer"/>
+    <framepos objtype="site" objname="imu" name="position"/>
+    <framezaxis objtype="site" objname="imu" name="upvector"/>
+    <framexaxis objtype="site" objname="imu" name="forwardvector"/>
+    <framelinvel objtype="site" objname="imu" name="global_linvel"/>
+    <frameangvel objtype="site" objname="imu" name="global_angvel"/>
+    <framequat objtype="site" objname="imu" name="orientation"/>
+    <framelinvel objtype="site" objname="front_right" name="front_right_global_linvel"/>
+    <framelinvel objtype="site" objname="front_left" name="front_left_global_linvel"/>
+    <framelinvel objtype="site" objname="back_right" name="back_right_global_linvel"/>
+    <framelinvel objtype="site" objname="back_left" name="back_left_global_linvel"/>
+    <framepos objtype="site" objname="front_right" name="front_right_pos" reftype="site" refname="imu"/>
+    <framepos objtype="site" objname="front_left" name="front_left_pos" reftype="site" refname="imu"/>
+    <framepos objtype="site" objname="back_right" name="back_right_pos" reftype="site" refname="imu"/>
+    <framepos objtype="site" objname="back_left" name="back_left_pos" reftype="site" refname="imu"/>
+  </sensor>
+</mujoco>

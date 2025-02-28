@@ -45,6 +45,9 @@ octave-workspace
 RLData
 *.json
 note.txt
+external/*
+models
+logs
 
 # IDE temp build files
 .idea/*

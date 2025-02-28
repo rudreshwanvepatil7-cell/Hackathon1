@@ -1,0 +1,16 @@
+name: rpc-rl
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - meshcat==0.1.1
+      - pybullet==3.0.8
+      - tqdm==4.61.1
+      - tensorboard
+      - jax[cuda12]
+      - mujoco
+      - mujoco_mjx
+      - rsl-rl-lib
+      - playground
