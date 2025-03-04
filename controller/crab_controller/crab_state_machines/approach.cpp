@@ -90,10 +90,6 @@ void Approach::FirstVisit()
       robot_->GetLinkIsometry(crab_link::base_link).linear();
   Eigen::Quaterniond init_torso_quat(R_w_torso);
 
-  // // set target torso orientation
-  // Eigen::Quaterniond target_torso_quat = util::EulerZYXtoQuat(1.57, 0., 0.); 
-  // Eigen::Quaterniond target_torso_quat = init_torso_quat;
-
   // Get target vector and current body pose
   Eigen::Vector3d body_target_vector = sp_->body_target_vector_; 
   Eigen::Isometry3d body_target_iso = robot_->GetLinkIsometry(crab_link::base_link);
@@ -109,12 +105,9 @@ void Approach::FirstVisit()
   std::cout << "Target vector: " << body_target_vector.transpose() << std::endl;
   std::cout << "Resulting -Z axis: " << -body_target_iso.linear().col(2).transpose() << std::endl;
 
-  // ctrl_arch_->floating_base_tm_->InitializeFloatingBaseInterpolation(
-      // init_com_pos, init_com_pos, init_torso_quat, target_torso_quat, duration);
+  ctrl_arch_->floating_base_tm_->InitializeFloatingBaseInterpolation(
+      init_com_pos, init_com_pos, init_torso_quat, target_torso_quat, duration);
 
-  // std::cout << "body_target_vector = \n" << body_target_vector << std::endl; 
-  // // std::cout << "\n\n init_torso_quat = \n" << init_torso_quat.coeffs() << std::endl; 
-  // std::cout << "\n\n target_torso_quat = \n" << target_torso_quat.coeffs() << std::endl; 
 }
 
 void Approach::OneStep() 
@@ -125,10 +118,9 @@ void Approach::OneStep()
   prev_time_ = curr_time; 
 
   // com & torso ori task update
-  // ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
+  ctrl_arch_->floating_base_tm_->UpdateDesired(state_machine_time_);
 
   state_machine_time_ = sp_->current_time_ - state_machine_start_time_;
-  // state_machine_time_ = std::min(state_machine_time_, 10.0); 
 
 }
 

@@ -242,6 +242,9 @@ void CrabController::GetCommand(void *command) {
       Eigen::VectorXd current_joint_vel = robot_->GetJointVel(); 
       static_cast<IHWBC *>(ihwbc_)->SetJointVelocities(current_joint_vel);  
 
+      std::cout << "current_joint_pos = \n" << current_joint_pos << std::endl;
+      std::cout << "current_joint_vel = \n" << current_joint_vel << std::endl;
+
       static_cast<IHWBC *>(ihwbc_)->Solve(
           tci_container_->task_map_, tci_container_->contact_map_,
           tci_container_->internal_constraint_map_,

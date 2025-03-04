@@ -125,5 +125,7 @@ protected:
 
   // Add joint limit penalties to the cost matrix
   void AddJointLimitPenalties(Eigen::MatrixXd& cost_t_mat, Eigen::VectorXd& cost_t_vec);  
-  
+
+  // Add this method declaration in the protected section
+  void AddJointLimitConstraints(Eigen::MatrixXd& ineq_mat, Eigen::VectorXd& ineq_vec);
 };

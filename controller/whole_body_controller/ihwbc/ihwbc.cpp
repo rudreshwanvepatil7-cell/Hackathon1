@@ -12,6 +12,102 @@ const double JOINT_LIMIT_PENALTY_SCALE = 1.0;
 // Compute Joint Limit Penalty Functions 
 //=============================================================
 
+void IHWBC::AddJointLimitConstraints(Eigen::MatrixXd& ineq_mat, Eigen::VectorXd& ineq_vec) {
+  std::cout << "Adding joint limit constraints..." << std::endl;
+
+  std::cout << "current_joint_positions_ = \n" << current_joint_positions_ << std::endl;
+  std::cout << "current_joint_velocities_ = \n" << current_joint_velocities_ << std::endl;
+  std::cout << "joint_pos_limits_lower_ = \n" << joint_pos_limits_lower_ << std::endl;
+  std::cout << "joint_pos_limits_upper_ = \n" << joint_pos_limits_upper_ << std::endl;
+  
+  // Get parameters
+  double dt = 0.001; // Time step (could be from config or parameter)
+  double safety_margin = 0.1; // Start with a larger margin
+  
+  // Get number of joints to constrain (actuated joints)
+  int num_joints = joint_pos_limits_upper_.size();
+  
+  // Create new matrices for joint limit constraints
+  Eigen::MatrixXd joint_limit_A = Eigen::MatrixXd::Zero(2*num_joints, num_qp_vars_);
+  Eigen::VectorXd joint_limit_b = Eigen::VectorXd::Zero(2*num_joints);
+  
+  // Fill matrices for constraints: A_jl * qddot <= b_jl
+  for (int i = 0; i < num_joints; i++) {
+    int joint_idx = i;
+    if (b_floating_base_) {
+      joint_idx = i + num_floating_; // Adjust index if floating base
+    }
+    
+    // Current state
+    double q_i = current_joint_positions_(i);
+    double qdot_i = current_joint_velocities_(i);
+    
+    // Joint limits with safety margin
+    double q_lower = joint_pos_limits_lower_(i) + safety_margin;
+    double q_upper = joint_pos_limits_upper_(i) - safety_margin;
+    
+    // Predicted position without acceleration: q + qdot*dt
+    double q_pred = q_i + qdot_i * dt;
+
+    // LOWER LIMIT: my formulation 
+    joint_limit_A(2*i, joint_idx) = 1.0;
+    joint_limit_b(2*i) = 2/(dt*dt) * (-q_lower + q_pred);
+
+    // UPPER LIMIT: my formulation 
+    joint_limit_A(2*i+1, joint_idx) = -1.0;
+    joint_limit_b(2*i+1) = -2/(dt*dt) * (q_upper - q_pred);
+  }
+  
+  // Debug values
+  for (int i = 0; i < num_joints; i++) {
+    std::cout << "Joint " << i << ": q=" << current_joint_positions_(i)
+              << ", qdot=" << current_joint_velocities_(i)
+              << ", limits=[" << joint_pos_limits_lower_(i) << ", " << joint_pos_limits_upper_(i) << "]"
+              << ", constraints=[" << joint_limit_b(2*i) << ", " << joint_limit_b(2*i+1) << "]" << std::endl;
+  }
+  
+  // Check if the constraints are feasible
+  for (int i = 0; i < num_joints; i++) {
+    if (joint_limit_b(2*i) > joint_limit_b(2*i+1)) {
+      std::cout << "WARNING: Infeasible joint limit constraints for joint " << i << std::endl;
+      // Make constraints feasible by relaxing them
+      joint_limit_b(2*i) = -1e6;  // Large negative number
+      joint_limit_b(2*i+1) = 1e6; // Large positive number
+    }
+  }
+  
+  // Combine with existing inequality constraints
+  int orig_rows = ineq_mat.rows();
+  int orig_cols = ineq_mat.cols();
+  
+  if (orig_rows > 0) {
+    // If there are existing constraints, combine them
+    Eigen::MatrixXd combined_mat(orig_rows + 2*num_joints, orig_cols);
+    Eigen::VectorXd combined_vec(orig_rows + 2*num_joints);
+    
+    combined_mat.topRows(orig_rows) = ineq_mat;
+    combined_vec.head(orig_rows) = ineq_vec;
+    
+    // Add joint limit constraints, but only fill the qddot columns (not contact force columns)
+    combined_mat.bottomRows(2*num_joints).setZero();
+    if (b_contact_) {
+      // Only set the left columns (qddot part) if we have contact constraints
+      combined_mat.bottomRows(2*num_joints).leftCols(num_qdot_) = joint_limit_A.leftCols(num_qdot_);
+    } else {
+      combined_mat.bottomRows(2*num_joints) = joint_limit_A;
+    }
+    combined_vec.tail(2*num_joints) = joint_limit_b;
+    
+    // Update the original matrices
+    ineq_mat = combined_mat;
+    ineq_vec = combined_vec;
+  } else {
+    // If there are no existing constraints, just use the joint limits
+    ineq_mat = joint_limit_A;
+    ineq_vec = joint_limit_b;
+  }
+}
+
 double computeJointLimitPenalty(double pos, double lower, double upper)  
 {
     // Safety check
@@ -181,10 +277,6 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   cost_t_mat.setZero(num_qdot_, num_qdot_);
   cost_t_vec.setZero(num_qdot_);
 
-  std::cout << "set up cost_t_mat and cost_t_vec" << std::endl;
-  std::cout << "    cost_t_mat norm: " << cost_t_mat.norm() << std::endl;
-  std::cout << "    cost_t_vec norm: " << cost_t_vec.norm() << std::endl;
-
   for (const auto &[task_str, task_ptr] : task_map) 
   {
     Eigen::MatrixXd jt = task_ptr->Jacobian();
@@ -206,19 +298,11 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   }
   cost_t_mat += lambda_qddot_ * M_; // regularization term 
 
-  std::cout << "add regularization term" << std::endl; 
-  std::cout << "    cost_t_mat norm: " << cost_t_mat.norm() << std::endl;
-  std::cout << "    cost_t_vec norm: " << cost_t_vec.norm() << std::endl;
-
   //----------------------------------
   // Add joint limit penalties to diagonal of cost matrix!!!!!!! 
   //----------------------------------
   // CheckJointLimits(current_joint_positions_); 
-  // AddJointLimitPenalties(cost_t_mat, cost_t_vec);  
-
-  std::cout << "add joint limit penalties" << std::endl; 
-  std::cout << "    cost_t_mat norm: " << cost_t_mat.norm() << std::endl;
-  std::cout << "    cost_t_vec norm: " << cost_t_vec.norm() << std::endl;
+  AddJointLimitPenalties(cost_t_mat, cost_t_vec);  
 
   // // check contact dimension
   if (b_first_visit_) 
@@ -593,7 +677,13 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     }
   }
 
-  // set up QP formulation & solve QP
+  // Add joint limit constraints
+  AddJointLimitConstraints(ineq_mat, ineq_vec);
+
+  //----------------------------------
+  // set up QP formulation & solve QP 
+  //----------------------------------
+
   // quadprog QP formulation template Eq.
   /*
        min
@@ -811,3 +901,4 @@ void IHWBC::SetParameters(const YAML::Node &node)
         std::exit(EXIT_FAILURE);
     }
 }
+
