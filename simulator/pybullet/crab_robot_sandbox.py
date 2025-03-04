@@ -301,15 +301,7 @@ if __name__ == "__main__":
         # save data 
         # ---------------------------------- 
 
-        # print_joint_state(robot, 10) 
-        # debug_joint_properties(robot, 10) 
-
-        joint_data = get_joint_data(robot, crab_joint_idx.front_right__cluster_1_roll) 
-        print(f"joint_data = {joint_data['joint_name']}")
-        print(f"joint_data = {joint_data['position']}")
-
         joints_data = get_joints_data(robot, rpc_trq_command) 
-
         joints_hist_raw.append({ 'sim_time': sim_time, 'joints': joints_data } ) 
         
         # save current torso velocity for next iteration

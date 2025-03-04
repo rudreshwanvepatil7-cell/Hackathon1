@@ -6,57 +6,29 @@
 
 // Add these constants
 const double WARNING_THRESHOLD = 0.2; 
-const double JOINT_LIMIT_PENALTY_SCALE = 100.0; 
+const double JOINT_LIMIT_PENALTY_SCALE = 1.0; 
 
 //=============================================================
 // Compute Joint Limit Penalty Functions 
 //=============================================================
 
-// // Add the function declaration
-// double computeExpLimitPenalty(double pos, double lower, double upper) 
-// {
-//     double range = upper - lower;
-//     double dist_to_lower = (pos - lower) / range;
-//     double dist_to_upper = (upper - pos) / range;
-    
-//     if (dist_to_lower < WARNING_THRESHOLD || dist_to_upper < WARNING_THRESHOLD) 
-//     {
-//         double penalty = 0.0;
-//         if (dist_to_lower < WARNING_THRESHOLD) 
-//         {
-//             penalty += JOINT_LIMIT_PENALTY_SCALE * 
-//                       std::exp((WARNING_THRESHOLD - dist_to_lower) / WARNING_THRESHOLD);
-//         }
-//         if (dist_to_upper < WARNING_THRESHOLD) 
-//         {
-//             penalty += JOINT_LIMIT_PENALTY_SCALE * 
-//                       std::exp((WARNING_THRESHOLD - dist_to_upper) / WARNING_THRESHOLD);
-//         }
-//         return penalty;
-//     }
-//     return 0.0;
-// }
-
-double computeExpLimitPenalty(double pos, double lower, double upper)  
+double computeJointLimitPenalty(double pos, double lower, double upper)  
 {
     // Safety check
     if (lower >= upper) return 0.0;
     
     // Normalized position in [0,1]
     double range = upper - lower;
-    double norm_pos = (pos - lower) / range;
-    
-    // Calculate distance to nearest limit (as percentage of range)
-    double dist_to_limit = std::min(norm_pos, 1.0 - norm_pos);
-    
-    // Continuous penalty that grows exponentially when approaching limits
-    // The penalty is zero in the middle and approaches infinity at the limits
-    // double base_penalty = 0.5 * (1.0 / (dist_to_limit + 1e-6) - 1.0);
-    double base_penalty = 0.5 - dist_to_limit; 
-    
+    double norm_pos = (pos - lower) / range; // range: [0, 1] 
+    norm_pos = 2 * norm_pos - 1;             // range: [-1, 1]  
+    norm_pos = std::abs(norm_pos);           // range: [1, 0, 1]  
+
+    double c = 0.1; 
+        
     // Apply exponential scaling - always active but grows rapidly near limits
-    // double penalty = exp(k_exp_ * base_penalty) - 1.0;
-    double penalty = exp(base_penalty); 
+    // double penalty = exp(c * norm_pos) - 1.0;
+    // double penalty = c * exp(norm_pos);
+    double penalty = c * norm_pos * norm_pos; 
 
     return penalty;
 }
@@ -73,22 +45,69 @@ double computeLogBarrierPenalty(double pos, double lower, double upper, double m
 }
 
 
-void IHWBC::AddJointLimitPenalties(Eigen::MatrixXd& cost_t_mat) 
+void IHWBC::AddJointLimitPenalties(Eigen::MatrixXd& cost_t_mat, Eigen::VectorXd& cost_t_vec) 
 {
+  // Create dedicated weight for joint centering
+  const double CENTER_WEIGHT = 0.005;  // Increased for visibility
+  
   for (int i = 0; i < current_joint_positions_.size(); ++i) 
   {
-    // double penalty = computeLogBarrierPenalty(
-    double penalty = computeExpLimitPenalty(
-        current_joint_positions_[i],
-        joint_pos_limits_lower_[i],
-        joint_pos_limits_upper_[i] 
-    );
-    if (penalty > 0) 
-    {
-        // Add to diagonal of cost matrix to penalize motion in this joint
-        cost_t_mat(i, i) += penalty; 
-        std::cout << "Penalty added to joint " << i << ": " << penalty << std::endl;
+    double pos = current_joint_positions_[i];
+    double vel = current_joint_velocities_[i]; 
+    
+    double lower = joint_pos_limits_lower_[i];
+    double upper = joint_pos_limits_upper_[i];
+    double range = upper - lower;
+    double middle = (upper + lower) / 2.0;
+    
+    if (range < 1e-6) continue;
+    
+    // Position error from center
+    double pos_error = middle - pos;
+    
+    // Add a quadratic term to the cost_t_mat (direct penalization of acceleration)
+    // Higher weights on the diagonal means the solver prefers smaller accelerations
+    cost_t_mat(i, i) += CENTER_WEIGHT;
+    
+    // The linear term creates a bias toward positive/negative acceleration based on position error
+    // This directly affects the g0 term in the QP objective
+    double accel_bias = CENTER_WEIGHT * pos_error;
+    
+    // Add damping based on current velocity to prevent oscillation
+    // If moving away from center, create stronger opposing force
+    double vel_direction = (vel * pos_error < 0) ? 1.0 : 0.5;  // 1.0 if moving away from center
+    double damping_term = CENTER_WEIGHT * vel * vel_direction;
+    
+    // Combine position and velocity terms
+    cost_t_vec[i] -= (accel_bias - damping_term);
+    
+    // Debug info
+    static int count = 0;
+    if (++count % 1000 == 0) {
+      std::cout << "Joint " << i 
+                << ": pos=" << pos 
+                << ", center=" << middle
+                << ", error=" << pos_error
+                << ", accel_bias=" << accel_bias 
+                << ", damping=" << damping_term << std::endl;
     }
+  }
+  
+  // Track progress occasionally
+  static int total_count = 0;
+  if (++total_count % 200 == 0) {
+    double total_center_error = 0.0;
+    for (int i = 0; i < current_joint_positions_.size(); ++i) {
+      double pos = current_joint_positions_[i];
+      double lower = joint_pos_limits_lower_[i];
+      double upper = joint_pos_limits_upper_[i];
+      double middle = (upper + lower) / 2.0;
+      double range = upper - lower;
+      if (range < 1e-6) continue;
+      
+      total_center_error += std::abs(pos - middle) / range;
+    }
+    std::cout << "Total joint centering error: " << total_center_error << std::endl;
   }
 }
 
@@ -161,6 +180,11 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   // task cost
   cost_t_mat.setZero(num_qdot_, num_qdot_);
   cost_t_vec.setZero(num_qdot_);
+
+  std::cout << "set up cost_t_mat and cost_t_vec" << std::endl;
+  std::cout << "    cost_t_mat norm: " << cost_t_mat.norm() << std::endl;
+  std::cout << "    cost_t_vec norm: " << cost_t_vec.norm() << std::endl;
+
   for (const auto &[task_str, task_ptr] : task_map) 
   {
     Eigen::MatrixXd jt = task_ptr->Jacobian();
@@ -180,13 +204,21 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
     cost_t_mat += jt.transpose() * weight_mat * jt;
     cost_t_vec += (jtdot_qdot - des_xddot).transpose() * weight_mat * jt;
   }
-  cost_t_mat += lambda_qddot_ * M_; // regularization term
+  cost_t_mat += lambda_qddot_ * M_; // regularization term 
+
+  std::cout << "add regularization term" << std::endl; 
+  std::cout << "    cost_t_mat norm: " << cost_t_mat.norm() << std::endl;
+  std::cout << "    cost_t_vec norm: " << cost_t_vec.norm() << std::endl;
 
   //----------------------------------
   // Add joint limit penalties to diagonal of cost matrix!!!!!!! 
   //----------------------------------
-  CheckJointLimits(current_joint_positions_); 
-  AddJointLimitPenalties(cost_t_mat);  
+  // CheckJointLimits(current_joint_positions_); 
+  // AddJointLimitPenalties(cost_t_mat, cost_t_vec);  
+
+  std::cout << "add joint limit penalties" << std::endl; 
+  std::cout << "    cost_t_mat norm: " << cost_t_mat.norm() << std::endl;
+  std::cout << "    cost_t_vec norm: " << cost_t_vec.norm() << std::endl;
 
   // // check contact dimension
   if (b_first_visit_) 

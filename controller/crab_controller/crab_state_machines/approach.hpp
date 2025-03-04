@@ -59,4 +59,7 @@ class Approach : public StateMachine {
   Eigen::Isometry3d nominal_rfoot_iso_;
   Eigen::Isometry3d nominal_lhand_iso_;
   Eigen::Isometry3d nominal_rhand_iso_;
+
+  Eigen::Quaterniond target_torso_quat; 
+  Eigen::Vector3d body_target_vector; 
 };

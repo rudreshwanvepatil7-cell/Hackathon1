@@ -96,6 +96,10 @@ CrabController::CrabController(CrabTCIContainer *tci_container,
       Eigen::VectorXd joint_pos = robot_->GetJointPos(); 
       static_cast<IHWBC *>(ihwbc_)->SetJointPositions(joint_pos);  
 
+      // set joint velocities 
+      Eigen::VectorXd joint_vel = robot_->GetJointVel(); 
+      static_cast<IHWBC *>(ihwbc_)->SetJointVelocities(joint_vel);  
+
       // Print initial joint positions for debugging
       std::cout << "Setting initial joint positions in IHWBC:" << std::endl;
       std::cout << "Joint positions: " << joint_pos.transpose() << std::endl;
@@ -232,7 +236,11 @@ void CrabController::GetCommand(void *command) {
 
       // Add this line to update joint positions before solving
       Eigen::VectorXd current_joint_pos = robot_->GetJointPos();
-      static_cast<IHWBC *>(ihwbc_)->SetJointPositions(current_joint_pos);
+      static_cast<IHWBC *>(ihwbc_)->SetJointPositions(current_joint_pos); 
+
+      // set joint velocities for IHWBC 
+      Eigen::VectorXd current_joint_vel = robot_->GetJointVel(); 
+      static_cast<IHWBC *>(ihwbc_)->SetJointVelocities(current_joint_vel);  
 
       static_cast<IHWBC *>(ihwbc_)->Solve(
           tci_container_->task_map_, tci_container_->contact_map_,
