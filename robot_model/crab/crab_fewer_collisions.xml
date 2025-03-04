@@ -1,0 +1,454 @@
+<mujoco model="crab_robot">
+  <compiler angle="radian" />
+
+  <option iterations="1" ls_iterations="5" timestep="0.004" integrator="Euler" gravity="0 0 0">
+    <flag eulerdamp="enable" />
+  </option>
+
+  <default>
+    <default class="crab">
+      <!-- globally disable all collisions -->
+      <geom condim="1" contype="0" conaffinity="0" type="capsule" />
+      <joint pos="0 0 0" axis="0 0 1" />
+      <default class="roll">
+        <joint range="-3.14 3.14" />
+        <position kp="50" dampratio="1" ctrlrange="-3.14 3.14" />
+      </default>
+      <default class="pitch">
+        <joint range="-3.14 0" />
+        <position kp="400" dampratio="1" ctrlrange="-3.14 0" />
+      </default>
+      <default class="wrist">
+        <joint range="-3.14 3.14" />
+        <position kp="5" dampratio="1" ctrlrange="-3.14 3.14" />
+      </default>
+      <default class="visual">
+        <geom type="mesh" contype="0" conaffinity="0" group="2" rgba="0.898039 0.917647 0.929412 1" />
+        <default class="cluster_0">
+          <geom type="capsule" size="0.127 0.25" rgba="0.898039 0.917647 0.929412 1" />
+        </default>
+        <default class="cluster_1_end">
+          <geom pos="-0.134924 0.224015 0"
+            quat="0.706998 -0.706998 -0.0123774 0.0123774" mesh="cluster_1_end_link" />
+        </default>
+        <default class="cluster_2_end">
+          <geom pos="-0.1016 0.2032 0" quat="0.707105 -0.707108 0 0" type="mesh"
+            rgba="0.89804 0.91765 0.92941 1" mesh="cluster_2_end_link" />
+        </default>
+      </default>
+      <!-- enable collisions between specific bodies -->
+      <default class="base">
+        <!-- contype = 00001 -->
+        <geom contype="1" />
+      </default>
+      <default class="cluster_1">
+        <geom type="capsule" size="0.1016 0.25" pos="-0.143675 0.473861 0"
+          quat="0.706998 -0.706998 -0.0123774 0.0123774"
+          rgba="0.898039 0.917647 0.929412 1" />
+        <default class="FR_cluster_1">
+          <!-- contype = 00010 -->
+          <geom contype="2" />
+        </default>
+        <default class="RR_cluster_1">
+          <!-- contype = 00100 -->
+          <geom contype="4" />
+        </default>
+        <default class="FL_cluster_1">
+          <!-- contype = 01000 -->
+          <geom contype="8" />
+        </default>
+        <default class="RL_cluster_1">
+          <!-- contype = 10000 -->
+          <geom contype="16" />
+        </default>
+      </default>
+      <default class="cluster_2">
+        <geom type="capsule" size="0.092075 0.25" pos="-0.1016 0.4532 -9.18301e-07"
+          quat="0.707105 -0.707108 0 0" rgba="0.898039 0.917647 0.929412 1" />
+        <default class="FR_cluster_2">
+          <!-- conaffinity = 00100 -->
+          <geom conaffinity="4" />
+        </default>
+        <default class="RR_cluster_2">
+          <!-- conaffinity = 00010 -->
+          <geom conaffinity="2" />
+        </default>
+        <default class="FL_cluster_2">
+          <!-- conaffinity = 10000 -->
+          <geom conaffinity="16" />
+        </default>
+        <default class="RL_cluster_2">
+          <!-- conaffinity = 01000 -->
+          <geom conaffinity="8" />
+        </default>
+      </default>
+      <default class="cluster_3">
+        <geom type="capsule" size="0.092075 0.25" pos="-0.0889 0.4532 -9.18301e-07"
+          quat="0.707105 -0.707108 0 0" rgba="0.89804 0.91765 0.92941 1" />
+        <default class="FR_cluster_3">
+          <!-- conaffinity = 00101 -->
+          <geom conaffinity="5" />
+        </default>
+        <default class="RR_cluster_3">
+          <!-- conaffinity = 00011 -->
+          <geom conaffinity="3" />
+        </default>
+        <default class="FL_cluster_3">
+          <!-- conaffinity = 10001 -->
+          <geom conaffinity="17" />
+        </default>
+        <default class="RL_cluster_3">
+          <!-- conaffinity = 01001 -->
+          <geom conaffinity="9" />
+        </default>
+        <default class="hand">
+          <geom type="box" size="0.25 0.25 0.05" pos="0 0 0.15" quat="1 0 0 0" rgba="1 1 1 1" />
+          <site pos="0 0 0.2" />
+        </default>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <mesh name="base_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/base_link/base_link.stl" />
+    <mesh name="base_link_simple"
+      file="/home/emily/rpc/robot_model/crab/meshes/base_link/base_link_simple.stl" />
+    <mesh name="cluster_1_proximal_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/776_meshes/proximal_link.STL" />
+    <mesh name="cluster_1_distal_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/776_meshes/distal_link.STL" />
+    <mesh name="cluster_1_end_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/776_meshes/end_link.STL" />
+    <mesh name="cluster_2_proximal_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/665_meshes/proximal_link.STL" />
+    <mesh name="cluster_2_distal_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/665_meshes/distal_link.STL" />
+    <mesh name="cluster_2_end_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/665_meshes/end_link.STL" />
+    <mesh name="cluster_3_proximal_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/5555_meshes/proximal_link.STL" />
+    <mesh name="cluster_3_distal_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/5555_meshes/distal_link.STL" />
+    <mesh name="wrist_link"
+      file="/home/emily/rpc/robot_model/crab/meshes/5555_meshes/wrist_link.STL" />
+  </asset>
+
+  <worldbody>
+    <light name="spotlight" mode="targetbodycom" target="base" pos="3 0 4" />
+    <body name="base" childclass="crab">
+      <camera name="track" pos="9.685 7.841 5.994" xyaxes="-0.629 0.777 -0.000 -0.337 -0.273 0.901"
+        mode="trackcom" />
+      <camera name="top" pos="-1 0 1" xyaxes="0 -1 0 0.7 0 0.7" mode="trackcom" />
+      <camera name="side" pos="0 -1 .3" xyaxes="1 0 0 0 1 2" mode="trackcom" />
+      <camera name="back" pos="-1 0 .3" xyaxes="0 -1 0 1 0 2" mode="trackcom" />
+      <inertial pos="1.59866e-08 0.012585 1.27306e-11" quat="0.500006 0.499965 -0.500035 0.499994"
+        mass="119" diaginertia="149.258 96.1632 57.7298" />
+      <geom class="visual" type="mesh" rgba="0.5 0.5 0.7 1" mesh="base_link" />
+      <geom class="cluster_0" pos="1.25 1 0.000199082" quat="0.707388 0 0.706825 0" />
+      <geom class="cluster_0" pos="-1.25 0.999602 -0.000199081"
+        quat="0.000563312 0.707388 0.000562864 -0.706825" />
+      <geom class="cluster_0" pos="1.25 -1 0.000199082" quat="0.707388 0 0.706825 0" />
+      <geom class="cluster_0" pos="-1.25 -1.0004 -0.000199081"
+        quat="0.000563312 0.707388 0.000562864 -0.706825" />
+      <geom class="base" type="mesh" mesh="base_link_simple" group="3" />
+      <freejoint />
+      <site name="imu" pos="0 0 0" />
+      <body name="FR_cluster_1_proximal" pos="1.5 1 0.000398163" quat="0.707388 0 0.706825 0">
+        <inertial pos="0.046798 0.012731 0.19914" quat="0.671746 0.213265 0.316607 0.634851"
+          mass="16.527" diaginertia="0.185581 0.152797 0.102802" />
+        <joint name="FR_cluster_1_roll" class="roll" />
+        <geom class="visual" mesh="cluster_1_proximal_link" />
+        <!-- <geom class="FR_cluster_1" /> -->
+        <body name="FR_cluster_1_distal" pos="0.127 0 0.34925"
+          quat="0.706998 0.706998 0.0123774 -0.0123774">
+          <inertial pos="-0.0992135 0.206673 0.0272132" quat="0.453823 0.503379 -0.445561 0.584919"
+            mass="8.67091" diaginertia="0.494318 0.46179 0.061677" />
+          <joint name="FR_cluster_1_pitch" class="pitch" />
+          <geom class="visual" mesh="cluster_1_distal_link" />
+          <geom class="cluster_1_end" />
+          <geom class="FR_cluster_1" />
+          <body name="FR_cluster_2_proximal" pos="-0.152425 0.723708 0"
+            quat="0.706998 -0.706998 -0.0123774 0.0123774">
+            <inertial pos="0.034064 0.015225 0.20259" quat="0.686346 0.127566 0.222924 0.680413"
+              mass="10.138" diaginertia="0.0981416 0.0789755 0.0478309" />
+            <joint name="FR_cluster_2_roll" class="roll" />
+            <geom class="visual" mesh="cluster_2_proximal_link" />
+            <body name="FR_cluster_2_distal" pos="0.1016 0 0.34925" quat="0.707105 0.707108 0 0">
+              <inertial pos="-0.0771514 0.219461 0.0233658"
+                quat="0.462552 0.47813 -0.473885 0.576949" mass="7.58403"
+                diaginertia="0.392075 0.375777 0.0396222" />
+              <joint name="FR_cluster_2_pitch" class="pitch" />
+              <geom class="visual" mesh="cluster_2_distal_link" />
+              <geom class="cluster_2_end" />
+              <geom class="FR_cluster_2" />
+              <body name="FR_cluster_3_proximal" pos="-0.1016 0.7032 -1.8366e-06"
+                quat="0.707105 -0.707108 0 0">
+                <inertial pos="0.026668 0.014315 0.20188"
+                  quat="0.696543 0.0795451 0.170776 0.692341" mass="9.0522"
+                  diaginertia="0.0754392 0.0616876 0.0333272" />
+                <joint name="FR_cluster_3_roll" class="roll" />
+                <geom class="visual" mesh="cluster_3_proximal_link" />
+                <body name="FR_cluster_3_distal" pos="0.0889 0 0.34925"
+                  quat="0.707105 0.707108 0 0">
+                  <inertial pos="-0.0727041 0.237528 0.0166008"
+                    quat="0.473139 0.481424 -0.484023 0.556859" mass="6.9917"
+                    diaginertia="0.341329 0.32973 0.032835" />
+                  <joint name="FR_cluster_3_pitch" class="pitch" />
+                  <geom class="visual" mesh="cluster_3_distal_link" />
+                  <geom class="FR_cluster_3" />
+                  <body name="FR_wrist" pos="-0.0889 0.7032 -1.8366e-06"
+                    quat="0.707105 -0.707108 0 0">
+                    <inertial pos="9.9701e-06 -0.00027566 0.041402"
+                      quat="0.0555933 0.704944 -0.0553839 0.704908" mass="2.5013"
+                      diaginertia="0.010225 0.00552746 0.00547194" />
+                    <joint name="FR_wrist" class="wrist" />
+                    <geom class="visual" mesh="wrist_link" />
+                    <geom class="hand" />
+                    <site name="FR" class="hand" />
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="FL_cluster_1_proximal" pos="-1.5 0.999204 -0.000398163"
+        quat="0.000563312 0.707388 0.000562864 -0.706825">
+        <inertial pos="0.046798 0.012731 0.19914" quat="0.671746 0.213265 0.316607 0.634851"
+          mass="16.527" diaginertia="0.185581 0.152797 0.102802" />
+        <joint name="FL_cluster_1_roll" class="roll" />
+        <geom class="visual" mesh="cluster_1_proximal_link" />
+        <body name="FL_cluster_1_distal" pos="0.127 0 0.34925"
+          quat="0.706998 0.706998 0.0123774 -0.0123774">
+          <inertial pos="-0.0992135 0.206673 0.0272132" quat="0.453823 0.503379 -0.445561 0.584919"
+            mass="8.67091" diaginertia="0.494318 0.46179 0.061677" />
+          <joint name="FL_cluster_1_pitch" class="pitch" />
+          <geom class="visual" mesh="cluster_1_distal_link" />
+          <geom class="cluster_1_end" />
+          <geom class="FL_cluster_1" />
+          <body name="FL_cluster_2_proximal" pos="-0.152425 0.723708 0"
+            quat="0.706998 -0.706998 -0.0123774 0.0123774">
+            <inertial pos="0.034064 0.015225 0.20259" quat="0.686346 0.127566 0.222924 0.680413"
+              mass="10.138" diaginertia="0.0981416 0.0789755 0.0478309" />
+            <joint name="FL_cluster_2_roll" class="roll" />
+            <geom class="visual" mesh="cluster_2_proximal_link" />
+            <body name="FL_cluster_2_distal" pos="0.1016 0 0.34925"
+              quat="0.707105 0.707108 0 0">
+              <inertial pos="-0.0771514 0.219461 0.0233658"
+                quat="0.462552 0.47813 -0.473885 0.576949" mass="7.58403"
+                diaginertia="0.392075 0.375777 0.0396222" />
+              <joint name="FL_cluster_2_pitch" class="pitch" />
+              <geom class="visual" mesh="cluster_2_distal_link" />
+              <geom class="cluster_2_end" />
+              <geom class="FL_cluster_2" />
+              <body name="FL_cluster_3_proximal" pos="-0.1016 0.7032 -1.8366e-06"
+                quat="0.707105 -0.707108 0 0">
+                <inertial pos="0.026668 0.014315 0.20188"
+                  quat="0.696543 0.0795451 0.170776 0.692341" mass="9.0522"
+                  diaginertia="0.0754392 0.0616876 0.0333272" />
+                <joint name="FL_cluster_3_roll" class="roll" />
+                <geom class="visual" mesh="cluster_3_proximal_link" />
+                <body name="FL_cluster_3_distal" pos="0.0889 0 0.34925"
+                  quat="0.707105 0.707108 0 0">
+                  <inertial pos="-0.0727041 0.237528 0.0166008"
+                    quat="0.473139 0.481424 -0.484023 0.556859" mass="6.9917"
+                    diaginertia="0.341329 0.32973 0.032835" />
+                  <joint name="FL_cluster_3_pitch" class="pitch" />
+                  <geom class="visual" mesh="cluster_3_distal_link" />
+                  <geom class="FL_cluster_3" />
+                  <body name="FL_wrist" pos="-0.0889 0.7032 -1.8366e-06"
+                    quat="0.707105 -0.707108 0 0">
+                    <inertial pos="9.9701e-06 -0.00027566 0.041402"
+                      quat="0.0555933 0.704944 -0.0553839 0.704908" mass="2.5013"
+                      diaginertia="0.010225 0.00552746 0.00547194" />
+                    <joint name="FL_wrist" class="wrist" />
+                    <geom class="visual" mesh="wrist_link" />
+                    <geom class="hand" />
+                    <site name="FL" class="hand" />
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="RR_cluster_1_proximal" pos="1.5 -1 0.000398163"
+        quat="0.707388 0 0.706825 0">
+        <inertial pos="0.046798 0.012731 0.19914" quat="0.671746 0.213265 0.316607 0.634851"
+          mass="16.527" diaginertia="0.185581 0.152797 0.102802" />
+        <joint name="RR_cluster_1_roll" class="roll" />
+        <geom class="visual" mesh="cluster_1_proximal_link" />
+        <body name="RR_cluster_1_distal" pos="0.127 0 0.34925"
+          quat="0.706998 0.706998 0.0123774 -0.0123774">
+          <inertial pos="-0.0992135 0.206673 0.0272132" quat="0.453823 0.503379 -0.445561 0.584919"
+            mass="8.67091" diaginertia="0.494318 0.46179 0.061677" />
+          <joint name="RR_cluster_1_pitch" class="pitch" />
+          <geom class="visual" mesh="cluster_1_distal_link" />
+          <geom class="cluster_1_end" />
+          <geom class="RR_cluster_1" />
+          <body name="RR_cluster_2_proximal" pos="-0.152425 0.723708 0"
+            quat="0.706998 -0.706998 -0.0123774 0.0123774">
+            <inertial pos="0.034064 0.015225 0.20259" quat="0.686346 0.127566 0.222924 0.680413"
+              mass="10.138" diaginertia="0.0981416 0.0789755 0.0478309" />
+            <joint name="RR_cluster_2_roll" class="roll" />
+            <geom class="visual" mesh="cluster_2_proximal_link" />
+            <body name="RR_cluster_2_distal" pos="0.1016 0 0.34925"
+              quat="0.707105 0.707108 0 0">
+              <inertial pos="-0.0771514 0.219461 0.0233658"
+                quat="0.462552 0.47813 -0.473885 0.576949" mass="7.58403"
+                diaginertia="0.392075 0.375777 0.0396222" />
+              <joint name="RR_cluster_2_pitch" class="pitch" />
+              <geom class="visual" mesh="cluster_2_distal_link" />
+              <geom class="cluster_2_end" />
+              <geom class="RR_cluster_2" />
+              <body name="RR_cluster_3_proximal" pos="-0.1016 0.7032 -1.8366e-06"
+                quat="0.707105 -0.707108 0 0">
+                <inertial pos="0.026668 0.014315 0.20188"
+                  quat="0.696543 0.0795451 0.170776 0.692341" mass="9.0522"
+                  diaginertia="0.0754392 0.0616876 0.0333272" />
+                <joint name="RR_cluster_3_roll" class="roll" />
+                <geom class="visual" mesh="cluster_3_proximal_link" />
+                <body name="RR_cluster_3_distal" pos="0.0889 0 0.34925"
+                  quat="0.707105 0.707108 0 0">
+                  <inertial pos="-0.0727041 0.237528 0.0166008"
+                    quat="0.473139 0.481424 -0.484023 0.556859" mass="6.9917"
+                    diaginertia="0.341329 0.32973 0.032835" />
+                  <joint name="RR_cluster_3_pitch" class="pitch" />
+                  <geom class="visual" mesh="cluster_3_distal_link" />
+                  <geom class="RR_cluster_3" />
+                  <body name="RR_wrist" pos="-0.0889 0.7032 -1.8366e-06"
+                    quat="0.707105 -0.707108 0 0">
+                    <inertial pos="9.9701e-06 -0.00027566 0.041402"
+                      quat="0.0555933 0.704944 -0.0553839 0.704908" mass="2.5013"
+                      diaginertia="0.010225 0.00552746 0.00547194" />
+                    <joint name="RR_wrist" class="wrist" />
+                    <geom class="visual" mesh="wrist_link" />
+                    <geom class="hand" />
+                    <site name="RR" class="hand" />
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="RL_cluster_1_proximal" pos="-1.5 -1.0008 -0.000398163"
+        quat="0.000563312 0.707388 0.000562864 -0.706825">
+        <inertial pos="0.046798 0.012731 0.19914" quat="0.671746 0.213265 0.316607 0.634851"
+          mass="16.527" diaginertia="0.185581 0.152797 0.102802" />
+        <joint name="RL_cluster_1_roll" class="roll" />
+        <geom class="visual" mesh="cluster_1_proximal_link" />
+        <body name="RL_cluster_1_distal" pos="0.127 0 0.34925"
+          quat="0.706998 0.706998 0.0123774 -0.0123774">
+          <inertial pos="-0.0992135 0.206673 0.0272132" quat="0.453823 0.503379 -0.445561 0.584919"
+            mass="8.67091" diaginertia="0.494318 0.46179 0.061677" />
+          <joint name="RL_cluster_1_pitch" class="pitch" />
+          <geom class="visual" mesh="cluster_1_distal_link" />
+          <geom class="cluster_1_end" />
+          <geom class="RL_cluster_1" />
+          <body name="RL_cluster_2_proximal" pos="-0.152425 0.723708 0"
+            quat="0.706998 -0.706998 -0.0123774 0.0123774">
+            <inertial pos="0.034064 0.015225 0.20259" quat="0.686346 0.127566 0.222924 0.680413"
+              mass="10.138" diaginertia="0.0981416 0.0789755 0.0478309" />
+            <joint name="RL_cluster_2_roll" class="roll" />
+            <geom class="visual" mesh="cluster_2_proximal_link" />
+            <body name="RL_cluster_2_distal" pos="0.1016 0 0.34925"
+              quat="0.707105 0.707108 0 0">
+              <inertial pos="-0.0771514 0.219461 0.0233658"
+                quat="0.462552 0.47813 -0.473885 0.576949" mass="7.58403"
+                diaginertia="0.392075 0.375777 0.0396222" />
+              <joint name="RL_cluster_2_pitch" class="pitch" />
+              <geom class="visual" mesh="cluster_2_distal_link" />
+              <geom class="cluster_2_end" />
+              <geom class="RL_cluster_2" />
+              <body name="RL_cluster_3_proximal" pos="-0.1016 0.7032 -1.8366e-06"
+                quat="0.707105 -0.707108 0 0">
+                <inertial pos="0.026668 0.014315 0.20188"
+                  quat="0.696543 0.0795451 0.170776 0.692341" mass="9.0522"
+                  diaginertia="0.0754392 0.0616876 0.0333272" />
+                <joint name="RL_cluster_3_roll" class="roll" />
+                <geom class="visual" mesh="cluster_3_proximal_link" />
+                <body name="RL_cluster_3_distal" pos="0.0889 0 0.34925"
+                  quat="0.707105 0.707108 0 0">
+                  <inertial pos="-0.0727041 0.237528 0.0166008"
+                    quat="0.473139 0.481424 -0.484023 0.556859" mass="6.9917"
+                    diaginertia="0.341329 0.32973 0.032835" />
+                  <joint name="RL_cluster_3_pitch" class="pitch" />
+                  <geom class="visual" mesh="cluster_3_distal_link" />
+                  <geom class="RL_cluster_3" />
+                  <body name="RL_wrist" pos="-0.0889 0.7032 -1.8366e-06"
+                    quat="0.707105 -0.707108 0 0">
+                    <inertial pos="9.9701e-06 -0.00027566 0.041402"
+                      quat="0.0555933 0.704944 -0.0553839 0.704908" mass="2.5013"
+                      diaginertia="0.010225 0.00552746 0.00547194" />
+                    <joint name="RL_wrist" />
+                    <geom class="visual" mesh="wrist_link" />
+                    <geom class="hand" />
+                    <site name="RL" />
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position name="FR_cluster_1_roll" joint="FR_cluster_1_roll" class="roll" />
+    <position name="FR_cluster_1_pitch" joint="FR_cluster_1_pitch" class="pitch" />
+    <position name="FR_cluster_2_roll" joint="FR_cluster_2_roll" class="roll" />
+    <position name="FR_cluster_2_pitch" joint="FR_cluster_2_pitch" class="pitch" />
+    <position name="FR_cluster_3_roll" joint="FR_cluster_3_roll" class="roll" />
+    <position name="FR_cluster_3_pitch" joint="FR_cluster_3_pitch" class="pitch" />
+    <position name="FR_wrist" joint="FR_wrist" class="wrist" />
+    <position name="FL_cluster_1_roll" joint="FL_cluster_1_roll" class="roll" />
+    <position name="FL_cluster_1_pitch" joint="FL_cluster_1_pitch" class="pitch" />
+    <position name="FL_cluster_2_roll" joint="FL_cluster_2_roll" class="roll" />
+    <position name="FL_cluster_2_pitch" joint="FL_cluster_2_pitch" class="pitch" />
+    <position name="FL_cluster_3_roll" joint="FL_cluster_3_roll" class="roll" />
+    <position name="FL_cluster_3_pitch" joint="FL_cluster_3_pitch" class="pitch" />
+    <position name="FL_wrist" joint="FL_wrist" class="wrist" />
+    <position name="RR_cluster_1_roll" joint="RR_cluster_1_roll" class="roll" />
+    <position name="RR_cluster_1_pitch" joint="RR_cluster_1_pitch" class="pitch" />
+    <position name="RR_cluster_2_roll" joint="RR_cluster_2_roll" class="roll" />
+    <position name="RR_cluster_2_pitch" joint="RR_cluster_2_pitch" class="pitch" />
+    <position name="RR_cluster_3_roll" joint="RR_cluster_3_roll" class="roll" />
+    <position name="RR_cluster_3_pitch" joint="RR_cluster_3_pitch" class="pitch" />
+    <position name="RR_wrist" joint="RR_wrist" class="wrist" />
+    <position name="RL_cluster_1_roll" joint="RL_cluster_1_roll" class="roll" />
+    <position name="RL_cluster_1_pitch" joint="RL_cluster_1_pitch" class="pitch" />
+    <position name="RL_cluster_2_roll" joint="RL_cluster_2_roll" class="roll" />
+    <position name="RL_cluster_2_pitch" joint="RL_cluster_2_pitch" class="pitch" />
+    <position name="RL_cluster_3_roll" joint="RL_cluster_3_roll" class="roll" />
+    <position name="RL_cluster_3_pitch" joint="RL_cluster_3_pitch" class="pitch" />
+    <position name="RL_wrist" joint="RL_wrist" class="wrist" />
+  </actuator>
+
+  <sensor>
+    <gyro site="imu" name="gyro" />
+    <velocimeter site="imu" name="local_linvel" />
+    <accelerometer site="imu" name="accelerometer" />
+    <framepos objtype="site" objname="imu" name="position" />
+    <framelinvel objtype="site" objname="imu" name="global_linvel" />
+    <frameangvel objtype="site" objname="imu" name="global_angvel" />
+    <framequat objtype="site" objname="imu" name="orientation" />
+    <!-- <framelinvel objtype="site" objname="FR" name="front_right_global_linvel" />
+    <framelinvel objtype="site" objname="FL" name="front_left_global_linvel" />
+    <framelinvel objtype="site" objname="RR" name="back_right_global_linvel" />
+    <framelinvel objtype="site" objname="RL" name="back_left_global_linvel" /> -->
+    <!-- <framepos objtype="site" objname="FR" name="front_right_pos" reftype="site"
+      refname="imu" />
+    <framepos objtype="site" objname="FL" name="front_left_pos" reftype="site" refname="imu" />
+    <framepos objtype="site" objname="RR" name="back_right_pos" reftype="site" refname="imu" />
+    <framepos objtype="site" objname="RL" name="back_left_pos" reftype="site" refname="imu" /> -->
+  </sensor>
+
+  <keyframe>
+    <key name="home"
+      qpos="0 0 0 1 0 0 0 0 -0.52 0 -0.52 0 -0.52 0 0 -0.52 0 -0.52 0 -0.52 0 0 -0.52 0 -0.52 0 -0.52 0 0 -0.52 0 -0.52 0 -0.52 0"
+      ctrl="0 -0.52 0 -0.52 0 -0.52 0 0 -0.52 0 -0.52 0 -0.52 0 0 -0.52 0 -0.52 0 -0.52 0 0 -0.52 0 -0.52 0 -0.52 0" />
+  </keyframe>
+</mujoco>

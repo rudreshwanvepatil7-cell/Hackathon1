@@ -9,9 +9,9 @@ import rl.utils.train_utils as utils  # noqa: E402
 
 ENV_NAME = "Crab"
 MODEL_DIR = epath.Path(__file__).parents[1] / "models"
-LOG_DIR = epath.Path(__file__).parents[1] / "logs"
+LOG_DIR = epath.Path(__file__).parents[1] / "logs" / "reorient-test3"
 
 
 if __name__ == "__main__":
-    utils.setup()
-    utils.train("reorient-test4", ENV_NAME, MODEL_DIR, LOG_DIR)
+    # utils.setup()
+    utils.test(ENV_NAME, MODEL_DIR / "reorient-test3" / "000100270080", LOG_DIR)

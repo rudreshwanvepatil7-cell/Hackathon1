@@ -12,5 +12,5 @@ dependencies:
       - jax[cuda12]
       - mujoco
       - mujoco_mjx
-      - rsl-rl-lib
+      - mediapy
       - playground

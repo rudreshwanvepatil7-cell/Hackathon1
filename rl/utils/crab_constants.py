@@ -1,7 +1,7 @@
 from etils import epath
 
 ROOT_PATH = epath.Path(__file__).parents[2] / "robot_model" / "crab"
-XML_PATH = ROOT_PATH / "crab.xml"
+XML_PATH = ROOT_PATH / "crab_fewer_collisions.xml"
 
 
 FEET_SITES = [
@@ -14,7 +14,7 @@ FEET_SITES = [
 
 FEET_POS_SENSOR = [f"{site}_pos" for site in FEET_SITES]
 
-ROOT_BODY = "base_link"
+ROOT_BODY = "base"
 TORSO_BODY_ID = 1
 
 UPVECTOR_SENSOR = "upvector"

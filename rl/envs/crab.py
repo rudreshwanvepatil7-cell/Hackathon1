@@ -26,7 +26,7 @@ def default_config() -> config_dict.ConfigDict:
         Kp=35.0,
         Kd=0.5,
         action_repeat=1,
-        action_scale=0.5,
+        action_scale=1.0,
         history_len=1,
         soft_joint_pos_limit_factor=0.95,
         noise_config=config_dict.create(
@@ -44,19 +44,21 @@ def default_config() -> config_dict.ConfigDict:
                 # Tracking
                 tracking_angle=1.0,
                 # Base reward
-                lin_vel=-0.5,
+                lin_vel=-0.01,
+                accel=-0.01,
                 # Other
                 # stand_still=-1.0,
                 termination=-1.0,
                 # pose=0.5,
-                action_rate=-0.01,
-                energy=-0.001,
-                dof_pos_limits=-1.0,
+                action_rate=0.0,  # -0.01,
+                energy=0.0,  # -0.001,
+                dof_pos_limits=-0.33,
                 # Regularization.
-                torques=-0.0002,
+                torques=0.0,  # -0.00001,
             ),
             tracking_sigma=0.25,
         ),
+        termination_config=config_dict.create(max_rps=1.5, max_speed=20),
         pert_config=config_dict.create(
             enable=False,
             velocity_kick=[-0.5, 0.5],
@@ -100,8 +102,8 @@ class CrabEnv(mjx_env.MjxEnv):
         self._post_init()
 
     def _post_init(self) -> None:
-        self._init_q = jp.array(self._mj_model.qpos0)
-        # self._default_pose = jp.array(self._mj_model.keyframe("home").qpos[7:])
+        self._init_q = jp.array(self._mj_model.keyframe("home").qpos)
+        self._default_pose = jp.array(self._mj_model.keyframe("home").qpos[7:])
 
         # Note: First joint is freejoint.
         self._lowers, self._uppers = self.mj_model.jnt_range[1:].T
@@ -117,9 +119,6 @@ class CrabEnv(mjx_env.MjxEnv):
     ###################
     # Sensor readings #
     ###################
-
-    def get_upvector(self, data: mjx.Data) -> jax.Array:
-        return mjx_env.get_sensor_data(self.mj_model, data, consts.UPVECTOR_SENSOR)
 
     def get_global_linvel(self, data: mjx.Data) -> jax.Array:
         return mjx_env.get_sensor_data(self.mj_model, data, consts.GLOBAL_LINVEL_SENSOR)
@@ -163,16 +162,6 @@ class CrabEnv(mjx_env.MjxEnv):
     def reset(self, rng: jax.Array) -> mjx_env.State:
         qpos = self._init_q
         qvel = jp.zeros(self.mjx_model.nv)
-
-        # x=+U(-3.14, 3.14), y=+U(-3.14, 3.14), yaw=U(-3.14, 3.14).
-        rng, key = jax.random.split(rng)
-        dxy = jax.random.uniform(key, (2,), minval=-3.14, maxval=3.14)
-        qpos = qpos.at[0:2].set(qpos[0:2] + dxy)
-        rng, key = jax.random.split(rng)
-        yaw = jax.random.uniform(key, (1,), minval=-3.14, maxval=3.14)
-        quat = math.axis_angle_to_quat(jp.array([0, 0, 1]), yaw)
-        new_quat = math.quat_mul(qpos[3:7], quat)
-        qpos = qpos.at[3:7].set(new_quat)
 
         # d(xyzrpy)=U(-0.5, 0.5)
         rng, key = jax.random.split(rng)
@@ -271,8 +260,19 @@ class CrabEnv(mjx_env.MjxEnv):
         return state
 
     def _get_termination(self, data: mjx.Data) -> jax.Array:
-        fall_termination = self.get_upvector(data)[-1] < 0.0
-        return fall_termination
+        linvel = self.get_global_linvel(data)
+        angvel = self.get_global_angvel(data)
+        # terminate if going faster than dictated m/s or rot/s (3pi rad/s)
+        return jp.any(
+            jp.array(
+                [
+                    jp.linalg.norm(linvel) > self._config.termination_config.max_speed,
+                    jp.linalg.norm(angvel)
+                    > self._config.termination_config.max_rps * 2 * jp.pi,
+                ]
+            ),
+            axis=0,
+        )
 
     def _get_obs(self, data: mjx.Data, info: dict[str, Any]) -> Dict[str, jax.Array]:
         ori = self.get_ori(data)
@@ -281,7 +281,7 @@ class CrabEnv(mjx_env.MjxEnv):
             ori
             + (2 * jax.random.uniform(noise_rng, shape=ori.shape) - 1)
             * self._config.noise_config.level
-            * self._config.noise_config.scales.gyro
+            * self._config.noise_config.scales.ori
         )
 
         gyro = self.get_gyro(data)
@@ -370,6 +370,7 @@ class CrabEnv(mjx_env.MjxEnv):
                 info["command"], self.get_ori(data)
             ),
             "lin_vel": self._cost_lin_vel(self.get_global_linvel(data)),
+            "accel": self._cost_accel(self.get_accelerometer(data)),
             # "stand_still": self._cost_stand_still(info["command"], data.qpos[7:]),
             "termination": self._cost_termination(done),
             # "pose": self._reward_pose(data.qpos[7:]),
@@ -390,8 +391,8 @@ class CrabEnv(mjx_env.MjxEnv):
         commands: jax.Array,
         angle: jax.Array,
     ) -> jax.Array:
-        angle_error = jp.sum(jp.square(commands[:3] - angle))
-        return jp.exp(-angle_error / self._config.reward_config.tracking_sigma)
+        return jp.linalg.norm(commands[:3] - angle)
+        # return jp.exp(-angle_error / self._config.reward_config.tracking_sigma)
 
     ########################
     # Base-related rewards #
@@ -400,6 +401,9 @@ class CrabEnv(mjx_env.MjxEnv):
     def _cost_lin_vel(self, global_linvel) -> jax.Array:
         # Penalize base linear velocity
         return jp.sum(jp.square(global_linvel[:3]))
+
+    def _cost_accel(self, acceleration) -> jax.Array:
+        return jp.sum(jp.square(acceleration))
 
     ##########################
     # Energy-related rewards #
@@ -518,11 +522,11 @@ def domain_randomize(model: mjx.Model, rng: jax.Array):
     @jax.vmap
     def rand_dynamics(rng):
         # Scale static friction: *U(0.9, 1.1).
-        rng, key = jax.random.split(rng)
-        frictionloss = model.dof_frictionloss[6:] * jax.random.uniform(
-            key, shape=(model.nv - 6,), minval=0.9, maxval=1.1
-        )
-        dof_frictionloss = model.dof_frictionloss.at[6:].set(frictionloss)
+        # rng, key = jax.random.split(rng)
+        # frictionloss = model.dof_frictionloss[6:] * jax.random.uniform(
+        #     key, shape=(model.nv - 6,), minval=0.9, maxval=1.1
+        # )
+        # dof_frictionloss = model.dof_frictionloss.at[6:].set(frictionloss)
 
         # Scale armature: *U(1.0, 1.05).
         rng, key = jax.random.split(rng)
@@ -532,11 +536,11 @@ def domain_randomize(model: mjx.Model, rng: jax.Array):
         dof_armature = model.dof_armature.at[6:].set(armature)
 
         # Jitter center of mass positiion: +U(-0.05, 0.05).
-        rng, key = jax.random.split(rng)
-        dpos = jax.random.uniform(key, (3,), minval=-0.05, maxval=0.05)
-        body_ipos = model.body_ipos.at[consts.TORSO_BODY_ID].set(
-            model.body_ipos[consts.TORSO_BODY_ID] + dpos
-        )
+        # rng, key = jax.random.split(rng)
+        # dpos = jax.random.uniform(key, (3,), minval=-0.05, maxval=0.05)
+        # body_ipos = model.body_ipos.at[consts.TORSO_BODY_ID].set(
+        #     model.body_ipos[consts.TORSO_BODY_ID] + dpos
+        # )
 
         # Scale all link masses: *U(0.9, 1.1).
         rng, key = jax.random.split(rng)
@@ -559,38 +563,30 @@ def domain_randomize(model: mjx.Model, rng: jax.Array):
         )
 
         return (
-            body_ipos,
             body_mass,
             qpos0,
-            dof_frictionloss,
             dof_armature,
         )
 
     (
-        body_ipos,
         body_mass,
         qpos0,
-        dof_frictionloss,
         dof_armature,
     ) = rand_dynamics(rng)
 
     in_axes = jax.tree_util.tree_map(lambda x: None, model)
     in_axes = in_axes.tree_replace(
         {
-            "body_ipos": 0,
             "body_mass": 0,
             "qpos0": 0,
-            "dof_frictionloss": 0,
             "dof_armature": 0,
         }
     )
 
     model = model.tree_replace(
         {
-            "body_ipos": body_ipos,
             "body_mass": body_mass,
             "qpos0": qpos0,
-            "dof_frictionloss": dof_frictionloss,
             "dof_armature": dof_armature,
         }
     )
