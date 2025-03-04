@@ -63,7 +63,7 @@ def get_joint_data(robot, joint_id):
         'joint_name': joint_info[1].decode('utf-8'),
         'position': joint_state[0],
         'velocity': joint_state[1], 
-        'torque': joint_state[3],
+        # 'torque': joint_state[3],
         'lower_limit': joint_info[8],
         'upper_limit': joint_info[9]
     }
@@ -75,15 +75,17 @@ def get_joint_ids():
     joint_ids.sort()  # Sort them in ascending order
     return joint_ids 
 
-def get_joints_data(robot):
+def get_joints_data(robot, rpc_trq_command):
 
     joints_data = {}
     joint_ids = get_joint_ids()
 
     for joint_id in joint_ids:
-        joints_data[joint_id] = get_joint_data(robot, joint_id)
+        joint_data            = get_joint_data(robot, joint_id) 
+        joint_data['torque']  = get_rpc_trq_from_joint_id(rpc_trq_command, joint_id)
+        joints_data[joint_id] = joint_data 
 
-    return joints_data
+    return joints_data 
 
 def get_joint_limits(robot, joint_id):
     joint_limits = pb.getJointInfo(robot, joint_id)
@@ -123,42 +125,44 @@ def get_all_joints_hist(joints_hist_raw):
 # ---------------------------------- 
 
 def set_0_config_robot(robot):
+    """
+    Reset all joints to zero configuration using correct PyBullet joint IDs
+    """
+    # Front Left Leg
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_1_roll, np.radians(0), 0.0)    # jointId = 26
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_1_pitch, np.radians(0), 0.0)   # jointId = 27
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_2_roll, np.radians(0), 0.0)    # jointId = 30
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_2_pitch, np.radians(0), 0.0)   # jointId = 31
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_3_roll, np.radians(0), 0.0)    # jointId = 34
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_3_pitch, np.radians(0), 0.0)   # jointId = 35
+    pb.resetJointState(robot, crab_joint_idx.front_left__cluster_3_wrist, np.radians(0), 0.0)   # jointId = 37
     
-    # Front Left Limb (4 DOF)
-    pb.resetJointState(robot, 0, np.radians(0), 0.0)  # cluster 1 roll 
-    pb.resetJointState(robot, 1, np.radians(0), 0.0)  # cluster 1 pitch 
-    pb.resetJointState(robot, 2, np.radians(0), 0.0)  # cluster 2 roll 
-    pb.resetJointState(robot, 3, np.radians(0), 0.0)  # cluster 2 pitch 
-    pb.resetJointState(robot, 4, np.radians(0), 0.0)  # cluster 3 roll 
-    pb.resetJointState(robot, 5, np.radians(0), 0.0)  # cluster 3 pitch 
-    pb.resetJointState(robot, 6, np.radians(0), 0.0)  # cluster 3 wrist 
-    
-    # Front Right 
-    pb.resetJointState(robot, 7, np.radians(0), 0.0)  # cluster 1 roll 
-    pb.resetJointState(robot, 8, np.radians(0), 0.0)  # cluster 1 pitch 
-    pb.resetJointState(robot, 9, np.radians(0), 0.0)  # cluster 2 roll 
-    pb.resetJointState(robot, 10, np.radians(0), 0.0) # cluster 2 pitch 
-    pb.resetJointState(robot, 11, np.radians(0), 0.0) # cluster 3 roll 
-    pb.resetJointState(robot, 12, np.radians(0), 0.0) # cluster 3 pitch 
-    pb.resetJointState(robot, 13, np.radians(0), 0.0) # cluster 3 wrist 
+    # Front Right Leg
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_1_roll, np.radians(0), 0.0)   # jointId = 10
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_1_pitch, np.radians(0), 0.0)  # jointId = 11
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_2_roll, np.radians(0), 0.0)   # jointId = 14
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_2_pitch, np.radians(0), 0.0)  # jointId = 15
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_3_roll, np.radians(0), 0.0)   # jointId = 18
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_3_pitch, np.radians(0), 0.0)  # jointId = 19
+    pb.resetJointState(robot, crab_joint_idx.front_right__cluster_3_wrist, np.radians(0), 0.0)  # jointId = 21
 
-    # Back Left 
-    pb.resetJointState(robot, 14, np.radians(0), 0.0) # cluster 1 roll 
-    pb.resetJointState(robot, 15, np.radians(0), 0.0) # cluster 1 pitch 
-    pb.resetJointState(robot, 16, np.radians(0), 0.0) # cluster 2 roll 
-    pb.resetJointState(robot, 17, np.radians(0), 0.0) # cluster 2 pitch 
-    pb.resetJointState(robot, 18, np.radians(0), 0.0) # cluster 3 roll 
-    pb.resetJointState(robot, 19, np.radians(0), 0.0) # cluster 3 pitch 
-    pb.resetJointState(robot, 20, np.radians(0), 0.0) # cluster 3 wrist 
+    # Back Left Leg
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_1_roll, np.radians(0), 0.0)     # jointId = 58
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_1_pitch, np.radians(0), 0.0)    # jointId = 59
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_2_roll, np.radians(0), 0.0)     # jointId = 62
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_2_pitch, np.radians(0), 0.0)    # jointId = 63
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_3_roll, np.radians(0), 0.0)     # jointId = 66
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_3_pitch, np.radians(0), 0.0)    # jointId = 67
+    pb.resetJointState(robot, crab_joint_idx.back_left__cluster_3_wrist, np.radians(0), 0.0)    # jointId = 69
 
-    # Back Right 
-    pb.resetJointState(robot, 21, np.radians(0), 0.0) # cluster 1 roll 
-    pb.resetJointState(robot, 22, np.radians(0), 0.0) # cluster 1 pitch 
-    pb.resetJointState(robot, 23, np.radians(0), 0.0) # cluster 2 roll 
-    pb.resetJointState(robot, 24, np.radians(0), 0.0) # cluster 2 pitch 
-    pb.resetJointState(robot, 25, np.radians(0), 0.0) # cluster 3 roll 
-    pb.resetJointState(robot, 26, np.radians(0), 0.0) # cluster 3 pitch 
-    pb.resetJointState(robot, 27, np.radians(0), 0.0) # cluster 3 wrist 
+    # Back Right Leg
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_1_roll, np.radians(0), 0.0)    # jointId = 42
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_1_pitch, np.radians(0), 0.0)   # jointId = 43
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_2_roll, np.radians(0), 0.0)    # jointId = 46
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_2_pitch, np.radians(0), 0.0)   # jointId = 47
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_3_roll, np.radians(0), 0.0)    # jointId = 50
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_3_pitch, np.radians(0), 0.0)   # jointId = 51
+    pb.resetJointState(robot, crab_joint_idx.back_right__cluster_3_wrist, np.radians(0), 0.0)   # jointId = 53
 
 
 # ---------------------------------- 
@@ -226,6 +230,62 @@ class PIDController:
 # ---------------------------------- 
 # functions to interact with pybullet 
 # ---------------------------------- 
+
+def get_rpc_trq_from_joint_id(rpc_trq_command, joint_id):
+    """
+    Get the appropriate torque command from rpc_trq_command array for a given PyBullet joint_id
+    
+    Args:
+        rpc_trq_command: Array of 28 torque commands
+        joint_id: PyBullet joint ID to get torque for
+        
+    Returns:
+        The torque command for the specified joint
+    """
+    # Map from PyBullet joint_id to rpc_trq_command index
+    joint_id_to_cmd_idx = {
+        # Front Left Leg
+        crab_joint_idx.front_left__cluster_1_roll: 0,     # jointId 26 -> index 0
+        crab_joint_idx.front_left__cluster_1_pitch: 1,    # jointId 27 -> index 1
+        crab_joint_idx.front_left__cluster_2_roll: 2,     # jointId 30 -> index 2
+        crab_joint_idx.front_left__cluster_2_pitch: 3,    # jointId 31 -> index 3
+        crab_joint_idx.front_left__cluster_3_roll: 4,     # jointId 34 -> index 4
+        crab_joint_idx.front_left__cluster_3_pitch: 5,    # jointId 35 -> index 5
+        crab_joint_idx.front_left__cluster_3_wrist: 6,    # jointId 37 -> index 6
+        
+        # Front Right Leg
+        crab_joint_idx.front_right__cluster_1_roll: 7,    # jointId 10 -> index 7
+        crab_joint_idx.front_right__cluster_1_pitch: 8,   # jointId 11 -> index 8
+        crab_joint_idx.front_right__cluster_2_roll: 9,    # jointId 14 -> index 9
+        crab_joint_idx.front_right__cluster_2_pitch: 10,  # jointId 15 -> index 10
+        crab_joint_idx.front_right__cluster_3_roll: 11,   # jointId 18 -> index 11
+        crab_joint_idx.front_right__cluster_3_pitch: 12,  # jointId 19 -> index 12
+        crab_joint_idx.front_right__cluster_3_wrist: 13,  # jointId 21 -> index 13
+        
+        # Back Left Leg
+        crab_joint_idx.back_left__cluster_1_roll: 14,     # jointId 58 -> index 14
+        crab_joint_idx.back_left__cluster_1_pitch: 15,    # jointId 59 -> index 15
+        crab_joint_idx.back_left__cluster_2_roll: 16,     # jointId 62 -> index 16
+        crab_joint_idx.back_left__cluster_2_pitch: 17,    # jointId 63 -> index 17
+        crab_joint_idx.back_left__cluster_3_roll: 18,     # jointId 66 -> index 18
+        crab_joint_idx.back_left__cluster_3_pitch: 19,    # jointId 67 -> index 19
+        crab_joint_idx.back_left__cluster_3_wrist: 20,    # jointId 69 -> index 20
+        
+        # Back Right Leg
+        crab_joint_idx.back_right__cluster_1_roll: 21,    # jointId 42 -> index 21
+        crab_joint_idx.back_right__cluster_1_pitch: 22,   # jointId 43 -> index 22
+        crab_joint_idx.back_right__cluster_2_roll: 23,    # jointId 46 -> index 23
+        crab_joint_idx.back_right__cluster_2_pitch: 24,   # jointId 47 -> index 24
+        crab_joint_idx.back_right__cluster_3_roll: 25,    # jointId 50 -> index 25
+        crab_joint_idx.back_right__cluster_3_pitch: 26,   # jointId 51 -> index 26
+        crab_joint_idx.back_right__cluster_3_wrist: 27,   # jointId 53 -> index 27
+    }
+    
+    # Get the index for this joint_id
+    cmd_idx = joint_id_to_cmd_idx.get(joint_id)
+    
+    # Return the corresponding torque command
+    return rpc_trq_command[cmd_idx]
 
 def get_sensor_data_from_pybullet(robot, previous_torso_velocity):
     # follow pinocchio robotsystem urdf reading convention

@@ -5,7 +5,10 @@ import numpy as np
 import signal
 import shutil
 import cv2
-import pickle 
+import pickle
+import time
+import matplotlib.pyplot as plt 
+from datetime import datetime 
 
 cwd = os.getcwd()
 sys.path.append(cwd)
@@ -93,13 +96,6 @@ if __name__ == "__main__":
         useFixedBase=True 
     ) 
     
-    orange_ball = pb.loadURDF( 
-        cwd + "/robot_model/crab/orange_ball.urdf", 
-        [0.0, 4.0, -4.0], 
-        [0, 0, 0, 1], 
-        useFixedBase=True 
-    ) 
-    
     target_pos, _ = pb.getBasePositionAndOrientation(green_ball)
     print(f"pybullet target_pos = {target_pos}")
 
@@ -130,9 +126,8 @@ if __name__ == "__main__":
         Config.PRINT_ROBOT_INFO,
     )
     # robot initial config setting
-    set_init_config_pybullet_robot(robot) 
+    set_init_config_pybullet_robot(robot)
     # set_0_config_robot(robot) 
- 
 
     # robot joint and link dynamics setting
     pybullet_util.set_joint_friction(robot, joint_id_dict, 0)
@@ -161,7 +156,7 @@ if __name__ == "__main__":
     count        = 0
     sim_time     = count * dt 
     jpg_count    = 0
-    max_sim_time = 10.0  # seconds
+    max_sim_time = 30.0  # seconds
 
     # how many steps in simulation 
     n_steps = int(max_sim_time / dt) 
@@ -180,9 +175,10 @@ if __name__ == "__main__":
     ## for dvel quantity
     previous_torso_velocity = np.array([0.0, 0.0, 0.0]) 
     
-    x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow = update_arrows( base_com_pos, rot_world_basecom, target_pos ) 
+    x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom ) 
 
     # Initialize data arrays
+    time_array          = np.zeros(n_steps)
     joint_positions     = np.zeros((n_steps, 28))  # 28 joints (7 joints × 4 legs)
     joint_velocities    = np.zeros((n_steps, 28))
     joint_torques       = np.zeros((n_steps, 28))
@@ -191,6 +187,7 @@ if __name__ == "__main__":
     joints_hist_raw = []
 
     for count in range(n_steps):
+
         # ----------------------------------
         # Moving Camera Setting
         # ----------------------------------
@@ -246,7 +243,25 @@ if __name__ == "__main__":
         rpc_crab_sensor_data.base_joint_pos_ = base_joint_pos
         rpc_crab_sensor_data.base_joint_quat_ = base_joint_quat
         rpc_crab_sensor_data.base_joint_lin_vel_ = base_joint_lin_vel
-        rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel 
+        rpc_crab_sensor_data.base_joint_ang_vel_ = base_joint_ang_vel
+
+        # ---------------------------------- 
+        # save data 
+        # ---------------------------------- 
+
+        # Store data
+        time_array[count]       = sim_time
+
+        # print_joint_state(robot, 10) 
+        # debug_joint_properties(robot, 10) 
+
+        joint_data = get_joint_data(robot, crab_joint_idx.front_right__cluster_1_roll) 
+        print(f"joint_data = {joint_data['joint_name']}")
+        print(f"joint_data = {joint_data['position']}")
+
+        joints_data = get_joints_data(robot) 
+
+        joints_hist_raw.append({ 'sim_time': sim_time, 'joints': joints_data } ) 
 
         # ----------------------------------
         # Get Keyboard Event
@@ -266,7 +281,7 @@ if __name__ == "__main__":
         # compute distance from end effectors to cylinder 
         # ---------------------------------- 
         
-        x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow = update_arrows( base_com_pos, rot_world_basecom, target_pos, x_arrow, y_arrow, z_arrow, z_neg_arrow, target_arrow )
+        x_arrow, y_arrow, z_arrow, z_neg_arrow = update_arrows( base_com_pos, rot_world_basecom, x_arrow, y_arrow, z_arrow, z_neg_arrow )
         
         # get position to target 
         base_pos = pb.getLinkState(robot, crab_link_idx.base_link)[0]
@@ -285,7 +300,7 @@ if __name__ == "__main__":
 
         if Config.MEASURE_COMPUTATION_TIME:
             comp_time = timer.tocvalue()
-            compuation_cal_list.append(comp_time) 
+            compuation_cal_list.append(comp_time)
 
         # copy command data from rpc command class
         rpc_trq_command = rpc_crab_command.joint_trq_cmd_
@@ -296,21 +311,6 @@ if __name__ == "__main__":
         
         # use rpc_joint_pos_command and vel_command in PD controller 
         # local impedance controller 
-
-        # ---------------------------------- 
-        # save data 
-        # ---------------------------------- 
-
-        # print_joint_state(robot, 10) 
-        # debug_joint_properties(robot, 10) 
-
-        joint_data = get_joint_data(robot, crab_joint_idx.front_right__cluster_1_roll) 
-        print(f"joint_data = {joint_data['joint_name']}")
-        print(f"joint_data = {joint_data['position']}")
-
-        joints_data = get_joints_data(robot, rpc_trq_command) 
-
-        joints_hist_raw.append({ 'sim_time': sim_time, 'joints': joints_data } ) 
         
         # save current torso velocity for next iteration
         previous_torso_velocity = pybullet_util.get_link_vel(
@@ -332,14 +332,12 @@ if __name__ == "__main__":
 
         pb.stepSimulation()  # step simulation
 
-        count    += 1
-        sim_time += dt  
-        
+        # print(f"count = {count}") 
+        print(f"sim time = {sim_time}")
 
-    # ----------------------------------
-    # Save Pickle file 
-    # ----------------------------------
-    
+        # count += 1
+        sim_time += dt  
+
     # save the history of the sim time and joints as a pickle file
     # save to the current working directory
     cwd = os.getcwd()
