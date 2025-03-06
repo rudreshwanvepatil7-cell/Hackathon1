@@ -74,7 +74,6 @@ def train(
         randomization_fn=randomizer,
         save_checkpoint_path=ckpt_path,
         wrap_env_fn=wrapper.wrap_for_brax_training,
-        log_training_metrics=True,
     )
 
     with tqdm(total=train_cfg.num_timesteps) as pbar:
