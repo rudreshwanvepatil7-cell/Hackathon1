@@ -31,6 +31,7 @@ args = parser.parse_args()
 ##Misc
 ##==========================================================================
 des_com_traj_label = []
+des_com_traj_proj_label = []
 des_ori_traj_label = []
 des_lf_pos_traj_label = []
 des_rf_pos_traj_label = []
@@ -184,8 +185,8 @@ while True:
         if len(msg.des_com_traj) > 0:
             if len(des_com_traj_label) == 0:
                 for i in range(len(msg.des_com_traj)):
-                    label = "des_com_" + str(i)
-                    des_com_traj_label.append(label)
+                    des_com_traj_label.append(f"des_com_{i}")
+                    des_com_traj_proj_label.append(f"des_com_projected_{i}")
                 for name in des_com_traj_label:
                     meshcat_shapes.point(
                         viz.viewer[name],
@@ -193,12 +194,25 @@ while True:
                         opacity=0.8,
                         radius=0.01,
                     )
+                for name in des_com_traj_proj_label:
+                    meshcat_shapes.point(
+                        viz.viewer[name],
+                        color=vis_tools.Color.BLUE,
+                        opacity=0.8,
+                        radius=0.01,
+                    )
             else:
-                for com, name in zip(msg.des_com_traj, des_com_traj_label):
+                for com, name, name_proj in zip(
+                    msg.des_com_traj, des_com_traj_label, des_com_traj_proj_label
+                ):
                     trans = meshcat.transformations.translation_matrix(
                         [com.x, com.y, com.z]
                     )
+                    trans_projected = meshcat.transformations.translation_matrix(
+                        [com.x, com.y, 0.0]
+                    )
                     viz.viewer[name].set_transform(trans)
+                    viz.viewer[name_proj].set_transform(trans_projected)
 
         ## visualize des orientation trajectory
         if len(msg.des_torso_ori_traj) > 0:

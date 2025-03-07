@@ -242,28 +242,31 @@ void ConvexMPCLocomotion::Solve() {
         base_to_hip_offset_[foot] + landing_foot_offset_;
     Eigen::Vector3d foot_yaw_corrected =
         util::CoordinateRotation(util::CoordinateAxis::Z,
-                                 -yaw_rate_des_ * stance_time / 2.) *
+                                 -yaw_rate_des_ * stance_time) *
         foot_pos_from_body;
 
     Eigen::Vector3d des_vel;
-    des_vel[0] = x_vel_des_;
-    des_vel[1] = y_vel_des_;
-    des_vel[2] = 0.0;
+    des_vel << x_vel_des_, y_vel_des_, 0.0;
+    // Adjust des_vel for yaw rate
+    des_vel = util::SO3FromRPY(0.0, 0.0, yaw_rate_des_ * stance_time) * des_vel;
 
     Eigen::Vector3d des_foot_pos =
         robot_->GetBodyPos() +
         robot_->GetBodyOriRot() *
             (foot_yaw_corrected + des_vel * swing_time_remaining_[foot]);
 
+    Eigen::Vector3d des_vel_in_world =
+        util::SO3FromRPY(0.0, 0.0, robot_->GetBodyOriYPR()[0]) * des_vel;
+
     double pfx_rel =
         com_vel_in_world[0] * 0.5 * stance_time +
-        raibert_gain_ * (com_vel_in_world[0] - des_com_vel_in_world_[0]) +
+        raibert_gain_ * (com_vel_in_world[0] - des_vel_in_world[0]) +
         (high_speed_turning_gain_ * robot_->GetRobotComPos()[2] / 9.81) *
             (com_vel_in_world[1] * yaw_rate_des_);
 
     double pfy_rel =
         com_vel_in_world[1] * 0.5 * stance_time +
-        raibert_gain_ * (com_vel_in_world[1] - des_com_vel_in_world_[1]) +
+        raibert_gain_ * (com_vel_in_world[1] - des_vel_in_world[1]) +
         (high_speed_turning_gain_ * robot_->GetRobotComPos()[2] / 9.81) *
             (-com_vel_in_world[0] * yaw_rate_des_);
 
@@ -927,8 +930,8 @@ void ConvexMPCLocomotion::_SetLeanAngle() {
     axis.normalize();
     if (yaw_rate_des_ > 0.) axis *= -1;
     // lean = arctan(yaw_rate^2 * r/g)
-    Eigen::Quaterniond ori_quat(
-        Eigen::AngleAxisd(yaw_rate_des_ * yaw_rate_des_ * r / 9.81, axis));
+    Eigen::Quaterniond ori_quat(Eigen::AngleAxisd(
+        atan(yaw_rate_des_ * yaw_rate_des_ * r / 9.81), axis));
     Eigen::Vector3d rpy = util::QuatToEulerXYZ(ori_quat);
     roll_des_ = rpy[0];
     pitch_des_ = rpy[1];
