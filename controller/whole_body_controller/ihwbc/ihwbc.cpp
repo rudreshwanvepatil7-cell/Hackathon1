@@ -51,11 +51,11 @@ void IHWBC::AddJointLimitConstraints(Eigen::MatrixXd& ineq_mat, Eigen::VectorXd&
 
     // LOWER LIMIT: my formulation 
     joint_limit_A(2*i, joint_idx) = 1.0;
-    joint_limit_b(2*i) = 2/(dt*dt) * (-q_lower + q_pred);
+    joint_limit_b(2*i) = 2/(dt*dt) * (q_lower - q_pred);
 
     // UPPER LIMIT: my formulation 
     joint_limit_A(2*i+1, joint_idx) = -1.0;
-    joint_limit_b(2*i+1) = -2/(dt*dt) * (q_upper - q_pred);
+    joint_limit_b(2*i+1) = 2/(dt*dt) * (q_pred - q_upper);
   }
   
   // Debug values
@@ -71,8 +71,8 @@ void IHWBC::AddJointLimitConstraints(Eigen::MatrixXd& ineq_mat, Eigen::VectorXd&
     if (joint_limit_b(2*i) > joint_limit_b(2*i+1)) {
       std::cout << "WARNING: Infeasible joint limit constraints for joint " << i << std::endl;
       // Make constraints feasible by relaxing them
-      joint_limit_b(2*i) = -1e6;  // Large negative number
-      joint_limit_b(2*i+1) = 1e6; // Large positive number
+      // joint_limit_b(2*i) = -1e6;  // Large negative number
+      // joint_limit_b(2*i+1) = 1e6; // Large positive number
     }
   }
   
@@ -140,71 +140,48 @@ double computeLogBarrierPenalty(double pos, double lower, double upper, double m
     return -mu * (std::log(dist_to_lower + eps) + std::log(dist_to_upper + eps));
 }
 
+double computeJointCenteringLinearPenalty(double pos, double vel, double lower, double upper, double dt) 
+{
+  double x_mid = (upper + lower) / 2.0;
+
+  double x_pred = pos + vel * dt; 
+  double x_error = x_mid - x_pred; 
+  double g = x_error; 
+
+  return g; 
+} 
+
+double computeJointCenteringQuadraticPenalty(double pos, double lower, double upper, double dt) 
+{
+  double G = 0.25 * dt * dt; 
+
+  return G; 
+}
+
 
 void IHWBC::AddJointLimitPenalties(Eigen::MatrixXd& cost_t_mat, Eigen::VectorXd& cost_t_vec) 
 {
-  // Create dedicated weight for joint centering
-  const double CENTER_WEIGHT = 0.005;  // Increased for visibility
-  
+
+  double penalty = 0.0; 
+  double scale = 0.01; 
+
   for (int i = 0; i < current_joint_positions_.size(); ++i) 
   {
-    double pos = current_joint_positions_[i];
-    double vel = current_joint_velocities_[i]; 
-    
-    double lower = joint_pos_limits_lower_[i];
-    double upper = joint_pos_limits_upper_[i];
-    double range = upper - lower;
-    double middle = (upper + lower) / 2.0;
-    
-    if (range < 1e-6) continue;
-    
-    // Position error from center
-    double pos_error = middle - pos;
     
     // Add a quadratic term to the cost_t_mat (direct penalization of acceleration)
-    // Higher weights on the diagonal means the solver prefers smaller accelerations
-    cost_t_mat(i, i) += CENTER_WEIGHT;
+    // double penalty = computeLogBarrierPenalty(current_joint_positions_[i], joint_pos_limits_lower_[i], joint_pos_limits_upper_[i], 0.0001);
+    penalty = computeJointCenteringQuadraticPenalty(current_joint_positions_[i], joint_pos_limits_lower_[i], joint_pos_limits_upper_[i], 0.001);
+    penalty *= scale; 
+    cost_t_mat(i, i) += penalty;
+
+    // Add a linear term to the cost_t_vec (direct penalization of acceleration)
+    // penalty = computeLogBarrierPenalty(current_joint_positions_[i], joint_pos_limits_lower_[i], joint_pos_limits_upper_[i], 0.0001);    
+    penalty = computeJointCenteringLinearPenalty(current_joint_positions_[i], current_joint_velocities_[i], joint_pos_limits_lower_[i], joint_pos_limits_upper_[i], 0.001);
+    penalty *= scale; 
     
-    // The linear term creates a bias toward positive/negative acceleration based on position error
-    // This directly affects the g0 term in the QP objective
-    double accel_bias = CENTER_WEIGHT * pos_error;
-    
-    // Add damping based on current velocity to prevent oscillation
-    // If moving away from center, create stronger opposing force
-    double vel_direction = (vel * pos_error < 0) ? 1.0 : 0.5;  // 1.0 if moving away from center
-    double damping_term = CENTER_WEIGHT * vel * vel_direction;
-    
-    // Combine position and velocity terms
-    cost_t_vec[i] -= (accel_bias - damping_term);
-    
-    // Debug info
-    static int count = 0;
-    if (++count % 1000 == 0) {
-      std::cout << "Joint " << i 
-                << ": pos=" << pos 
-                << ", center=" << middle
-                << ", error=" << pos_error
-                << ", accel_bias=" << accel_bias 
-                << ", damping=" << damping_term << std::endl;
-    }
+    cost_t_vec(i) += penalty;
   }
-  
-  // Track progress occasionally
-  static int total_count = 0;
-  if (++total_count % 200 == 0) {
-    double total_center_error = 0.0;
-    for (int i = 0; i < current_joint_positions_.size(); ++i) {
-      double pos = current_joint_positions_[i];
-      double lower = joint_pos_limits_lower_[i];
-      double upper = joint_pos_limits_upper_[i];
-      double middle = (upper + lower) / 2.0;
-      double range = upper - lower;
-      if (range < 1e-6) continue;
-      
-      total_center_error += std::abs(pos - middle) / range;
-    }
-    std::cout << "Total joint centering error: " << total_center_error << std::endl;
-  }
+
 }
 
 void IHWBC::CheckJointLimits(const Eigen::VectorXd& positions) 
@@ -678,7 +655,7 @@ void IHWBC::Solve(const std::unordered_map<std::string, Task *> &task_map,
   }
 
   // Add joint limit constraints
-  AddJointLimitConstraints(ineq_mat, ineq_vec);
+  // AddJointLimitConstraints(ineq_mat, ineq_vec);
 
   //----------------------------------
   // set up QP formulation & solve QP 
