@@ -77,8 +77,8 @@ if __name__ == "__main__":
         [0, 0.707, 0, 0.707],
         useFixedBase=True,
     )
-    
-    # get cylinder position 
+
+    # get cylinder position
     cylinder_pos, _ = pb.getBasePositionAndOrientation(cylinder_robot)
 
     ground = pb.loadURDF(cwd + "/robot_model/ground/plane.urdf", useFixedBase=True)
@@ -157,11 +157,12 @@ if __name__ == "__main__":
         # ----------------------------------
 
         base_pos, base_ori = pb.getBasePositionAndOrientation(robot)
-        pb.resetDebugVisualizerCamera(cameraDistance=12.5,
-                                      cameraYaw=120,
-                                      cameraPitch=-45,
-                                      cameraTargetPosition=base_pos +
-                                      np.array([0.5, 0.3, -base_pos[2] + 1.5]))
+        pb.resetDebugVisualizerCamera(
+            cameraDistance=12.5,
+            cameraYaw=120,
+            cameraPitch=-45,
+            cameraTargetPosition=base_pos + np.array([0.5, 0.3, -base_pos[2] + 1.5]),
+        )
 
         # ----------------------------------
         # Debugging
@@ -275,11 +276,11 @@ if __name__ == "__main__":
         rpc_crab_sensor_data.FR_normal_force_ = FR_normal_force
         rpc_crab_sensor_data.RL_normal_force_ = RL_normal_force
         rpc_crab_sensor_data.RR_normal_force_ = RR_normal_force
-        
-        # ---------------------------------- 
-        # compute distance from end effectors to cylinder 
-        # ---------------------------------- 
-        
+
+        # ----------------------------------
+        # compute distance from end effectors to cylinder
+        # ----------------------------------
+
         # Get the position of each end effector
         lfoot_pos = pb.getLinkState(robot, crab_link_idx.back_left__foot_link)[0]
         rfoot_pos = pb.getLinkState(robot, crab_link_idx.back_right__foot_link)[0]
@@ -287,15 +288,15 @@ if __name__ == "__main__":
         rhand_pos = pb.getLinkState(robot, crab_link_idx.front_right__foot_link)[0]
 
         # Compute the vector from the cylinder to each end effector
-        lfoot_cyl_vector = np.array(cylinder_pos) - np.array(lfoot_pos) 
-        rfoot_cyl_vector = np.array(cylinder_pos) - np.array(rfoot_pos) 
-        lhand_cyl_vector = np.array(cylinder_pos) - np.array(lhand_pos) 
-        rhand_cyl_vector = np.array(cylinder_pos) - np.array(rhand_pos) 
-        
-        rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector 
-        rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector 
-        rpc_crab_sensor_data.lhand_target_vector_ = lhand_cyl_vector 
-        rpc_crab_sensor_data.rhand_target_vector_ = rhand_cyl_vector  
+        lfoot_cyl_vector = np.array(cylinder_pos) - np.array(lfoot_pos)
+        rfoot_cyl_vector = np.array(cylinder_pos) - np.array(rfoot_pos)
+        lhand_cyl_vector = np.array(cylinder_pos) - np.array(lhand_pos)
+        rhand_cyl_vector = np.array(cylinder_pos) - np.array(rhand_pos)
+
+        rpc_crab_sensor_data.lfoot_target_vector_ = lfoot_cyl_vector
+        rpc_crab_sensor_data.rfoot_target_vector_ = rfoot_cyl_vector
+        rpc_crab_sensor_data.lhand_target_vector_ = lhand_cyl_vector
+        rpc_crab_sensor_data.rhand_target_vector_ = rhand_cyl_vector
 
         # ----------------------------------
         # compute control command

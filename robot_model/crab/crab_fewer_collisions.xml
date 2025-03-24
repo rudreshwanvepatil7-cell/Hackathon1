@@ -111,27 +111,27 @@
 
   <asset>
     <mesh name="base_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/base_link/base_link.stl" />
+      file="/home/emily/rpc/robot_model/crab/meshes/base_link.stl" />
     <mesh name="base_link_simple"
-      file="/home/emily/rpc/robot_model/crab/meshes/base_link/base_link_simple.stl" />
+      file="/home/emily/rpc/robot_model/crab/meshes/base_link.stl" />
     <mesh name="cluster_1_proximal_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/776_meshes/proximal_link.STL" />
+      file="/home/emily/rpc/robot_model/crab/meshes/cluster_776_proximal_link.stl" />
     <mesh name="cluster_1_distal_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/776_meshes/distal_link.STL" />
+      file="/home/emily/rpc/robot_model/crab/meshes/cluster_776_distal_link.stl" />
     <mesh name="cluster_1_end_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/776_meshes/end_link.STL" />
+      file="/home/emily/rpc/robot_model/crab/meshes/cluster_776_end_link.stl" />
     <mesh name="cluster_2_proximal_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/665_meshes/proximal_link.STL" />
+      file="/home/emily/rpc/robot_model/crab/meshes/cluster_665_proximal_link.stl" />
     <mesh name="cluster_2_distal_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/665_meshes/distal_link.STL" />
+      file="/home/emily/rpc/robot_model/crab/meshes/cluster_665_distal_link.stl" />
     <mesh name="cluster_2_end_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/665_meshes/end_link.STL" />
+      file="/home/emily/rpc/robot_model/crab/meshes/cluster_665_end_link.stl" />
     <mesh name="cluster_3_proximal_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/5555_meshes/proximal_link.STL" />
+      file="/home/emily/rpc/robot_model/crab/meshes/cluster_5555_proximal_link.stl" />
     <mesh name="cluster_3_distal_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/5555_meshes/distal_link.STL" />
+      file="/home/emily/rpc/robot_model/crab/meshes/cluster_5555_distal_link.stl" />
     <mesh name="wrist_link"
-      file="/home/emily/rpc/robot_model/crab/meshes/5555_meshes/wrist_link.STL" />
+      file="/home/emily/rpc/robot_model/crab/meshes/cluster_5555_wrist_link.stl" />
   </asset>
 
   <worldbody>
