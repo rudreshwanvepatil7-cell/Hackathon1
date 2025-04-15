@@ -2,28 +2,28 @@
 
 #include "controller/filter/digital_filters.hpp"
 
-#include "controller/draco_controller/draco_definition.hpp"
-#include "controller/draco_controller/draco_interface.hpp"
-#include "controller/draco_controller/draco_kf_state_estimator.hpp"
-#include "controller/draco_controller/draco_state_provider.hpp"
+#include "controller/g1_controller/g1_definition.hpp"
+#include "controller/g1_controller/g1_interface.hpp"
+#include "controller/g1_controller/g1_kf_state_estimator.hpp"
+#include "controller/g1_controller/g1_state_provider.hpp"
 
 #if B_USE_ZMQ
-#include "controller/draco_controller/draco_data_manager.hpp"
+#include "controller/g1_controller/g1_data_manager.hpp"
 #endif
 
-DracoKFStateEstimator::DracoKFStateEstimator(PinocchioRobotSystem *_robot,
+G1KFStateEstimator::G1KFStateEstimator(PinocchioRobotSystem *_robot,
                                              const YAML::Node &cfg)
     : StateEstimator(_robot) {
-  util::PrettyConstructor(1, "DracoKFStateEstimator");
-  sp_ = DracoStateProvider::GetStateProvider();
+  util::PrettyConstructor(1, "G1KFStateEstimator");
+  sp_ = G1StateProvider::GetStateProvider();
 
   // assume start with double support
   sp_->b_lf_contact_ = true;
   sp_->b_rf_contact_ = true;
 
   iso_imu_to_base_com_ =
-      robot_->GetLinkIsometry(draco_link::torso_imu).inverse() *
-      robot_->GetLinkIsometry(draco_link::torso_com_link);
+      robot_->GetLinkIsometry(g1_link::imu_link).inverse() *
+      robot_->GetLinkIsometry(g1_link::torso_com_link);
   Eigen::Vector3d rpy =
       util::RPYFromSO3(iso_imu_to_base_com_.linear().transpose());
   quat_imu_to_base_com_ = util::EulerZYXtoQuat(rpy(0), rpy(1), rpy(2));
@@ -62,11 +62,11 @@ DracoKFStateEstimator::DracoKFStateEstimator(PinocchioRobotSystem *_robot,
     int foot_frame = util::ReadParameter<int>(cfg["state_estimator"],
                                               "foot_reference_frame");
     if (foot_frame == 0) {
-      est_ref_foot_frame_ = draco_link::l_foot_contact;
-      est_non_ref_foot_frame_ = draco_link::r_foot_contact;
+      est_ref_foot_frame_ = g1_link::l_foot_contact;
+      est_non_ref_foot_frame_ = g1_link::r_foot_contact;
     } else {
-      est_ref_foot_frame_ = draco_link::r_foot_contact;
-      est_non_ref_foot_frame_ = draco_link::l_foot_contact;
+      est_ref_foot_frame_ = g1_link::r_foot_contact;
+      est_non_ref_foot_frame_ = g1_link::l_foot_contact;
     }
 
     for (int i = 0; i < 3; ++i) {
@@ -121,7 +121,7 @@ DracoKFStateEstimator::DracoKFStateEstimator(PinocchioRobotSystem *_robot,
   b_request_offset_reset_ = false;
 
 #if B_USE_MATLOGGER
-  logger_ = XBot::MatLogger2::MakeLogger("/tmp/draco_state_estimator_kf_data");
+  logger_ = XBot::MatLogger2::MakeLogger("/tmp/g1_state_estimator_kf_data");
   logger_->set_buffer_mode(XBot::VariableBuffer::Mode::producer_consumer);
   appender_ = XBot::MatAppender::MakeInstance();
   appender_->add_logger(logger_);
@@ -129,13 +129,13 @@ DracoKFStateEstimator::DracoKFStateEstimator(PinocchioRobotSystem *_robot,
 #endif
 }
 
-DracoKFStateEstimator::~DracoKFStateEstimator() {
+G1KFStateEstimator::~G1KFStateEstimator() {
   delete base_accel_filt_;
   delete imu_ang_vel_filt_;
   delete com_vel_filt_;
 }
 
-void DracoKFStateEstimator::Initialize(DracoSensorData *sensor_data) {
+void G1KFStateEstimator::Initialize(G1SensorData *sensor_data) {
   // filter imu angular velocity
   for (int i = 0; i < 3; ++i) {
     imu_ang_vel_filter_[i].Input(sensor_data->imu_ang_vel_[i]);
@@ -186,7 +186,7 @@ void DracoKFStateEstimator::Initialize(DracoSensorData *sensor_data) {
   // save data
   if (sp_->count_ % sp_->data_save_freq_ == 0) {
 #if B_USE_ZMQ
-    DracoDataManager *dm = DracoDataManager::GetDataManager();
+    G1DataManager *dm = G1DataManager::GetDataManager();
     dm->data_->joint_positions_ = sensor_data->joint_pos_;
 #endif
 
@@ -198,7 +198,7 @@ void DracoKFStateEstimator::Initialize(DracoSensorData *sensor_data) {
   }
 }
 
-void DracoKFStateEstimator::Update(DracoSensorData *sensor_data) {
+void G1KFStateEstimator::Update(G1SensorData *sensor_data) {
 
   // filter imu angular velocity
   for (int i = 0; i < 3; ++i) {
@@ -291,7 +291,7 @@ void DracoKFStateEstimator::Update(DracoSensorData *sensor_data) {
                (current_support_state_ == DOUBLE)) {
       foot_pos_from_base_post_transition =
           x_hat_.head(3) +
-          robot_->GetLinkIsometry(draco_link::l_foot_contact).translation();
+          robot_->GetLinkIsometry(g1_link::l_foot_contact).translation();
       global_linear_offset_ = foot_pos_from_base_post_transition -
                               foot_pos_from_base_pre_transition;
       global_linear_offset_.z() =
@@ -315,7 +315,7 @@ void DracoKFStateEstimator::Update(DracoSensorData *sensor_data) {
                (current_support_state_ == DOUBLE)) {
       foot_pos_from_base_post_transition =
           x_hat_.head(3) +
-          robot_->GetLinkIsometry(draco_link::r_foot_contact).translation();
+          robot_->GetLinkIsometry(g1_link::r_foot_contact).translation();
       global_linear_offset_ = foot_pos_from_base_post_transition -
                               foot_pos_from_base_pre_transition;
       global_linear_offset_.z() =
@@ -349,13 +349,13 @@ void DracoKFStateEstimator::Update(DracoSensorData *sensor_data) {
   // update measurement assuming at least one foot is on the ground
   if (sp_->b_lf_contact_) {
     Eigen::Vector3d pos_base_from_lfoot =
-        -robot_->GetLinkIsometry(draco_link::l_foot_contact).translation();
+        -robot_->GetLinkIsometry(g1_link::l_foot_contact).translation();
     base_pose_model_.update_position_from_lfoot(pos_base_from_lfoot,
                                                 base_estimate_);
   }
   if (sp_->b_rf_contact_) {
     Eigen::Vector3d pos_base_from_rfoot =
-        -robot_->GetLinkIsometry(draco_link::r_foot_contact).translation();
+        -robot_->GetLinkIsometry(g1_link::r_foot_contact).translation();
     base_pose_model_.update_position_from_rfoot(pos_base_from_rfoot,
                                                 base_estimate_);
   }
@@ -389,7 +389,7 @@ void DracoKFStateEstimator::Update(DracoSensorData *sensor_data) {
   // save current time step sensor_data
   if (sp_->count_ % sp_->data_save_freq_ == 0) {
 #if B_USE_ZMQ
-    DracoDataManager *dm = DracoDataManager::GetDataManager();
+    G1DataManager *dm = G1DataManager::GetDataManager();
     dm->data_->joint_positions_ = sensor_data->joint_pos_;
     dm->data_->kf_base_joint_pos_ = base_position_estimate;
     Eigen::Quaterniond quat = Eigen::Quaterniond(rot_world_to_base);
@@ -502,7 +502,7 @@ void DracoKFStateEstimator::Update(DracoSensorData *sensor_data) {
   }
 }
 
-void DracoKFStateEstimator::updateSupportState(DracoStateProvider *sp,
+void G1KFStateEstimator::updateSupportState(G1StateProvider *sp,
                                                SupportState &support_state) {
   if (sp->b_rf_contact_ && sp->b_lf_contact_) {
     support_state = DOUBLE;
@@ -517,8 +517,8 @@ void DracoKFStateEstimator::updateSupportState(DracoStateProvider *sp,
   support_state = RIGHT;
 }
 
-Eigen::Matrix3d DracoKFStateEstimator::compute_world_to_base_rot(
-    DracoSensorData *data, const Eigen::Matrix3d &rot_world_to_imu,
+Eigen::Matrix3d G1KFStateEstimator::compute_world_to_base_rot(
+    G1SensorData *data, const Eigen::Matrix3d &rot_world_to_imu,
     bool use_marg_filter) {
   if (use_marg_filter) {
     Eigen::Vector3d se_ang_vel, se_lin_acc;
@@ -535,8 +535,8 @@ Eigen::Matrix3d DracoKFStateEstimator::compute_world_to_base_rot(
   }
 }
 
-void DracoKFStateEstimator::UpdateGroundTruthSensorData(
-    DracoSensorData *sensor_data) {
+void G1KFStateEstimator::UpdateGroundTruthSensorData(
+    G1SensorData *sensor_data) {
   Eigen::Vector4d base_joint_ori = sensor_data->base_joint_quat_;
   Eigen::Quaterniond base_joint_quat(base_joint_ori[3], base_joint_ori[0],
                                      base_joint_ori[1], base_joint_ori[2]);
@@ -564,7 +564,7 @@ void DracoKFStateEstimator::UpdateGroundTruthSensorData(
 
 #if B_USE_ZMQ
   if (sp_->count_ % sp_->data_save_freq_ == 0) {
-    DracoDataManager *dm = DracoDataManager::GetDataManager();
+    G1DataManager *dm = G1DataManager::GetDataManager();
     dm->data_->kf_base_joint_pos_ = sensor_data->base_joint_pos_;
     dm->data_->kf_base_joint_ori_ = sensor_data->base_joint_quat_;
     dm->data_->joint_positions_ = sensor_data->joint_pos_;
@@ -613,7 +613,7 @@ void DracoKFStateEstimator::UpdateGroundTruthSensorData(
 #endif
 }
 
-void DracoKFStateEstimator::ComputeDCM() {
+void G1KFStateEstimator::ComputeDCM() {
   Eigen::Vector3d com_pos = robot_->GetRobotComPos();
   Eigen::Vector3d com_vel = sp_->com_vel_est_;
   double dcm_omega = sqrt(grav_vec_3D_.z() / com_pos[2]);

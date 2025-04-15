@@ -137,12 +137,12 @@ void ContactTransitionStart::FirstVisit() {
   }
 
   // set reference desired reaction force
-  Eigen::VectorXd mid_max_force_z = Eigen::VectorXd::Zero(6);
-  mid_max_force_z[5] = kGravity * robot_->GetTotalMass() / 2.;
-  ctrl_arch_->lf_force_tm_->InitializeInterpolation(mid_max_force_z,
-                                                    rf_end_time_);
-  ctrl_arch_->rf_force_tm_->InitializeInterpolation(mid_max_force_z,
-                                                    rf_end_time_);
+  // Eigen::VectorXd mid_max_force_z = Eigen::VectorXd::Zero(6);
+  // mid_max_force_z[5] = kGravity * robot_->GetTotalMass() / 2.;
+  // ctrl_arch_->lf_force_tm_->InitializeInterpolation(mid_max_force_z,
+  //                                                   rf_end_time_);
+  // ctrl_arch_->rf_force_tm_->InitializeInterpolation(mid_max_force_z,
+  //                                                   rf_end_time_);
 
   // set current foot position as nominal (desired) for rest of this state
   nominal_lfoot_iso_ = robot_->GetLinkIsometry(g1_link::l_foot_contact);
@@ -178,8 +178,8 @@ void ContactTransitionStart::OneStep() {
   }
 
   // update force traj manager
-  ctrl_arch_->lf_force_tm_->UpdateDesired(state_machine_time_);
-  ctrl_arch_->rf_force_tm_->UpdateDesired(state_machine_time_);
+  // ctrl_arch_->lf_force_tm_->UpdateDesired(state_machine_time_);
+  // ctrl_arch_->rf_force_tm_->UpdateDesired(state_machine_time_);
 }
 
 bool ContactTransitionStart::EndOfState() {

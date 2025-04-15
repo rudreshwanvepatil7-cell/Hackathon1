@@ -1,14 +1,14 @@
-#include "controller/draco_controller/draco_state_provider.hpp"
-#include "controller/draco_controller/draco_definition.hpp"
+#include "controller/g1_controller/g1_state_provider.hpp"
+#include "controller/g1_controller/g1_definition.hpp"
 #include "util/util.hpp"
 
-DracoStateProvider *DracoStateProvider::GetStateProvider() {
-  static DracoStateProvider state_provider;
+G1StateProvider *G1StateProvider::GetStateProvider() {
+  static G1StateProvider state_provider;
   return &state_provider;
 }
 
-DracoStateProvider::DracoStateProvider() {
-  util::PrettyConstructor(1, "DracoStateProvider");
+G1StateProvider::G1StateProvider() {
+  util::PrettyConstructor(1, "G1StateProvider");
 
   servo_dt_ = 0.00125;
   data_save_freq_ = 1;
@@ -16,8 +16,8 @@ DracoStateProvider::DracoStateProvider() {
   count_ = 0;
   current_time_ = 0.;
 
-  stance_foot_ = draco_link::l_foot_contact;
-  prev_stance_foot_ = draco_link::l_foot_contact;
+  stance_foot_ = g1_link::l_foot_contact;
+  prev_stance_foot_ = g1_link::l_foot_contact;
 
   rot_world_local_ = Eigen::Matrix3d::Identity();
 
@@ -32,9 +32,9 @@ DracoStateProvider::DracoStateProvider() {
 
   com_vel_est_.setZero();
 
-  state_ = 1; // draco_states::kInitialize or draco_states::wbic::kInitialize
+  state_ = 1; // g1_states::kInitialize or g1_states::wbic::kInitialize
   prev_state_ =
-      1; // draco_states::kInitialize or draco_states::wbic::kInitialize
+      1; // g1_states::kInitialize or g1_states::wbic::kInitialize
 
   b_use_base_height_ = false;
 

@@ -1,9 +1,9 @@
-#include "controller/draco_controller/draco_tci_container.hpp"
-#include "controller/draco_controller/draco_definition.hpp"
-#include "controller/draco_controller/draco_task/draco_cam_task.hpp"
-#include "controller/draco_controller/draco_task/draco_com_xy_task.hpp"
-#include "controller/draco_controller/draco_task/draco_com_z_task.hpp"
-#include "controller/draco_controller/draco_task/draco_wbo_task.hpp"
+#include "controller/g1_controller/g1_tci_container.hpp"
+#include "controller/g1_controller/g1_definition.hpp"
+#include "controller/g1_controller/g1_task/g1_cam_task.hpp"
+#include "controller/g1_controller/g1_task/g1_com_xy_task.hpp"
+#include "controller/g1_controller/g1_task/g1_com_z_task.hpp"
+//#include "controller/g1_controller/g1_task/g1_wbo_task.hpp"
 #include "controller/whole_body_controller/basic_contact.hpp"
 #include "controller/whole_body_controller/basic_task.hpp"
 #include "controller/whole_body_controller/force_task.hpp"
@@ -11,37 +11,43 @@
 
 #include <utility>
 
-DracoTCIContainer::DracoTCIContainer(PinocchioRobotSystem *robot,
+G1TCIContainer::G1TCIContainer(PinocchioRobotSystem *robot,
                                      const YAML::Node &cfg)
     : TCIContainer(robot) {
-  util::PrettyConstructor(2, "DracoTCIContainer");
+  util::PrettyConstructor(2, "G1TCIContainer");
 
   //=============================================================
   // Tasks List
   //=============================================================
   jpos_task_ = new JointTask(robot_);
-  com_xy_task_ = new DracoCoMXYTask(robot_);
-  com_z_task_ = new DracoCoMZTask(robot_);
-  cam_task_ = new DracoCAMTask(robot_);
-  torso_ori_task_ = new LinkOriTask(robot_, draco_link::torso_com_link);
+  com_xy_task_ = new G1CoMXYTask(robot_);
+  com_z_task_ = new G1CoMZTask(robot_);
+  cam_task_ = new G1CAMTask(robot_);
+  torso_ori_task_ = new LinkOriTask(robot_, g1_link::torso_com_link);
+  pelvis_ori_task_ = new LinkOriTask(robot_, g1_link::pelvis);
   std::vector<int> upper_body_jidx{
-      draco_joint::l_shoulder_fe, draco_joint::l_shoulder_aa,
-      draco_joint::l_shoulder_ie, draco_joint::l_elbow_fe,
-      draco_joint::l_wrist_ps,    draco_joint::l_wrist_pitch,
-      draco_joint::neck_pitch,    draco_joint::r_shoulder_fe,
-      draco_joint::r_shoulder_aa, draco_joint::r_shoulder_ie,
-      draco_joint::r_elbow_fe,    draco_joint::r_wrist_ps,
-      draco_joint::r_wrist_pitch};
+      g1_joint::left_shoulder_pitch_joint, g1_joint::left_shoulder_roll_joint,
+      g1_joint::left_shoulder_yaw_joint, g1_joint::left_elbow_pitch_joint,
+      g1_joint::left_elbow_roll_joint, g1_joint::left_five_joint,
+      g1_joint::left_six_joint, g1_joint::left_three_joint,
+      g1_joint::left_four_joint, g1_joint::left_zero_joint,
+      g1_joint::left_one_joint, g1_joint::left_two_joint,
+      g1_joint::right_shoulder_pitch_joint, g1_joint::right_shoulder_roll_joint,
+      g1_joint::right_shoulder_yaw_joint, g1_joint::right_elbow_pitch_joint,
+      g1_joint::right_elbow_roll_joint, g1_joint::right_five_joint,
+      g1_joint::right_six_joint, g1_joint::right_three_joint,
+      g1_joint::right_four_joint, g1_joint::right_zero_joint,
+      g1_joint::right_one_joint, g1_joint::right_two_joint};
   upper_body_task_ = new SelectedJointTask(robot_, upper_body_jidx);
-  lf_pos_task_ = new LinkPosTask(robot_, draco_link::l_foot_contact);
-  rf_pos_task_ = new LinkPosTask(robot_, draco_link::r_foot_contact);
-  lf_ori_task_ = new LinkOriTask(robot_, draco_link::l_foot_contact);
-  rf_ori_task_ = new LinkOriTask(robot_, draco_link::r_foot_contact);
-  lh_pos_task_ = new LinkPosTask(robot_, draco_link::l_hand_contact);
-  rh_pos_task_ = new LinkPosTask(robot_, draco_link::r_hand_contact);
-  lh_ori_task_ = new LinkOriTask(robot_, draco_link::l_hand_contact);
-  rh_ori_task_ = new LinkOriTask(robot_, draco_link::r_hand_contact);
-  wbo_task_ = new DracoWBOTask(robot_);
+  lf_pos_task_ = new LinkPosTask(robot_, g1_link::l_foot_contact);
+  rf_pos_task_ = new LinkPosTask(robot_, g1_link::r_foot_contact);
+  lf_ori_task_ = new LinkOriTask(robot_, g1_link::l_foot_contact);
+  rf_ori_task_ = new LinkOriTask(robot_, g1_link::r_foot_contact);
+  lh_pos_task_ = new LinkPosTask(robot_, g1_link::left_palm_link);   // TODO check
+  rh_pos_task_ = new LinkPosTask(robot_, g1_link::right_palm_link);  // TODO check
+  lh_ori_task_ = new LinkOriTask(robot_, g1_link::left_palm_link);   // TODO check
+  rh_ori_task_ = new LinkOriTask(robot_, g1_link::right_palm_link);  // TODO check
+//  wbo_task_ = new G1WBOTask(robot_);
 
   task_map_.clear();
   task_map_.insert(std::make_pair("joint_task", jpos_task_));
@@ -49,6 +55,7 @@ DracoTCIContainer::DracoTCIContainer(PinocchioRobotSystem *robot,
   task_map_.insert(std::make_pair("com_z_task", com_z_task_));
   task_map_.insert(std::make_pair("cam_task", cam_task_));
   task_map_.insert(std::make_pair("torso_ori_task", torso_ori_task_));
+  task_map_.insert(std::make_pair("pelvis_ori_task", pelvis_ori_task_));
   task_map_.insert(std::make_pair("upper_body_task", upper_body_task_));
   task_map_.insert(std::make_pair("lf_pos_task", lf_pos_task_));
   task_map_.insert(std::make_pair("rf_pos_task", rf_pos_task_));
@@ -67,6 +74,7 @@ DracoTCIContainer::DracoTCIContainer(PinocchioRobotSystem *robot,
   task_unweighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("cam_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
+  task_unweighted_cost_map_.insert(std::make_pair("pelvis_ori_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("upper_body_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("lf_pos_task", NAN));
   task_unweighted_cost_map_.insert(std::make_pair("rf_pos_task", NAN));
@@ -82,6 +90,7 @@ DracoTCIContainer::DracoTCIContainer(PinocchioRobotSystem *robot,
   task_weighted_cost_map_.insert(std::make_pair("com_z_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("cam_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("torso_ori_task", NAN));
+  task_weighted_cost_map_.insert(std::make_pair("pelvis_ori_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("upper_body_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("lf_pos_task", NAN));
   task_weighted_cost_map_.insert(std::make_pair("rf_pos_task", NAN));
@@ -96,6 +105,7 @@ DracoTCIContainer::DracoTCIContainer(PinocchioRobotSystem *robot,
   task_vector_.clear();
   task_vector_.push_back(com_z_task_);
   task_vector_.push_back(torso_ori_task_);
+  task_vector_.push_back(pelvis_ori_task_);
   task_vector_.push_back(com_xy_task_);
   task_vector_.push_back(upper_body_task_);
   task_vector_.push_back(lf_pos_task_);
@@ -108,10 +118,10 @@ DracoTCIContainer::DracoTCIContainer(PinocchioRobotSystem *robot,
   //=============================================================
   // Contacts List
   //=============================================================
-  lf_contact_ = new SurfaceContact(robot_, draco_link::l_foot_contact, 0.3,
-                                   0.11, 0.04); // params reset later
-  rf_contact_ = new SurfaceContact(robot_, draco_link::r_foot_contact, 0.3,
-                                   0.11, 0.04); // params reset later
+  lf_contact_ = new SurfaceContact(robot_, g1_link::l_foot_contact, 0.7,
+                                   0.08, 0.025); // params reset later
+  rf_contact_ = new SurfaceContact(robot_, g1_link::r_foot_contact, 0.7,
+                                   0.08, 0.025); // params reset later
 
   contact_map_.clear();
   contact_map_.insert(std::make_pair("lf_contact", lf_contact_));
@@ -152,13 +162,14 @@ DracoTCIContainer::DracoTCIContainer(PinocchioRobotSystem *robot,
   this->_InitializeParameters(cfg);
 }
 
-DracoTCIContainer::~DracoTCIContainer() {
+G1TCIContainer::~G1TCIContainer() {
   // task
   delete jpos_task_;
   delete com_xy_task_;
   delete com_z_task_;
   delete cam_task_;
   delete torso_ori_task_;
+  delete pelvis_ori_task_;
   delete upper_body_task_;
   delete lf_pos_task_;
   delete rf_pos_task_;
@@ -174,8 +185,6 @@ DracoTCIContainer::~DracoTCIContainer() {
   delete lf_contact_;
   delete rf_contact_;
 
-  // internal constraint
-
   // force task
   delete lf_reaction_force_task_;
   delete rf_reaction_force_task_;
@@ -184,7 +193,7 @@ DracoTCIContainer::~DracoTCIContainer() {
   delete qp_params_;
 }
 
-void DracoTCIContainer::_InitializeParameters(const YAML::Node &cfg) {
+void G1TCIContainer::_InitializeParameters(const YAML::Node &cfg) {
   // determine which WBC
   WBC_TYPE wbc_type;
   std::string wbc_type_string =
@@ -199,8 +208,10 @@ void DracoTCIContainer::_InitializeParameters(const YAML::Node &cfg) {
   com_xy_task_->SetParameters(cfg["wbc"]["task"]["com_xy_task"], wbc_type);
   com_z_task_->SetParameters(cfg["wbc"]["task"]["com_z_task"], wbc_type);
   cam_task_->SetParameters(cfg["wbc"]["task"]["cam_task"], wbc_type);
-  wbo_task_->SetParameters(cfg["wbc"]["task"]["wbo_task"], wbc_type);
+//  wbo_task_->SetParameters(cfg["wbc"]["task"]["wbo_task"], wbc_type);
   torso_ori_task_->SetParameters(cfg["wbc"]["task"]["torso_ori_task"],
+                                 wbc_type);
+  pelvis_ori_task_->SetParameters(cfg["wbc"]["task"]["pelvis_ori_task"],
                                  wbc_type);
   upper_body_task_->SetParameters(cfg["wbc"]["task"]["upper_body_task"],
                                   wbc_type);

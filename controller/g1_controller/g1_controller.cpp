@@ -21,8 +21,6 @@
 #include "controller/g1_controller/g1_data_manager.hpp"
 #endif
 
-#include "controller/g1_controller/g1_task/g1_wbo_task.hpp"
-
 G1Controller::G1Controller(G1TCIContainer *tci_container,
                                  PinocchioRobotSystem *robot,
                                  const YAML::Node &cfg)
@@ -55,11 +53,6 @@ G1Controller::G1Controller(G1TCIContainer *tci_container,
   act_list.resize(g1::n_qdot, true);
   for (int i(0); i < robot_->NumFloatDof(); ++i)
     act_list[i] = false;
-
-  int l_jp_idx = robot_->GetQdotIdx(g1_joint::l_knee_fe_jp);
-  int r_jp_idx = robot_->GetQdotIdx(g1_joint::r_knee_fe_jp);
-  act_list[l_jp_idx] = false;
-  act_list[r_jp_idx] = false;
 
   // read yaml & set params
   try {
@@ -226,16 +219,6 @@ void G1Controller::GetCommand(void *command) {
       contact_ptr->UpdateOpCommand(); // update desired contact acc
     }
 
-    // iterate once b/c jacobian does not change at all depending on
-    // configuration
-    if (b_int_constraint_first_visit_) {
-      for (const auto &[internal_const_str, internal_constr_ptr] :
-           tci_container_->internal_constraint_map_) {
-        internal_constr_ptr->UpdateJacobian();
-        internal_constr_ptr->UpdateJacobianDotQdot();
-        b_int_constraint_first_visit_ = false;
-      }
-    }
     // force task not iterated b/c not depending on q or qdot
 
     // mass, cori, grav update
@@ -252,7 +235,7 @@ void G1Controller::GetCommand(void *command) {
           tci_container_->task_map_, tci_container_->contact_map_,
           tci_container_->internal_constraint_map_,
           tci_container_->force_task_map_, wbc_qddot_cmd_,
-          joint_trq_cmd_); // joint_trq_cmd_ size: 27
+          joint_trq_cmd_); // joint_trq_cmd_ size: 37
 
       // joint integrator for real experiment
       Eigen::VectorXd joint_acc_cmd =
@@ -263,8 +246,8 @@ void G1Controller::GetCommand(void *command) {
     } else if (wbic_ != nullptr) {
       wbic_->UpdateSetting(M, Minv, cori, grav);
 
-      // size of joint_pos_cmd_, joint_vel_cmd_, joint_trq_cmd_ =  27
-      // size of wbc_qddot_cmd_ = 33
+      // size of joint_pos_cmd_, joint_vel_cmd_, joint_trq_cmd_ =  37
+      // size of wbc_qddot_cmd_ = 43
       static_cast<WBIC *>(wbic_)->FindConfiguration(
           robot_->GetJointPos(), tci_container_->task_vector_,
           tci_container_->contact_vector_,
@@ -306,8 +289,6 @@ void G1Controller::GetCommand(void *command) {
   static_cast<G1Command *>(command)->joint_pos_cmd_ = joint_pos_cmd_;
   static_cast<G1Command *>(command)->joint_vel_cmd_ = joint_vel_cmd_;
   static_cast<G1Command *>(command)->joint_trq_cmd_ = joint_trq_cmd_;
-  // static_cast<G1Command *>(command)->joint_trq_cmd_ =
-  // Eigen::VectorXd::Zero(joint_pos_cmd_.size());
 
   joint_trq_cmd_prev_ = joint_trq_cmd_;
 

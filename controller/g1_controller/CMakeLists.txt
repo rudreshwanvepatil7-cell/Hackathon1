@@ -3,23 +3,13 @@ file(GLOB controller_headers "*.hpp")
 file(GLOB state_machines_headers "g1_state_machines/*.hpp")
 file(GLOB state_machines_headers_wbic "g1_state_machines_wbic/*.hpp")
 file(GLOB g1_task_headers "g1_task/*.hpp" "g1_task/*.h")
-file(GLOB g1_crbi_headers "g1_crbi/*.hpp" "g1_crbi/*.h")
+
+list(REMOVE_ITEM sources "${CMAKE_CURRENT_SOURCE_DIR}/g1_data_manager.cpp")
+list(REMOVE_ITEM controller_headers "${CMAKE_CURRENT_SOURCE_DIR}/g1_data_manager.hpp")
 
 if(BUILD_WITH_ZMQ_PROTOBUF)
     list(APPEND sources "${CMAKE_CURRENT_SOURCE_DIR}/g1_data_manager.cpp")
     list(APPEND controller_headers "${CMAKE_CURRENT_SOURCE_DIR}/g1_data_manager.hpp")
-endif()
-
-list(REMOVE_ITEM sources
-    "${CMAKE_CURRENT_SOURCE_DIR}/g1_state_machines_wbic/mpc_locomotion.cpp")
-list(REMOVE_ITEM state_machines_headers_wbic
-    "${CMAKE_CURRENT_SOURCE_DIR}/g1_state_machines_wbic/mpc_locomotion.hpp")
-
-if(BUILD_WITH_HPIPM)
-    list(APPEND sources
-    "${CMAKE_CURRENT_SOURCE_DIR}/g1_state_machines_wbic/mpc_locomotion.cpp")
-list(APPEND state_machines_headers_wbic
-    "${CMAKE_CURRENT_SOURCE_DIR}/g1_state_machines_wbic/mpc_locomotion.hpp")
 endif()
 
 add_library(rpc-g1-controller SHARED ${sources} ${controller_headers}
@@ -63,5 +53,3 @@ install(FILES ${state_machines_headers_wbic} DESTINATION
     "${INSTALL_INCLUDE_DIR}/controller/g1_controller/g1_state_machines_wbic")
 install(FILES ${g1_task_headers} DESTINATION
     "${INSTALL_INCLUDE_DIR}/controller/g1_controller/g1_task")
-install(FILES ${g1_crbi_headers} DESTINATION
-    "${INSTALL_INCLUDE_DIR}/controller/g1_controller/g1_crbi")

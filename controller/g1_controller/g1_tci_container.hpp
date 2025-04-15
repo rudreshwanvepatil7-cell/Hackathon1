@@ -17,6 +17,7 @@ private:
   Task *com_z_task_;
   Task *cam_task_;
   Task *torso_ori_task_;
+  Task *pelvis_ori_task_;
   Task *upper_body_task_;
   Task *lf_pos_task_;
   Task *rf_pos_task_;

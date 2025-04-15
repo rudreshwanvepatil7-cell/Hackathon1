@@ -27,13 +27,9 @@ G1Interface::G1Interface() : Interface() {
   sp_ = G1StateProvider::GetStateProvider();
 
   // initialize robot model
-  // std::vector<std::string> unactuated_joint_list = {"l_knee_fe_jp",
-  //                                                   "r_knee_fe_jp"};
-  std::vector<std::string> unactuated_joint_list = {""}; //FIXME: i think we don't need this as no double rolling in g1
   robot_ = new PinocchioRobotSystem(
-      THIS_COM "robot_model/g1/g1_latest_collisions.urdf",
-      THIS_COM "robot_model/g1", false, false, &unactuated_joint_list
-      );
+      THIS_COM "robot_model/g1/g1_simple_collisions.urdf",
+      THIS_COM "robot_model/g1", false, false);
 
   // set locomotion control point
   robot_->SetFeetControlPoint("l_foot_contact", "r_foot_contact");

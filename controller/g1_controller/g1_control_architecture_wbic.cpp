@@ -3,7 +3,6 @@
 #include "configuration.hpp"
 #include "controller/g1_controller/g1_control_architecture_wbic.hpp"
 #include "controller/g1_controller/g1_controller.hpp"
-#include "controller/g1_controller/g1_crbi/g1_composite_rigid_body_inertia.hpp"
 #include "controller/g1_controller/g1_definition.hpp"
 #include "controller/g1_controller/g1_state_machines_wbic/contact_transition_end.hpp"
 #include "controller/g1_controller/g1_state_machines_wbic/contact_transition_start.hpp"
@@ -142,11 +141,9 @@ G1ControlArchitecture_WBIC::G1ControlArchitecture_WBIC(
                       "foot_half_width", temp_val);
   mpc_params_->foot_half_width_ = temp_val;
 
-  g1_crbi_model_ = new G1CompositeRigidBodyInertia();
-
   convex_mpc_locomotion_ = new ConvexMPCLocomotion(
       sp_->servo_dt_, iterations_between_mpc, robot_, b_save_mpc_solution,
-      mpc_params_, g1_crbi_model_);
+      mpc_params_);
 #endif
 
   //=============================================================
@@ -279,7 +276,6 @@ G1ControlArchitecture_WBIC::~G1ControlArchitecture_WBIC() {
   // mpc
   delete mpc_gait_params_;
   delete mpc_params_;
-  delete g1_crbi_model_;
   delete convex_mpc_locomotion_;
 #endif
 

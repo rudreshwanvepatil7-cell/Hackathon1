@@ -2,45 +2,45 @@
 
 #include "controller/filter/digital_filters.hpp"
 
-#include "controller/draco_controller/draco_definition.hpp"
-#include "controller/draco_controller/draco_interface.hpp"
-#include "controller/draco_controller/draco_state_estimator.hpp"
-#include "controller/draco_controller/draco_state_provider.hpp"
+#include "controller/g1_controller/g1_definition.hpp"
+#include "controller/g1_controller/g1_interface.hpp"
+#include "controller/g1_controller/g1_state_estimator.hpp"
+#include "controller/g1_controller/g1_state_provider.hpp"
 
 #if B_USE_ZMQ
-#include "controller/draco_controller/draco_data_manager.hpp"
+#include "controller/g1_controller/g1_data_manager.hpp"
 #endif
 
 #include <string>
 
-DracoStateEstimator::DracoStateEstimator(PinocchioRobotSystem *robot,
+G1StateEstimator::G1StateEstimator(PinocchioRobotSystem *robot,
                                          const YAML::Node &cfg)
     : StateEstimator(robot), R_imu_base_com_(Eigen::Matrix3d::Identity()),
       global_leg_odometry_(Eigen::Vector3d::Zero()),
       prev_base_joint_pos_(Eigen::Vector3d::Zero()), b_first_visit_(true),
       com_vel_exp_filter_(nullptr) {
-  util::PrettyConstructor(1, "DracoStateEstimator");
+  util::PrettyConstructor(1, "G1StateEstimator");
 
-  sp_ = DracoStateProvider::GetStateProvider();
+  sp_ = G1StateProvider::GetStateProvider();
 
   // assume start with double support
   sp_->b_lf_contact_ = true;
   sp_->b_rf_contact_ = true;
 
   R_imu_base_com_ =
-      robot_->GetLinkIsometry(draco_link::torso_imu).linear().transpose() *
-      robot_->GetLinkIsometry(draco_link::torso_com_link).linear();
+      robot_->GetLinkIsometry(g1_link::imu_link).linear().transpose() *
+      robot_->GetLinkIsometry(g1_link::torso_com_link).linear();
 
   try {
     // set the foot that will be used to estimate base in first_visit
     int foot_frame = util::ReadParameter<int>(cfg["state_estimator"],
                                               "foot_reference_frame");
     if (foot_frame == 0) {
-      sp_->stance_foot_ = draco_link::l_foot_contact;
-      sp_->prev_stance_foot_ = draco_link::l_foot_contact;
+      sp_->stance_foot_ = g1_link::l_foot_contact;
+      sp_->prev_stance_foot_ = g1_link::l_foot_contact;
     } else {
-      sp_->stance_foot_ = draco_link::r_foot_contact;
-      sp_->prev_stance_foot_ = draco_link::r_foot_contact;
+      sp_->stance_foot_ = g1_link::r_foot_contact;
+      sp_->prev_stance_foot_ = g1_link::r_foot_contact;
     }
 
     com_vel_filter_type_ =
@@ -73,7 +73,7 @@ DracoStateEstimator::DracoStateEstimator(PinocchioRobotSystem *robot,
   }
 
 #if B_USE_MATLOGGER
-  logger_ = XBot::MatLogger2::MakeLogger("/tmp/draco_state_estimator_data");
+  logger_ = XBot::MatLogger2::MakeLogger("/tmp/g1_state_estimator_data");
   logger_->set_buffer_mode(XBot::VariableBuffer::Mode::producer_consumer);
   appender_ = XBot::MatAppender::MakeInstance();
   appender_->add_logger(logger_);
@@ -81,7 +81,7 @@ DracoStateEstimator::DracoStateEstimator(PinocchioRobotSystem *robot,
 #endif
 }
 
-DracoStateEstimator::~DracoStateEstimator() {
+G1StateEstimator::~G1StateEstimator() {
   while (!com_vel_mv_avg_filter_.empty()) {
     delete com_vel_mv_avg_filter_.back();
     com_vel_mv_avg_filter_.pop_back();
@@ -90,7 +90,7 @@ DracoStateEstimator::~DracoStateEstimator() {
     delete com_vel_exp_filter_;
 }
 
-void DracoStateEstimator::Initialize(DracoSensorData *sensor_data) {
+void G1StateEstimator::Initialize(G1SensorData *sensor_data) {
   robot_->UpdateRobotModel(
       Eigen::Vector3d::Zero(), Eigen::Quaterniond::Identity(),
       Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero(), sensor_data->joint_pos_,
@@ -106,7 +106,7 @@ void DracoStateEstimator::Initialize(DracoSensorData *sensor_data) {
 #endif
 }
 
-void DracoStateEstimator::Update(DracoSensorData *sensor_data) {
+void G1StateEstimator::Update(G1SensorData *sensor_data) {
 
   // Estimate floating base orientation
   Eigen::Quaterniond imu_quat(
@@ -198,7 +198,7 @@ void DracoStateEstimator::Update(DracoSensorData *sensor_data) {
 #if B_USE_ZMQ
   if (sp_->count_ % sp_->data_save_freq_ == 0) {
     // Save estimated floating base joint states
-    DracoDataManager *dm = DracoDataManager::GetDataManager();
+    G1DataManager *dm = G1DataManager::GetDataManager();
     dm->data_->est_base_joint_pos_ = base_joint_pos;
     Eigen::Quaterniond base_joint_quat(base_joint_ori_rot);
     dm->data_->est_base_joint_ori_ = base_joint_quat.normalized().coeffs();
@@ -241,7 +241,7 @@ void DracoStateEstimator::Update(DracoSensorData *sensor_data) {
 #endif
 }
 
-void DracoStateEstimator::_ComputeDCM() {
+void G1StateEstimator::_ComputeDCM() {
   Eigen::Vector3d com_pos = robot_->GetRobotComPos();
   Eigen::Vector3d com_vel = sp_->com_vel_est_; // TODO: use filtered com vel
   double omega = sqrt(9.81 / com_pos[2]);
@@ -257,8 +257,8 @@ void DracoStateEstimator::_ComputeDCM() {
                   (1 - alpha) * sp_->dcm_vel_; // not being used in controller
 }
 
-void DracoStateEstimator::UpdateGroundTruthSensorData(
-    DracoSensorData *sensor_data) {
+void G1StateEstimator::UpdateGroundTruthSensorData(
+    G1SensorData *sensor_data) {
   Eigen::Vector4d base_joint_ori = sensor_data->base_joint_quat_;
   Eigen::Quaterniond base_joint_quat(base_joint_ori[3], base_joint_ori[0],
                                      base_joint_ori[1], base_joint_ori[2]);
@@ -286,7 +286,7 @@ void DracoStateEstimator::UpdateGroundTruthSensorData(
 
 #if B_USE_ZMQ
   if (sp_->count_ % sp_->data_save_freq_ == 0) {
-    DracoDataManager *dm = DracoDataManager::GetDataManager();
+    G1DataManager *dm = G1DataManager::GetDataManager();
     // dm->data_->base_joint_pos_ = sensor_data->base_joint_pos_;
     // dm->data_->base_joint_ori_ = sensor_data->base_joint_quat_;
     // dm->data_->base_joint_lin_vel_ = sensor_data->base_joint_lin_vel_;

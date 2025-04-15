@@ -18,7 +18,7 @@ constexpr int kExponentialSmoother = 1;
 constexpr int kLowPassFilter = 2;
 } // namespace com_vel_filter
 
-class DracoStateProvider;
+class G1StateProvider;
 class SimpleMovingAverage;
 class ExponentialMovingAverageFilter;
 class LowPassVelocityFilter;
