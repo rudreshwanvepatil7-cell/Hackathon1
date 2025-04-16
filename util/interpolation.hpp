@@ -364,3 +364,64 @@ y_t CubicBezierSecondDerivative(y_t y0, y_t yf, x_t x) {
   x_t bezier = x_t(6) - x_t(12) * x;
   return bezier * yDiff;
 }
+
+template <typename x_t> using Vector3 = Eigen::Matrix<x_t, 3, 1>;
+/*!
+ * Cubic bezier interpolation projected on a circular trajectory with a center
+ * moving between p0_c and pf_c.  x is between 0 and 1
+ */
+template <typename x_t>
+Vector3<x_t> CurvedCubicBezier(Vector3<x_t> p_c, x_t theta_0, x_t r,
+                               x_t yaw_rate, x_t x) {
+  static_assert(std::is_floating_point<x_t>::value,
+                "must use floating point value");
+  assert(x >= 0 && x <= 1);
+  x_t theta_diff = yaw_rate * x;
+  x_t bezier =
+      theta_diff * (x * x * x + x_t(3) * (x * x * (x_t(1) - x))) + theta_0;
+  Vector3<x_t> p_c =
+      v_c * x return p_c + r * Vector3<x_t>(cos(bezier), sin(bezier), 0.0);
+}
+
+/*!
+ * Cubic bezier interpolation derivative between y0 and yf, projected on a
+ * circular trajectory with a moving center.  x is between 0 and
+ * 1
+ */
+template <typename x_t>
+Vector3<x_t> CurvedCubicBezierFirstDerivative(Vector3<x_t> v_c, x_t theta_0,
+                                              x_t r, x_t yaw_rate, x_t x) {
+  static_assert(std::is_floating_point<x_t>::value,
+                "must use floating point value");
+  assert(x >= 0 && x <= 1);
+  x_t theta_diff = yaw_rate * x;
+  x_t bezier =
+      theta_diff * (x * x * x + x_t(3) * (x * x * (x_t(1) - x))) + theta_0;
+  x_t d_bezier = theta_diff * x_t(6) * x * (x_t(1) - x);
+  return v_c + r * d_bezier * Vector3<x_t>(-sin(bezier), cos(bezier), 0.0);
+}
+
+/*!
+ * Cubic bezier interpolation second derivative between y0 and yf, projected on
+ * a circular trajectory with a moving center.  x is between 0 and
+ * 1
+ */
+template <typename y_t, typename x_t>
+y_t CurvedCubicBezierSecondDerivative(Vector3<x_t> a_c, x_t theta_0, x_t r,
+                                      x_t yaw_rate, x_t x) {
+  static_assert(std::is_floating_point<x_t>::value,
+                "must use floating point value");
+  assert(x >= 0 && x <= 1);
+  x_t theta_diff = yaw_rate * x;
+  x_t bezier =
+      theta_diff * (x * x * x + x_t(3) * (x * x * (x_t(1) - x))) + theta_0;
+  x_t d_bezier = x_t(6) * x * (x_t(1) - x);
+  x_t d2_bezier = x_t(6) - x_t(12) * x;
+  return a_c +
+         r * theta_diff *
+             Vector3<x_t>(-cos(bezier) * theta_diff * d_bezier * d_bezier -
+                              sin(bezier) * d2_bezier,
+                          -sin(bezier) * theta_diff * d_bezier * d_bezier +
+                              cos(bezier) * d2_bezier,
+                          0.0);
+}

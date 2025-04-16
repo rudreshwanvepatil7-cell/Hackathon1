@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef CONVEX_MPC_CONVEX_MPC_LOCOMOTION_HPP_
 #define CONVEX_MPC_CONVEX_MPC_LOCOMOTION_HPP_
 
-#include "controller/whole_body_controller/managers/cubic_beizer_trajectory_manager.hpp"
+#include "controller/whole_body_controller/managers/cubic_bezier_trajectory_manager.hpp"
 #include "convex_mpc/gait.hpp"
 #include "convex_mpc/mpc.hpp"
 #include "util/clock.hpp"
@@ -55,10 +55,10 @@ namespace foot_side {
 constexpr int LFoot = 0;
 constexpr int RFoot = 1;
 constexpr int NumFoot = 2;
-}  // namespace foot_side
+} // namespace foot_side
 
 struct MPCParams {
- public:
+public:
   MPCParams() = default;
   ~MPCParams() = default;
 
@@ -84,7 +84,7 @@ struct MPCParams {
 };
 
 struct GaitParams {
- public:
+public:
   GaitParams() = default;
   ~GaitParams() = default;
 
@@ -102,7 +102,7 @@ struct GaitParams {
 };
 
 class ConvexMPCLocomotion {
- public:
+public:
   ConvexMPCLocomotion(const double dt, const int iterations_btw_mpc,
                       PinocchioRobotSystem *robot,
                       bool b_save_mpc_solution = false,
@@ -145,7 +145,7 @@ class ConvexMPCLocomotion {
 
   // WBC task variables
   // from Raibert Heuristics
-  Eigen::Vector3d des_foot_pos_[foot_side::NumFoot];  // left, right order
+  Eigen::Vector3d des_foot_pos_[foot_side::NumFoot]; // left, right order
   Eigen::Vector3d des_foot_vel_[foot_side::NumFoot];
   Eigen::Vector3d des_foot_acc_[foot_side::NumFoot];
 
@@ -173,11 +173,11 @@ class ConvexMPCLocomotion {
   Eigen::Vector2d contact_state_;
   Eigen::Vector2d swing_state_;
 
-  double x_vel_cmd_;  // from yaml
-  double y_vel_cmd_;  // from yaml
+  double x_vel_cmd_; // from yaml
+  double y_vel_cmd_; // from yaml
   double yaw_rate_cmd_;
 
- private:
+private:
   // robot states
   PinocchioRobotSystem *robot_;
 
@@ -188,7 +188,7 @@ class ConvexMPCLocomotion {
   double dt_mpc_;
 
   void _InitializeConvexMPC(MPCParams *mpc_params);
-  void _InitializeConvexMPC();  // TODO: to be deprecated
+  void _InitializeConvexMPC(); // TODO: to be deprecated
   void _SolveConvexMPC(int *contact_schedule_table);
 
   std::shared_ptr<CostFunction> cost_function_;
@@ -232,7 +232,7 @@ class ConvexMPCLocomotion {
   Vector6d stand_traj_;
 
   // varying inertia calculation
-  Vector6d stand_base_traj_;  // for base trajectory
+  Vector6d stand_base_traj_; // for base trajectory
   Eigen::Vector3d des_base_com_pos_in_world_;
 
   // reference trajectory generation
@@ -249,10 +249,10 @@ class ConvexMPCLocomotion {
   double raibert_gain_;
   double high_speed_turning_gain_;
   Eigen::Vector3d landing_foot_offset_;
-  aligned_vector<Vector3d> foot_pos_;            // lfoot, rfoot order
-  aligned_vector<Matrix3d> foot_ori_;            // lfoot, rfoot order
-  aligned_vector<Vector3d> base_to_hip_offset_;  // lfoot, rfoot order
-  CubicBeizerTrajectoryManager<double>
+  aligned_vector<Vector3d> foot_pos_;           // lfoot, rfoot order
+  aligned_vector<Matrix3d> foot_ori_;           // lfoot, rfoot order
+  aligned_vector<Vector3d> base_to_hip_offset_; // lfoot, rfoot order
+  CubicBezierTrajectoryManager<double>
       foot_swing_pos_trajectory_[foot_side::NumFoot];
   HermiteQuaternionCurve2 foot_swing_ori_trajectory_[foot_side::NumFoot];
   double swing_time_[foot_side::NumFoot];
@@ -261,7 +261,7 @@ class ConvexMPCLocomotion {
   Eigen::Vector2d contact_states_;
 
   // for inertia traj
-  CubicBeizerTrajectoryManager<double>
+  CubicBezierTrajectoryManager<double>
       foot_swing_pos_trajectory_for_inertia_[foot_side::NumFoot];
   HermiteQuaternionCurve2
       foot_swing_ori_trajectory_for_inertia_[foot_side::NumFoot];
@@ -278,4 +278,4 @@ class ConvexMPCLocomotion {
 #endif
 };
 
-#endif  // CONVEX_MPC_CONVEX_MPC_LOCOMOTION_HPP_
+#endif // CONVEX_MPC_CONVEX_MPC_LOCOMOTION_HPP_
