@@ -850,7 +850,7 @@ void PhysicsThread(mj::Simulate *sim, const char *filename) {
 
       // Pass keystroke interrupt
       //**********************************************
-      sim->Load(m, d, filename, draco_interface->interrupt_handler_);
+      sim->Load(m, d, filename);
       //**********************************************
 
       // Set up mujoco joint & actuator maps based on the mujoco model
