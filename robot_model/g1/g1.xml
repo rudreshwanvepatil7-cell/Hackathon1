@@ -1,5 +1,6 @@
 <mujoco model="g1">
   <compiler angle="radian" meshdir="meshes/" autolimits="true" discardvisual="false"/>
+  <option gravity="0 0 -9.81" timestep="0.00125" solver="Newton" tolerance="1e-12" impratio="60.0" iterations="10"/>
   <statistic meansize="0.144785" extent="1.23314" center="0.025392 2.0634e-05 -0.245975"/>
   <default>
     <joint damping="0.5" armature="0.01" frictionloss="0.1"/>
@@ -135,6 +136,7 @@
         </body>
       </body>
       <body name="torso_link">
+        <site name="imu" pos="-0.04233868314 0.00166 0.152067" euler="0 0 0"/>
         <inertial pos="0.00187791 0.00229457 0.208747" quat="0.999957 0.00624375 -0.00636707 -0.0026338" mass="7.52036" diaginertia="0.12848 0.111753 0.0350394"/>
         <joint name="torso_joint" pos="0 0 0" axis="0 0 1" range="-2.618 2.618"/>
         <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.7 0.7 0.7 1" mesh="torso_link"/>
@@ -291,6 +293,7 @@
         </body>
       </body>
     </body>
+    <body name="world_link" pos="0 0 0" quat="1 0 0 0"/>
   </worldbody>
   <actuator>
     <motor name="left_hip_pitch_joint" joint="left_hip_pitch_joint" ctrllimited="true" ctrlrange="-88 88"/>
@@ -331,4 +334,18 @@
     <motor name="right_five_joint" joint="right_five_joint" ctrllimited="true" ctrlrange="-0.7 0.7"/>
     <motor name="right_six_joint" joint="right_six_joint" ctrllimited="true" ctrlrange="-0.7 0.7"/>
   </actuator>
+
+  <sensor>
+    <framequat name="imu-orientation" objtype="site" objname="imu"/>
+    <gyro name="imu-angular-velocity" site="imu" />
+    <accelerometer name="imu-linear-acceleration" site="imu"/>
+    <framelinvel name="imu-linear-velocity" objtype="site" objname="imu"/>
+    <magnetometer name="imu-magnetometer" site="imu"/>
+  </sensor>
+
+  <!--start with the fixed base pose-->
+  <equality>
+    <weld body1="world_link" body2="pelvis" relpose="0 0 0.75 1 0 0 0"/>
+  </equality>
+
 </mujoco>
