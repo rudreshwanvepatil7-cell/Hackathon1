@@ -22,7 +22,7 @@ G1KFStateEstimator::G1KFStateEstimator(PinocchioRobotSystem *_robot,
   sp_->b_rf_contact_ = true;
 
   iso_imu_to_base_com_ =
-      robot_->GetLinkIsometry(g1_link::imu_link).inverse() *
+      robot_->GetLinkIsometry(g1_link::imu_in_torso).inverse() *
       robot_->GetLinkIsometry(g1_link::torso_com_link);
   Eigen::Vector3d rpy =
       util::RPYFromSO3(iso_imu_to_base_com_.linear().transpose());

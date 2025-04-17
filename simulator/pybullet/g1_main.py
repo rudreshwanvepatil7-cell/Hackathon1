@@ -45,7 +45,7 @@ def get_sensor_data_from_pybullet(robot):
     joint_pos, joint_vel = np.zeros(37), np.zeros(37)
 
     imu_frame_quat = np.array(
-        pb.getLinkState(robot, G1LinkIdx.imu_link, 1, 1)[1])
+        pb.getLinkState(robot, G1LinkIdx.imu_in_torso, 1, 1)[1])
     # LF
     joint_pos[0] = pb.getJointState(robot, G1JointIdx.left_hip_pitch_joint)[0]
     joint_pos[1] = pb.getJointState(robot, G1JointIdx.left_hip_roll_joint)[0]
@@ -61,38 +61,28 @@ def get_sensor_data_from_pybullet(robot):
     joint_pos[10] = pb.getJointState(robot, G1JointIdx.right_ankle_pitch_joint)[0]
     joint_pos[11] = pb.getJointState(robot, G1JointIdx.right_ankle_roll_joint)[0]
     # torso
-    joint_pos[12] = pb.getJointState(robot, G1JointIdx.torso_joint)[0]
+    joint_pos[12] = pb.getJointState(robot, G1JointIdx.waist_yaw_joint)[0]
     # LH
     joint_pos[13] = pb.getJointState(robot, G1JointIdx.left_shoulder_pitch_joint)[0]
     joint_pos[14] = pb.getJointState(robot, G1JointIdx.left_shoulder_roll_joint)[0]
     joint_pos[15] = pb.getJointState(robot, G1JointIdx.left_shoulder_yaw_joint)[0]
-    joint_pos[16] = pb.getJointState(robot, G1JointIdx.left_elbow_pitch_joint)[0]
-    joint_pos[17] = pb.getJointState(robot, G1JointIdx.left_elbow_roll_joint)[0]
-    joint_pos[18] = pb.getJointState(robot, G1JointIdx.left_five_joint)[0]
-    joint_pos[19] = pb.getJointState(robot, G1JointIdx.left_six_joint)[0]
-    joint_pos[20] = pb.getJointState(robot, G1JointIdx.left_three_joint)[0]
-    joint_pos[21] = pb.getJointState(robot, G1JointIdx.left_four_joint)[0]
-    joint_pos[22] = pb.getJointState(robot, G1JointIdx.left_zero_joint)[0]
-    joint_pos[23] = pb.getJointState(robot, G1JointIdx.left_one_joint)[0]
-    joint_pos[24] = pb.getJointState(robot, G1JointIdx.left_two_joint)[0]
+    joint_pos[16] = pb.getJointState(robot, G1JointIdx.left_elbow_joint)[0]
+    joint_pos[17] = pb.getJointState(robot, G1JointIdx.left_wrist_roll_joint)[0]
+    joint_pos[18] = pb.getJointState(robot, G1JointIdx.left_wrist_pitch_joint)[0]
+    joint_pos[19] = pb.getJointState(robot, G1JointIdx.left_wrist_yaw_joint)[0]
     # RH
-    joint_pos[25] = pb.getJointState(robot, G1JointIdx.right_shoulder_pitch_joint)[0]
-    joint_pos[26] = pb.getJointState(robot, G1JointIdx.right_shoulder_roll_joint)[0]
-    joint_pos[27] = pb.getJointState(robot, G1JointIdx.right_shoulder_yaw_joint)[0]
-    joint_pos[28] = pb.getJointState(robot, G1JointIdx.right_elbow_pitch_joint)[0]
-    joint_pos[29] = pb.getJointState(robot, G1JointIdx.right_elbow_roll_joint)[0]
-    joint_pos[30] = pb.getJointState(robot, G1JointIdx.right_five_joint)[0]
-    joint_pos[31] = pb.getJointState(robot, G1JointIdx.right_six_joint)[0]
-    joint_pos[32] = pb.getJointState(robot, G1JointIdx.right_three_joint)[0]
-    joint_pos[33] = pb.getJointState(robot, G1JointIdx.right_four_joint)[0]
-    joint_pos[34] = pb.getJointState(robot, G1JointIdx.right_zero_joint)[0]
-    joint_pos[35] = pb.getJointState(robot, G1JointIdx.right_one_joint)[0]
-    joint_pos[36] = pb.getJointState(robot, G1JointIdx.right_two_joint)[0]
+    joint_pos[20] = pb.getJointState(robot, G1JointIdx.right_shoulder_pitch_joint)[0]
+    joint_pos[21] = pb.getJointState(robot, G1JointIdx.right_shoulder_roll_joint)[0]
+    joint_pos[22] = pb.getJointState(robot, G1JointIdx.right_shoulder_yaw_joint)[0]
+    joint_pos[23] = pb.getJointState(robot, G1JointIdx.right_elbow_joint)[0]
+    joint_pos[24] = pb.getJointState(robot, G1JointIdx.right_wrist_roll_joint)[0]
+    joint_pos[25] = pb.getJointState(robot, G1JointIdx.right_wrist_pitch_joint)[0]
+    joint_pos[26] = pb.getJointState(robot, G1JointIdx.right_wrist_yaw_joint)[0]
 
     imu_ang_vel = np.array(
-        pb.getLinkState(robot, G1LinkIdx.imu_link, 1, 1)[7])
+        pb.getLinkState(robot, G1LinkIdx.imu_in_torso, 1, 1)[7])
 
-    imu_dvel = pybullet_util.simulate_dVel_data(robot, G1LinkIdx.imu_link,
+    imu_dvel = pybullet_util.simulate_dVel_data(robot, G1LinkIdx.imu_in_torso,
                                                 previous_torso_velocity)
 
     # LF
@@ -109,33 +99,24 @@ def get_sensor_data_from_pybullet(robot):
     joint_vel[9] = pb.getJointState(robot, G1JointIdx.right_knee_joint)[1]
     joint_vel[10] = pb.getJointState(robot, G1JointIdx.right_ankle_pitch_joint)[1]
     joint_vel[11] = pb.getJointState(robot, G1JointIdx.right_ankle_roll_joint)[1]
-    joint_vel[12] = pb.getJointState(robot, G1JointIdx.torso_joint)[1]
+    # torso
+    joint_vel[12] = pb.getJointState(robot, G1JointIdx.waist_yaw_joint)[1]
     # LH
     joint_vel[13] = pb.getJointState(robot, G1JointIdx.left_shoulder_pitch_joint)[1]
     joint_vel[14] = pb.getJointState(robot, G1JointIdx.left_shoulder_roll_joint)[1]
     joint_vel[15] = pb.getJointState(robot, G1JointIdx.left_shoulder_yaw_joint)[1]
-    joint_vel[16] = pb.getJointState(robot, G1JointIdx.left_elbow_pitch_joint)[1]
-    joint_vel[17] = pb.getJointState(robot, G1JointIdx.left_elbow_roll_joint)[1]
-    joint_vel[18] = pb.getJointState(robot, G1JointIdx.left_five_joint)[1]
-    joint_vel[19] = pb.getJointState(robot, G1JointIdx.left_six_joint)[1]
-    joint_vel[20] = pb.getJointState(robot, G1JointIdx.left_three_joint)[1]
-    joint_vel[21] = pb.getJointState(robot, G1JointIdx.left_four_joint)[1]
-    joint_vel[22] = pb.getJointState(robot, G1JointIdx.left_zero_joint)[1]
-    joint_vel[23] = pb.getJointState(robot, G1JointIdx.left_one_joint)[1]
-    joint_vel[24] = pb.getJointState(robot, G1JointIdx.left_two_joint)[1]
+    joint_vel[16] = pb.getJointState(robot, G1JointIdx.left_elbow_joint)[1]
+    joint_vel[17] = pb.getJointState(robot, G1JointIdx.left_wrist_roll_joint)[1]
+    joint_vel[18] = pb.getJointState(robot, G1JointIdx.left_wrist_pitch_joint)[1]
+    joint_vel[19] = pb.getJointState(robot, G1JointIdx.left_wrist_yaw_joint)[1]
     # RH
-    joint_vel[25] = pb.getJointState(robot, G1JointIdx.right_shoulder_pitch_joint)[1]
-    joint_vel[26] = pb.getJointState(robot, G1JointIdx.right_shoulder_roll_joint)[1]
-    joint_vel[27] = pb.getJointState(robot, G1JointIdx.right_shoulder_yaw_joint)[1]
-    joint_vel[28] = pb.getJointState(robot, G1JointIdx.right_elbow_pitch_joint)[1]
-    joint_vel[29] = pb.getJointState(robot, G1JointIdx.right_elbow_roll_joint)[1]
-    joint_vel[30] = pb.getJointState(robot, G1JointIdx.right_five_joint)[1]
-    joint_vel[31] = pb.getJointState(robot, G1JointIdx.right_six_joint)[1]
-    joint_vel[32] = pb.getJointState(robot, G1JointIdx.right_three_joint)[1]
-    joint_vel[33] = pb.getJointState(robot, G1JointIdx.right_four_joint)[1]
-    joint_vel[34] = pb.getJointState(robot, G1JointIdx.right_zero_joint)[1]
-    joint_vel[35] = pb.getJointState(robot, G1JointIdx.right_one_joint)[1]
-    joint_vel[36] = pb.getJointState(robot, G1JointIdx.right_two_joint)[1]
+    joint_vel[20] = pb.getJointState(robot, G1JointIdx.right_shoulder_pitch_joint)[1]
+    joint_vel[21] = pb.getJointState(robot, G1JointIdx.right_shoulder_roll_joint)[1]
+    joint_vel[22] = pb.getJointState(robot, G1JointIdx.right_shoulder_yaw_joint)[1]
+    joint_vel[23] = pb.getJointState(robot, G1JointIdx.right_elbow_joint)[1]
+    joint_vel[24] = pb.getJointState(robot, G1JointIdx.right_wrist_roll_joint)[1]
+    joint_vel[25] = pb.getJointState(robot, G1JointIdx.right_wrist_pitch_joint)[1]
+    joint_vel[26] = pb.getJointState(robot, G1JointIdx.right_wrist_yaw_joint)[1]
 
 
 # normal force measured on each foot
@@ -154,9 +135,9 @@ def get_sensor_data_from_pybullet(robot):
         _r_normal_force += contact[9]
 
     b_lf_contact = (True if pb.getLinkState(robot, G1LinkIdx.l_foot_contact,
-                                            1, 1)[0][2] <= 0.05 else False)
+                                            1, 1)[0][2] <= 0.01 else False)
     b_rf_contact = (True if pb.getLinkState(robot, G1LinkIdx.r_foot_contact,
-                                            1, 1)[0][2] <= 0.05 else False)
+                                            1, 1)[0][2] <= 0.01 else False)
     return (
         imu_frame_quat,
         imu_ang_vel,
@@ -228,7 +209,7 @@ def apply_control_input_to_pybullet(robot, command):
 
     # torso
     pb.setJointMotorControl2(robot,
-                             G1JointIdx.torso_joint,
+                             G1JointIdx.waist_yaw_joint,
                              controlMode=mode,
                              force=command[12])
 
@@ -246,98 +227,59 @@ def apply_control_input_to_pybullet(robot, command):
                              controlMode=mode,
                              force=command[15])
     pb.setJointMotorControl2(robot,
-                             G1JointIdx.left_elbow_pitch_joint,
+                             G1JointIdx.left_elbow_joint,
                              controlMode=mode,
                              force=command[16])
     pb.setJointMotorControl2(robot,
-                             G1JointIdx.left_elbow_roll_joint,
+                             G1JointIdx.left_wrist_roll_joint,
                              controlMode=mode,
                              force=command[17])
     pb.setJointMotorControl2(robot,
-                             G1JointIdx.left_five_joint,
+                             G1JointIdx.left_wrist_pitch_joint,
                              controlMode=mode,
                              force=command[18])
     pb.setJointMotorControl2(robot,
-                             G1JointIdx.left_six_joint,
+                             G1JointIdx.left_wrist_yaw_joint,
                              controlMode=mode,
                              force=command[19])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.left_three_joint,
-                             controlMode=mode,
-                             force=command[20])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.left_four_joint,
-                             controlMode=mode,
-                             force=command[21])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.left_zero_joint,
-                             controlMode=mode,
-                             force=command[22])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.left_one_joint,
-                             controlMode=mode,
-                             force=command[23])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.left_two_joint,
-                             controlMode=mode,
-                             force=command[24])
 
     # RH
     pb.setJointMotorControl2(robot,
                              G1JointIdx.right_shoulder_pitch_joint,
                              controlMode=mode,
-                             force=command[25])
+                             force=command[20])
     pb.setJointMotorControl2(robot,
                              G1JointIdx.right_shoulder_roll_joint,
                              controlMode=mode,
-                             force=command[26])
+                             force=command[21])
     pb.setJointMotorControl2(robot,
                              G1JointIdx.right_shoulder_yaw_joint,
                              controlMode=mode,
-                             force=command[27])
+                             force=command[22])
     pb.setJointMotorControl2(robot,
-                             G1JointIdx.right_elbow_pitch_joint,
+                             G1JointIdx.right_elbow_joint,
                              controlMode=mode,
-                             force=command[28])
+                             force=command[23])
     pb.setJointMotorControl2(robot,
-                             G1JointIdx.right_elbow_roll_joint,
+                             G1JointIdx.right_wrist_roll_joint,
                              controlMode=mode,
-                             force=command[29])
+                             force=command[24])
     pb.setJointMotorControl2(robot,
-                             G1JointIdx.right_five_joint,
+                             G1JointIdx.right_wrist_pitch_joint,
                              controlMode=mode,
-                             force=command[30])
+                             force=command[25])
     pb.setJointMotorControl2(robot,
-                             G1JointIdx.right_six_joint,
+                             G1JointIdx.right_wrist_yaw_joint,
                              controlMode=mode,
-                             force=command[31])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.right_three_joint,
-                             controlMode=mode,
-                             force=command[32])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.right_four_joint,
-                             controlMode=mode,
-                             force=command[33])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.right_zero_joint,
-                             controlMode=mode,
-                             force=command[34])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.right_one_joint,
-                             controlMode=mode,
-                             force=command[35])
-    pb.setJointMotorControl2(robot,
-                             G1JointIdx.right_two_joint,
-                             controlMode=mode,
-                             force=command[36])
+                             force=command[26])
+
 
 def set_init_config_pybullet_robot(robot):
     # Upperbody
     pb.resetJointState(robot, G1JointIdx.left_shoulder_roll_joint, np.pi / 6, 0.0)
-    pb.resetJointState(robot, G1JointIdx.left_elbow_pitch_joint, np.pi / 2, 0.0)
+    pb.resetJointState(robot, G1JointIdx.left_elbow_joint, np.pi / 2, 0.0)
     pb.resetJointState(robot, G1JointIdx.right_shoulder_roll_joint, -np.pi / 6, 0.0)
-    pb.resetJointState(robot, G1JointIdx.right_elbow_pitch_joint, np.pi / 2, 0.0)
+    pb.resetJointState(robot, G1JointIdx.right_elbow_joint, np.pi / 2, 0.0)
 
     # Lowerbody
     hip_yaw_angle = 0
@@ -400,7 +342,7 @@ if __name__ == "__main__":
     ## robot spawn & initial kinematics and dynamics setting
     pb.configureDebugVisualizer(pb.COV_ENABLE_RENDERING, 0)
     g1_humanoid = pb.loadURDF(
-        cwd + "/robot_model/g1/g1_simple_collisions.urdf",
+        cwd + "/robot_model/g1/g1_29dof_lock_waist.urdf",
         Config.INITIAL_BASE_JOINT_POS,
         Config.INITIAL_BASE_JOINT_QUAT,
         useFixedBase=0,
@@ -621,7 +563,7 @@ if __name__ == "__main__":
         # lfoot_pos = pybullet_util.get_link_iso(draco_humanoid,
         # save current torso velocity for next iteration
         previous_torso_velocity = pybullet_util.get_link_vel(
-            g1_humanoid, link_id_dict["imu_link"])[3:6]
+            g1_humanoid, link_id_dict["imu_in_torso"])[3:6]
 
         # G1LinkIdx.l_foot_contact)[0:3, 3]
         # rfoot_pos = pybullet_util.get_link_iso(draco_humanoid,

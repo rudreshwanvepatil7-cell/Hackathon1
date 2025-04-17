@@ -28,7 +28,7 @@ G1Interface::G1Interface() : Interface() {
 
   // initialize robot model
   robot_ = new PinocchioRobotSystem(
-      THIS_COM "robot_model/g1/g1_simple_collisions.urdf",
+      THIS_COM "robot_model/g1/g1_29dof_lock_waist.urdf",
       THIS_COM "robot_model/g1", false, false);
 
   // set locomotion control point

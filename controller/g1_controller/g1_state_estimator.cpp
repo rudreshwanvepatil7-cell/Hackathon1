@@ -28,7 +28,7 @@ G1StateEstimator::G1StateEstimator(PinocchioRobotSystem *robot,
   sp_->b_rf_contact_ = true;
 
   R_imu_base_com_ =
-      robot_->GetLinkIsometry(g1_link::imu_link).linear().transpose() *
+      robot_->GetLinkIsometry(g1_link::imu_in_torso).linear().transpose() *
       robot_->GetLinkIsometry(g1_link::torso_com_link).linear();
 
   try {

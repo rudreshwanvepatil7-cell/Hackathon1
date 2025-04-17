@@ -27,26 +27,22 @@ G1TCIContainer::G1TCIContainer(PinocchioRobotSystem *robot,
   pelvis_ori_task_ = new LinkOriTask(robot_, g1_link::pelvis);
   std::vector<int> upper_body_jidx{
       g1_joint::left_shoulder_pitch_joint, g1_joint::left_shoulder_roll_joint,
-      g1_joint::left_shoulder_yaw_joint, g1_joint::left_elbow_pitch_joint,
-      g1_joint::left_elbow_roll_joint, g1_joint::left_five_joint,
-      g1_joint::left_six_joint, g1_joint::left_three_joint,
-      g1_joint::left_four_joint, g1_joint::left_zero_joint,
-      g1_joint::left_one_joint, g1_joint::left_two_joint,
+      g1_joint::left_shoulder_yaw_joint, g1_joint::left_elbow_joint,
+      g1_joint::left_wrist_roll_joint, g1_joint::left_wrist_pitch_joint,
+      g1_joint::left_wrist_yaw_joint,
       g1_joint::right_shoulder_pitch_joint, g1_joint::right_shoulder_roll_joint,
-      g1_joint::right_shoulder_yaw_joint, g1_joint::right_elbow_pitch_joint,
-      g1_joint::right_elbow_roll_joint, g1_joint::right_five_joint,
-      g1_joint::right_six_joint, g1_joint::right_three_joint,
-      g1_joint::right_four_joint, g1_joint::right_zero_joint,
-      g1_joint::right_one_joint, g1_joint::right_two_joint};
+      g1_joint::right_shoulder_yaw_joint, g1_joint::right_elbow_joint,
+      g1_joint::right_wrist_roll_joint, g1_joint::right_wrist_pitch_joint,
+      g1_joint::right_wrist_yaw_joint};
   upper_body_task_ = new SelectedJointTask(robot_, upper_body_jidx);
   lf_pos_task_ = new LinkPosTask(robot_, g1_link::l_foot_contact);
   rf_pos_task_ = new LinkPosTask(robot_, g1_link::r_foot_contact);
   lf_ori_task_ = new LinkOriTask(robot_, g1_link::l_foot_contact);
   rf_ori_task_ = new LinkOriTask(robot_, g1_link::r_foot_contact);
-  lh_pos_task_ = new LinkPosTask(robot_, g1_link::left_palm_link);   // TODO check
-  rh_pos_task_ = new LinkPosTask(robot_, g1_link::right_palm_link);  // TODO check
-  lh_ori_task_ = new LinkOriTask(robot_, g1_link::left_palm_link);   // TODO check
-  rh_ori_task_ = new LinkOriTask(robot_, g1_link::right_palm_link);  // TODO check
+  lh_pos_task_ = new LinkPosTask(robot_, g1_link::left_wrist_yaw_link);   // TODO check
+  rh_pos_task_ = new LinkPosTask(robot_, g1_link::right_wrist_yaw_link);  // TODO check
+  lh_ori_task_ = new LinkOriTask(robot_, g1_link::left_wrist_yaw_link);   // TODO check
+  rh_ori_task_ = new LinkOriTask(robot_, g1_link::right_wrist_yaw_link);  // TODO check
 //  wbo_task_ = new G1WBOTask(robot_);
 
   task_map_.clear();
