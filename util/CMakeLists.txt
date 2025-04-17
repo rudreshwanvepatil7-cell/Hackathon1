@@ -30,5 +30,7 @@ target_include_directories(pkl_reader PUBLIC
 target_link_libraries(pkl_reader PRIVATE pybind11::embed Eigen3::Eigen)
 add_library(pkl_reader::pkl_reader ALIAS pkl_reader)
 
-add_executable(pkl_example pkl_reader_example.cpp)
-target_link_libraries(pkl_example PRIVATE pybind11::embed pkl_reader::pkl_reader)
+if(BUILD_WITH_GTESTS)
+    add_executable(pkl_example pkl_reader_example.cpp)
+    target_link_libraries(pkl_example PRIVATE pybind11::embed pkl_reader::pkl_reader)
+endif()
