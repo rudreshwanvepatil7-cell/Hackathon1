@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cerrno>
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
@@ -239,6 +240,17 @@ void scanPluginLibraries() {
 //------------------------------------------- simulation
 //-------------------------------------------
 
+const char* Diverged(int disableflags, const mjData* d) {
+  if (disableflags & mjDSBL_AUTORESET) {
+    for (mjtWarning w : {mjWARN_BADQACC, mjWARN_BADQVEL, mjWARN_BADQPOS}) {
+      if (d->warning[w].number > 0) {
+        return mju_warningText(w, d->warning[w].lastinfo);
+      }
+    }
+  }
+  return nullptr;
+}
+
 mjModel *LoadModel(const char *file, mj::Simulate &sim) {
   // this copy is needed so that the mju::strlen call below compiles
   char filename[mj::Simulate::kMaxFilenameLength];
@@ -287,46 +299,6 @@ mjModel *LoadModel(const char *file, mj::Simulate &sim) {
   }
 
   return mnew;
-}
-
-void ConfigureSensors(mjModel *m, int &imu_orientation_adr,
-                      int &imu_ang_vel_adr, int &imu_lin_acc_adr,
-                      int &imu_lin_vel_adr) {
-  // imu orientation sensor
-  const std::string &imu_orientation_sensor = "imu-orientation";
-  int idx = mj_name2id(m, mjOBJ_SENSOR, imu_orientation_sensor.c_str());
-  if (idx == -1)
-    std::cout << "[MuJoCo Utils] Can't find the imu orientation sensor: "
-              << imu_orientation_sensor << " in MuJoCo model" << '\n';
-  imu_orientation_adr = m->sensor_adr[idx];
-
-  // imu angular velocity sensor (gyro)
-  const std::string &imu_ang_vel_sensor = "imu-angular-velocity";
-  idx = mj_name2id(m, mjOBJ_SENSOR, imu_ang_vel_sensor.c_str());
-  if (idx == -1)
-    std::cout << "[MuJoCo Utils] Can't find the imu angular velocity sensor: "
-              << imu_ang_vel_sensor << " in MuJoCo model" << '\n';
-  imu_ang_vel_adr = m->sensor_adr[idx];
-  // imu_ang_vel_noise_adr = m->sensor_noise[idx];
-
-  // imu linear acceleration sensor (accelerometer)
-  const std::string &imu_lin_acc_sensor = "imu-linear-acceleration";
-  idx = mj_name2id(m, mjOBJ_SENSOR, imu_lin_acc_sensor.c_str());
-  if (idx == -1)
-    std::cout
-        << "[MuJoCo Utils] Can't find the imu linear acceleration sensor: "
-        << imu_lin_acc_sensor << " in MuJoCo model" << '\n';
-  imu_lin_acc_adr = m->sensor_adr[idx];
-  // imu_lin_acc_noise_adr = m->sensor_noise[idx];
-
-  // imu linear velocity sensor (imu frame lin vel)
-  const std::string &imu_lin_vel_sensor = "imu-linear-velocity";
-  idx = mj_name2id(m, mjOBJ_SENSOR, imu_lin_vel_sensor.c_str());
-  if (idx == -1)
-    std::cout << "[MuJoCo Utils] Can't find the imu linear velocity sensor: "
-              << imu_lin_vel_sensor << " in MuJoCo model" << '\n';
-  imu_lin_vel_adr = m->sensor_adr[idx];
-  // imu_frame_lin_acc_noise_adr = m->sensor_noise[idx];
 }
 
 void SetYamlNode(YAML::Node &node) {
@@ -393,8 +365,6 @@ void SetInitialConfig(mjModel *m, mjData *d,
 
     // set joint pos
     for (const auto &[joint_name, qpos_adr] : mj_qpos_map) {
-      // if (joint_name == "l_knee_fe_jp" || joint_name == "r_knee_fe_jp")
-      // continue;
       d->qpos[qpos_adr] =
           util::ReadParameter<double>(cfg_["initial_config"], joint_name);
     }
@@ -529,7 +499,6 @@ void PhysicsLoop(mj::Simulate &sim) {
   std::chrono::time_point<mj::Simulate::Clock> syncCPU;
   mjtNum syncSim = 0;
 
-  int iter{0};
   //***************************************************
   // run until asked to exit (main simulation while loop)
   //***************************************************
@@ -557,10 +526,6 @@ void PhysicsLoop(mj::Simulate &sim) {
         d = dnew;
         mj_forward(m, d);
 
-        // allocate ctrlnoise
-        // free(ctrlnoise);
-        // ctrlnoise = (mjtNum *)malloc(sizeof(mjtNum) * m->nu);
-        // mju_zero(ctrlnoise, m->nu);
       } else {
         sim.LoadMessageClear();
       }
@@ -589,10 +554,6 @@ void PhysicsLoop(mj::Simulate &sim) {
         d = dnew;
         mj_forward(m, d);
 
-        // allocate ctrlnoise
-        // free(ctrlnoise);
-        // ctrlnoise = static_cast<mjtNum *>(malloc(sizeof(mjtNum) * m->nu));
-        // mju_zero(ctrlnoise, m->nu);
       } else {
         sim.LoadMessageClear();
       }
@@ -621,8 +582,6 @@ void PhysicsLoop(mj::Simulate &sim) {
           if (CopySensorData())
             g1_interface->GetCommand(g1_sensor_data, g1_command);
           CopyCommand();
-          // if (iter == 5)
-          // exit(0);
           //*****************************************************
 
           bool stepped = false;
@@ -670,7 +629,13 @@ void PhysicsLoop(mj::Simulate &sim) {
 
             // run single step, let next iteration deal with timing
             mj_step(m, d);
-            stepped = true;
+            const char* message = Diverged(m->opt.disableflags, d);
+            if (message) {
+              sim.run = 0;
+              mju::strcpy_arr(sim.load_error, message);
+            } else {
+              stepped = true;
+            }
           }
 
           // in-sync: step until ahead of cpu
@@ -693,9 +658,18 @@ void PhysicsLoop(mj::Simulate &sim) {
                 measured = true;
               }
 
+              // inject noise
+              // sim.InjectNoise(); //TODO: uncomment if needed @carlos
+
               // call mj_step
               mj_step(m, d);
-              stepped = true;
+              const char* message = Diverged(m->opt.disableflags, d);
+              if (message) {
+                sim.run = 0;
+                mju::strcpy_arr(sim.load_error, message);
+              } else {
+                stepped = true;
+              }
 
               // break if reset
               if (d->time < prevSim) {
@@ -718,7 +692,6 @@ void PhysicsLoop(mj::Simulate &sim) {
         }
       }
     } // release std::lock_guard<std::mutex>
-    iter++;
   }
 }
 } // namespace
@@ -762,13 +735,12 @@ void PhysicsThread(mj::Simulate *sim, const char *filename) {
           
       mjc_utils::SetJointAndActuatorMaps(m, mj_qpos_map_, mj_qvel_map_, mj_act_map_,
                               pin_jnt_map_,
-                              pin_act_map_); // TODO: make this function
-                                             // mujoco_utils (static method)
+                              pin_act_map_);
       // ********************************************
 
       // Configure sensor (imu)
       // ********************************************
-      ConfigureSensors(m, imu_orientation_adr_, imu_ang_vel_adr_,
+      mjc_utils::ConfigureSensors(m, imu_orientation_adr_, imu_ang_vel_adr_,
                        imu_lin_acc_adr_, imu_lin_vel_adr_);
       // ********************************************
 
@@ -862,7 +834,6 @@ int main(int argc, char **argv) {
 
   const char *filename = nullptr;
 
-  // TODO: remove if statement
   if (argc > 1) {
     filename = argv[1];
   } else {

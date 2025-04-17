@@ -19,4 +19,13 @@ namespace mjc_utils{
         std::unordered_map<std::string, int> &mj_actuator_map,
         const std::unordered_map<std::string, int> &pin_joint_map,
         const std::unordered_map<std::string, int> &pin_actuator_map);
+
+    /**
+     * @brief Configures the IMU sensors in the MuJoCo model.
+     */
+    void ConfigureSensors(mjModel *m, int &imu_orientation_adr,
+                      int &imu_ang_vel_adr, int &imu_lin_acc_adr,
+                      int &imu_lin_vel_adr);
+
+
 }
