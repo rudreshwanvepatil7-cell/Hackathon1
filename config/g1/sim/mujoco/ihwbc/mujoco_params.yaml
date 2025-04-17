@@ -35,7 +35,7 @@ actuator_gains:
   right_ankle_roll_joint:
     kp: 40
     kd: 2
-  torso_joint:
+  waist_yaw_joint:
     kp: 40
     kd: 6
   left_shoulder_pitch_joint:
@@ -47,33 +47,18 @@ actuator_gains:
   left_shoulder_yaw_joint:
     kp: 40
     kd: 5
-  left_elbow_pitch_joint:
+  left_elbow_joint:
     kp: 40
     kd: 5
-  left_elbow_roll_joint:
+  left_wrist_roll_joint:
     kp: 40
     kd: 5
-  left_five_joint:
+  left_wrist_pitch_joint:
     kp: 40
-    kd: 2
-  left_six_joint:
+    kd: 5
+  left_wrist_yaw_joint:
     kp: 40
-    kd: 2
-  left_three_joint:
-    kp: 40
-    kd: 2
-  left_four_joint:
-    kp: 40
-    kd: 2
-  left_zero_joint:
-    kp: 40
-    kd: 2
-  left_one_joint:
-    kp: 40
-    kd: 2
-  left_two_joint:
-    kp: 40
-    kd: 2
+    kd: 5
   right_shoulder_pitch_joint:
     kp: 80
     kd: 4
@@ -83,38 +68,23 @@ actuator_gains:
   right_shoulder_yaw_joint:
     kp: 40
     kd: 5
-  right_elbow_pitch_joint:
+  right_elbow_joint:
     kp: 30
     kd: 5
-  right_elbow_roll_joint:
+  right_wrist_roll_joint:
     kp: 40
     kd: 5
-  right_five_joint:
+  right_wrist_pitch_joint:
     kp: 40
-    kd: 2
-  right_six_joint:
+    kd: 5
+  right_wrist_yaw_joint:
     kp: 40
-    kd: 2
-  right_three_joint:
-    kp: 40
-    kd: 2
-  right_four_joint:
-    kp: 40
-    kd: 2
-  right_zero_joint:
-    kp: 40
-    kd: 2
-  right_one_joint:
-    kp: 40
-    kd: 2
-  right_two_joint:
-    kp: 40
-    kd: 2
+    kd: 5
 
 initial_config:
   base_pos_x: 0.
   base_pos_y: 0.
-  base_pos_z: 0.75
+  base_pos_z: 0.9
   base_quat_w: 1.
   base_quat_x: 0.
   base_quat_y: 0.
@@ -131,12 +101,14 @@ initial_config:
   right_knee_joint: 0.785
   right_ankle_pitch_joint: -0.262
   right_ankle_roll_joint: 0.
-  torso_joint: 0.
+  waist_yaw_joint: 0.
   left_shoulder_pitch_joint: 0.
   left_shoulder_roll_joint: 0.524
   left_shoulder_yaw_joint: 0.
-  left_elbow_pitch_joint: 1.571
-  left_elbow_roll_joint: 0
+  left_elbow_joint: 1.571
+  left_wrist_roll_joint: 0
+  left_wrist_pitch_joint: 0
+  left_wrist_yaw_joint: 0
   left_five_joint: 0
   left_six_joint: 0
   left_three_joint: 0.
@@ -147,8 +119,10 @@ initial_config:
   right_shoulder_pitch_joint: 0.
   right_shoulder_roll_joint: -0.524
   right_shoulder_yaw_joint: 0.
-  right_elbow_pitch_joint: 1.571
-  right_elbow_roll_joint: 0.
+  right_elbow_joint: 1.571
+  right_wrist_roll_joint: 0.
+  right_wrist_pitch_joint: 0.
+  right_wrist_yaw_joint: 0.
   right_five_joint: 0.
   right_six_joint: 0.
   right_three_joint: 0.

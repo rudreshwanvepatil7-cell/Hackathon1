@@ -75,8 +75,8 @@ wbc:
       weight : [1000., 1000.]
       kp : [200., 200.]
       kd : [10., 10.]
-      icp_weight : [8000., 8000.] # only used when feedback source : 1
-      icp_kp : [2.6, 3.4]
+      icp_weight : [4000., 4000.] # only used when feedback source : 1
+      icp_kp : [2, 4]
       icp_kd : [0., 0.] # x, y will be ignored
       icp_ki : [0., 0.]
 
@@ -109,12 +109,12 @@ wbc:
       kd : [0.0, 0.0, 2.0]
 
     torso_ori_task:
-      weight : [100., 100., 100.]
+      weight : [300., 300., 300.]
       kp : [200., 200., 100.]
       kd : [14., 14., 10.]
 
     pelvis_ori_task:
-      weight : [500., 500., 500.]
+      weight : [100., 100., 100.]
       kp : [100., 100., 150.]
       kd : [15., 15., 10.]
 
@@ -122,9 +122,9 @@ wbc:
       ## l_shoulder_fe(0), l_shoulder_aa(1), l_shoulder_ie(2), l_elbow_fe(3), l_wrist_ps_(4),
       ## l_wrist_pitch(5), neck_pitch(6), r_shoulder_fe(7), r_shoulder_aa(8), r_shoulder_ie(9),
       ## r_shoulder_ie(10), r_elbow_fe(11), r_wrist_ps(12), r_wrist_pitch(13)
-      weight : [40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40.]
-      kp : [100., 100., 100., 50., 40., 40., 100., 100., 100., 100., 50., 40., 40., 100., 100., 100., 50., 40., 40., 100., 100., 100., 100., 50.]
-      kd : [8., 8., 8., 3., 2., 2., 10., 8., 8., 8., 3., 2., 2., 8., 8., 8., 3., 2., 2., 10., 8., 8., 8., 3.]
+      weight : [40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40., 40.]
+      kp : [100., 100., 100., 80., 80., 80., 80., 100., 100., 100., 80., 80., 80., 80.]
+      kd : [8., 8., 8., 4., 4., 4., 4., 8., 8., 8., 4., 4., 4., 4.]
 
     hand_pos_task:
       weight : [0., 0., 0.]
@@ -146,9 +146,9 @@ wbc:
 
     foot_ori_task:
       weight : [1000., 1000., 1000.]
-      weight_at_swing : [1000., 1000., 1000.]
-      kp : [80., 80., 80.]
-      kd : [4., 4., 4.]
+      weight_at_swing : [4000., 4000., 4000.]
+      kp : [300., 300., 300.]
+      kd : [30., 30., 30.]
 
     foot_rf_task:
       weight : [0., 0., 0., 1e-6, 1e-6, 5e-7] ## trq, force order
@@ -178,14 +178,14 @@ state_machine:
 
     initialize:
       init_duration: 2
-      target_joint_pos: [-0.524, 0., 0., 0.785, -0.262, 0., -0.524, 0., 0., 0.785, -0.262, 0., 0., 0., 0.524, 0., 1.571, 0., 0., 0., 0., 0., 0., 0., 0., 0., -0.524, 0., 1.571, 0., 0., 0., 0., 0., 0., 0., 0.] #pinocchio robotsystem joint order
+      target_joint_pos: [-0.524, 0., 0., 0.785, -0.262, 0., -0.524, 0., 0., 0.785, -0.262, 0., 0., 0., 0.524, 0., 1.571, 0., 0., 0., 0., -0.524, 0., 1.571, 0., 0., 0.] #pinocchio robotsystem joint order
       b_only_joint_pos_control: false
       wait_time: 1.
 
     stand_up:
       standup_duration: 1.
       target_com_height: 0.65
-      target_base_height: 0.75
+      target_base_height: 0.85
 
       rf_z_max_interp_duration: 0.1
 
