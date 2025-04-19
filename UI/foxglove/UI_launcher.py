@@ -623,7 +623,7 @@ if args.visualizer != "none":
         )
     elif args.robot == "g1":
         model, collision_model, visual_model = pin.buildModelsFromUrdf(
-            "robot_model/g1/g1_simple_collisions.urdf",
+            "robot_model/g1/g1_29dof_lock_waist.urdf",
             "robot_model/g1",
             pin.JointModelFreeFlyer(),
         )
