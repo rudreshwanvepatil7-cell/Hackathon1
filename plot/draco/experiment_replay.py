@@ -12,10 +12,11 @@ import pinocchio as pin
 
 # Python-Meshcat
 from meshcat.animation import Animation
-from plot import meshcat_utils as vis_tools
 
 cwd = os.getcwd()
 sys.path.append(cwd)
+
+from plot import meshcat_utils as vis_tools
 
 # for the animation, set if you want to use the experiment time or start animation from t=0
 use_exp_time = False
@@ -52,39 +53,29 @@ try:
     viz.initViewer(open=True)
     # viz.viewer.wait()
 except ImportError as err:
-    print(
-        "Error while initializing the viewer. It seems you should install Python meshcat"
-    )
+    print("Error while initializing the viewer. It seems you should install Python meshcat")
     print(err)
     sys.exit(0)
 viz.loadViewerModel(rootNodeName="draco3")
 vis_q = pin.neutral(model)
 
 # add other visualizations to viewer
-com_des_viz, com_des_model = vis_tools.add_sphere(
-    viz.viewer, "com_des", color=[0.0, 0.0, 1.0, 0.5]
-)
+com_des_viz, com_des_model = vis_tools.add_sphere(viz.viewer, "com_des", color=[0.0, 0.0, 1.0, 0.5])
 com_des_viz_q = pin.neutral(com_des_model)
 
 com_viz, com_model = vis_tools.add_sphere(viz.viewer, "com", color=[1.0, 0.0, 0.0, 0.5])
 com_viz_q = pin.neutral(com_model)
 
-com_proj_viz, com_proj_model = vis_tools.add_sphere(
-    viz.viewer, "com_proj", color=[0.0, 0.0, 1.0, 0.3]
-)
+com_proj_viz, com_proj_model = vis_tools.add_sphere(viz.viewer, "com_proj", color=[0.0, 0.0, 1.0, 0.3])
 com_proj_viz_q = pin.neutral(com_proj_model)
 
 icp_viz, icp_model = vis_tools.add_sphere(viz.viewer, "icp", color=vis_tools.violet)
 icp_viz_q = pin.neutral(icp_model)
 
-icp_des_viz, icp_des_model = vis_tools.add_sphere(
-    viz.viewer, "icp_des", color=[0.0, 1.0, 0.0, 0.3]
-)
+icp_des_viz, icp_des_model = vis_tools.add_sphere(viz.viewer, "icp_des", color=[0.0, 1.0, 0.0, 0.3])
 icp_des_viz_q = pin.neutral(icp_des_model)
 
-cmp_des_viz, cmp_des_model = vis_tools.add_sphere(
-    viz.viewer, "cmp_des", color=[0.0, 0.75, 0.75, 0.3]
-)
+cmp_des_viz, cmp_des_model = vis_tools.add_sphere(viz.viewer, "cmp_des", color=[0.0, 0.75, 0.75, 0.3])
 cmp_des_viz_q = pin.neutral(cmp_des_model)
 
 # add arrows visualizers to viewer
@@ -102,12 +93,8 @@ while file_exists:
     with open(path, "r") as stream:
         try:
             cfg = yaml.load(stream, Loader=yaml.FullLoader)
-            t_ini_footsteps_planned.append(
-                np.array(cfg["temporal_parameters"]["initial_time"])
-            )
-            t_end_footsteps_planned.append(
-                np.array(cfg["temporal_parameters"]["final_time"])
-            )
+            t_ini_footsteps_planned.append(np.array(cfg["temporal_parameters"]["initial_time"]))
+            t_end_footsteps_planned.append(np.array(cfg["temporal_parameters"]["final_time"]))
             rfoot_contact_pos.append(np.array(cfg["contact"]["right_foot"]["pos"]))
             rfoot_contact_ori.append(np.array(cfg["contact"]["right_foot"]["ori"]))
             # assert rfoot_contact_pos.shape[0] == rfoot_contact_ori.shape[0]
@@ -122,7 +109,7 @@ while file_exists:
     path = "experiment_data/" + str(footstep_plans) + ".yaml"
     file_exists = os.path.isfile(path)
 
-pnc_path = "config/draco/pnc.yaml"
+pnc_path = "config/draco/sim/pybullet/wbic/pnc.yaml"
 with open(pnc_path, "r") as pnc_stream:
     try:
         pnc_cfg = yaml.load(pnc_stream, Loader=yaml.FullLoader)
@@ -139,9 +126,7 @@ with open("experiment_data/pnc.pkl", "rb") as file:
             d = pickle.load(file)
             exp_time.append(d["time"])
             phase.append(d["phase"])
-            joint_positions.append(
-                d["kf_base_joint_pos"] + d["kf_base_joint_ori"] + d["joint_positions"]
-            )
+            joint_positions.append(d["kf_base_joint_pos"] + d["kf_base_joint_ori"] + d["joint_positions"])
 
             com_position_des.append(d["des_com_pos"])
             com_position.append(d["act_com_pos"])
@@ -265,17 +250,11 @@ for ti in range(len(exp_time)):
 
         vis_tools.display_visualizer_frames(cmp_des_viz, frame)  # desired CMP
 
-        vis_tools.display_coordinate_frame(
-            local_frame_name, quat_world_local[ti], frame
-        )
+        vis_tools.display_coordinate_frame(local_frame_name, quat_world_local[ti], frame)
 
         # show footsteps ONLY if they have already been planned
         if b_show_footsteps and b_footsteps_available:
-            if (
-                t_ini_footsteps_planned[curr_step_plan]
-                < exp_time[ti]
-                < t_end_footsteps_planned[curr_step_plan] + 0.01
-            ):
+            if t_ini_footsteps_planned[curr_step_plan] < exp_time[ti] < t_end_footsteps_planned[curr_step_plan] + 0.01:
                 footsteps_viz["lf_footsteps"].set_property("visible", True)
                 footsteps_viz["rf_footsteps"].set_property("visible", True)
                 vis_tools.update_footstep(
@@ -304,9 +283,7 @@ for ti in range(len(exp_time)):
             )
 
             # check if we need to update the index of step plans loaded
-            if exp_time[ti] > t_end_footsteps_planned[
-                curr_step_plan
-            ] and curr_step_plan < (footstep_plans - 1):
+            if exp_time[ti] > t_end_footsteps_planned[curr_step_plan] and curr_step_plan < (footstep_plans - 1):
                 curr_step_plan += 1
 
     frame_index = frame_index + 1

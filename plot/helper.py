@@ -1,6 +1,7 @@
 import random
 import matplotlib
 import matplotlib.pyplot as plt
+import pickle
 
 matplotlib.use("TkAgg")
 
@@ -25,6 +26,18 @@ facecolors = 3 * [
 ]
 
 
+def load_pkl_data(filename: str = "pnc.pkl") -> list[dict]:
+    data = []
+    # load pkl data
+    with open(f"experiment_data/{filename}", "rb") as file:
+        while True:
+            try:
+                data.append(pickle.load(file))
+            except EOFError:
+                break
+    return data
+
+
 def plot_momentum_task(time, vel_des, vel, phase, suptitle, label=None):
     fig, axes = plt.subplots(3, 1)
     for i in range(3):
@@ -43,16 +56,12 @@ def plot_task(time, pos_des, pos, vel_des, vel, phase, suptitle, label=None):
     if pos_des.shape[1] == 3 and label is None:
         fig, axes = plt.subplots(3, 2)
         for i in range(3):
-            axes[i, 0].plot(
-                time, pos_des[:, i], color="r", linestyle="dashed", linewidth=4
-            )
+            axes[i, 0].plot(time, pos_des[:, i], color="r", linestyle="dashed", linewidth=4)
             axes[i, 0].plot(time, pos[:, i], color="b", linewidth=2)
             axes[i, 0].grid(True)
             axes[i, 0].set_ylabel(xyz_label[i])
             plot_phase(axes[i, 0], time, phase)
-            axes[i, 1].plot(
-                time, vel_des[:, i], color="r", linestyle="dashed", linewidth=4
-            )
+            axes[i, 1].plot(time, vel_des[:, i], color="r", linestyle="dashed", linewidth=4)
             axes[i, 1].plot(time, vel[:, i], color="b", linewidth=2)
             axes[i, 1].grid(True)
             axes[i, 1].set_ylabel(xyz_label[i] + "dot")
@@ -64,17 +73,13 @@ def plot_task(time, pos_des, pos, vel_des, vel, phase, suptitle, label=None):
     elif pos_des.shape[1] == 4 and label is None:
         fig, axes = plt.subplots(4, 2)
         for i in range(4):
-            axes[i, 0].plot(
-                time, pos_des[:, i], color="r", linestyle="dashed", linewidth=4
-            )
+            axes[i, 0].plot(time, pos_des[:, i], color="r", linestyle="dashed", linewidth=4)
             axes[i, 0].plot(time, pos[:, i], color="b", linewidth=2)
             axes[i, 0].grid(True)
             axes[i, 0].set_ylabel(quat_label[i])
             plot_phase(axes[i, 0], time, phase)
         for i in range(3):
-            axes[i, 1].plot(
-                time, vel_des[:, i], color="r", linestyle="dashed", linewidth=4
-            )
+            axes[i, 1].plot(time, vel_des[:, i], color="r", linestyle="dashed", linewidth=4)
             axes[i, 1].plot(time, vel[:, i], color="b", linewidth=2)
             plot_phase(axes[i, 1], time, phase)
             axes[i, 1].grid(True)
@@ -87,17 +92,13 @@ def plot_task(time, pos_des, pos, vel_des, vel, phase, suptitle, label=None):
         dim = pos_des.shape[1]
         fig, axes = plt.subplots(dim, 2)
         for i in range(dim):
-            axes[i, 0].plot(
-                time, pos_des[:, i], color="r", linestyle="dashed", linewidth=4
-            )
+            axes[i, 0].plot(time, pos_des[:, i], color="r", linestyle="dashed", linewidth=4)
             axes[i, 0].plot(time, pos[:, i], color="b", linewidth=2)
             plot_phase(axes[i, 0], time, phase)
             axes[i, 0].grid(True)
             if label is not None:
                 axes[i, 0].set_ylabel(label[i])
-            axes[i, 1].plot(
-                time, vel_des[:, i], color="r", linestyle="dashed", linewidth=4
-            )
+            axes[i, 1].plot(time, vel_des[:, i], color="r", linestyle="dashed", linewidth=4)
             axes[i, 1].plot(time, vel[:, i], color="b", linewidth=2)
             plot_phase(axes[i, 1], time, phase)
             axes[i, 1].grid(True)
@@ -142,9 +143,7 @@ def plot_rf_z_max(time, rf_z_max, phase):
     fig.suptitle("rf_z_max")
 
 
-def plot_vector_traj(
-    time, vector, phase, label, color, suptitle=None, axes=None, share_ax=False
-):
+def plot_vector_traj(time, vector, phase, label, color, suptitle=None, axes=None, share_ax=False):
     dim = vector.shape[1]
     if axes is None:
         fig, axes = plt.subplots(dim, 1, sharex=share_ax)
@@ -189,13 +188,9 @@ def plot_phase(ax, t, data_phse):
     prev_j = 0
     ll, ul = ax.get_ylim()
     for j in phseChange:
-        ax.fill_between(
-            t[prev_j : j + 1], ll, ul, facecolor=facecolors[data_phse[j]], alpha=shading
-        )
+        ax.fill_between(t[prev_j : j + 1], ll, ul, facecolor=facecolors[data_phse[j]], alpha=shading)
         prev_j = j
-    ax.fill_between(
-        t[prev_j:], ll, ul, facecolor=facecolors[data_phse[prev_j + 1]], alpha=shading
-    )
+    ax.fill_between(t[prev_j:], ll, ul, facecolor=facecolors[data_phse[prev_j + 1]], alpha=shading)
 
 
 def plot_joints(

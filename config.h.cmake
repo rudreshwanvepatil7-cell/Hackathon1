@@ -5,6 +5,7 @@
 #define B_USE_ZMQ @B_USE_ZMQ@
 #define B_USE_FOXGLOVE @B_USE_FOXGLOVE@
 #define B_USE_TELEOP @B_USE_TELEOP@
+#define B_LEANING @B_LEANING@
 #define B_USE_HPIPM @B_USE_HPIPM@
 
 namespace end_effector{

@@ -1,20 +1,26 @@
 import zmq
 import sys
 import os
+import pickle
+import time
+from typing import Optional
 
+import pinocchio as pin
+from pinocchio.visualize import MeshcatVisualizer
 
 import ruamel.yaml as yaml
 import numpy as np
+from scipy.spatial.transform import Rotation as R
 
 cwd = os.getcwd()
 sys.path.append(cwd + "/build")
 sys.path.append(cwd)
 
 from messages.draco_pb2 import *
-from plot.data_saver import *
+from plot.data_saver import DataSaver
+from plot.protobuf_to_dict import protobuf_to_dict
+from plot.helper import load_pkl_data
 
-import pinocchio as pin
-from pinocchio.visualize import MeshcatVisualizer
 
 import meshcat
 import meshcat_shapes
@@ -23,13 +29,15 @@ from plot import meshcat_utils as vis_tools
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--b_visualize", type=bool, default=False)
-parser.add_argument("--b_use_plotjuggler", type=bool, default=False)
+parser.add_argument("--b_visualize", action="store_true")
+parser.add_argument("--b_use_plotjuggler", action="store_true")
+parser.add_argument("--b_play", action="store_true")
+parser.add_argument("--filename", type=str, default=None)
 args = parser.parse_args()
 
-##==========================================================================
-##Misc
-##==========================================================================
+# ==========================================================================
+# Misc
+# ==========================================================================
 des_com_traj_label = []
 des_com_traj_proj_label = []
 des_ori_traj_label = []
@@ -38,14 +46,16 @@ des_rf_pos_traj_label = []
 des_lf_ori_traj_label = []
 des_rf_ori_traj_label = []
 
-##==========================================================================
-##Socket initialize
-##==========================================================================
+# ==========================================================================
+# Socket initialize
+# ==========================================================================
 context = zmq.Context()
 socket = context.socket(zmq.SUB)
 
 b_using_kf_estimator = False
 b_using_non_kf_estimator = False
+
+SAVE_FREQ = 50  # hz
 
 
 def check_if_kf_estimator(kf_pos, est_pos):
@@ -66,268 +76,238 @@ def check_if_kf_estimator(kf_pos, est_pos):
         b_using_non_kf_estimator = True
 
 
-##YAML parse
-with open("config/draco/sim/pybullet/wbic/pnc.yaml", "r") as yaml_file:
-    try:
-        config = yaml.safe_load(yaml_file)
-        ip_address = config["ip_address"]
-    except yaml.YAMLError as exc:
-        print(exc)
+def add_com_velocities(msg_dict, last_msg_dict) -> None:
+    ori_key = "kf_base_joint_ori" if b_using_kf_estimator else "est_base_joint_ori"
+    if (
+        (not b_using_kf_estimator and not b_using_non_kf_estimator)
+        or ori_key not in msg_dict
+        or "time" not in last_msg_dict
+    ):
+        return
+    cur_ori = R.from_quat(msg_dict[ori_key])
+    dt = msg_dict["time"] - last_msg_dict["time"]
+    # add linvel velocity field
+    if "act_com_pos" in last_msg_dict:
+        world_vel = ((np.array(msg_dict["act_com_pos"]) - np.array(last_msg_dict["act_com_pos"])) / dt).tolist()
+        msg_dict["com_lin_vel"] = cur_ori.apply(world_vel, inverse=True).tolist()
+    if ori_key in last_msg_dict:
+        prev_ori = R.from_quat(last_msg_dict[ori_key]).as_euler("xyz")
+        # clamp to range [-pi, pi]
+        ori_diff = (cur_ori.as_euler("xyz") - prev_ori + np.pi) % (2 * np.pi) - np.pi
+        msg_dict["com_ang_vel"] = (ori_diff / dt).tolist()
 
-socket.connect(ip_address)
-socket.setsockopt_string(zmq.SUBSCRIBE, "")
 
-if args.b_use_plotjuggler:
-    pj_context = zmq.Context()
-    pj_socket = pj_context.socket(zmq.PUB)
-    pj_socket.bind("tcp://*:9872")
+def process_data(msg, last_msg_dict) -> dict:
+    msg_dict = protobuf_to_dict(msg)
+    add_com_velocities(msg_dict, last_msg_dict)
+    # add CoM velocity field
+    # if "act_com_pos" in last_msg_dict and "time" in last_msg_dict and base_ori is not None:
+    #     dt = msg_dict["time"] - last_msg_dict["time"]
+    #     world_vel = ((np.array(msg_dict["act_com_pos"]) - np.array(last_msg_dict["act_com_pos"])) / dt).tolist()
+    #     msg_dict["com_vel"] = R.from_quat(base_ori).apply(world_vel, inverse=True).tolist()
 
-msg = pnc_msg()
+    data_saver.history = msg_dict
+    data_saver.advance()
 
-data_saver = DataSaver()
+    return msg_dict
 
-##meshcat visualizer
-if args.b_visualize:
-    model, collision_model, visual_model = pin.buildModelsFromUrdf(
-        "robot_model/draco/draco_modified.urdf",
-        "robot_model/draco",
-        pin.JointModelFreeFlyer(),
-    )
-    viz = MeshcatVisualizer(model, collision_model, visual_model)
-    try:
-        viz.initViewer(open=True)
-    except ImportError as err:
-        print(
-            "Error while initializing the viewer. It seems you should install python meshcat"
+
+def plot_trajectory(
+    msg_dict: dict,
+    pos_key: str,
+    label: str,
+    has_initialized: bool,
+    *,
+    ori_key: Optional[str] = None,
+    project_z: bool = False,
+    color: int = vis_tools.Color.RED,
+) -> bool:
+    use_ori = ori_key is not None
+    if pos_key not in msg_dict or len(msg_dict[pos_key]) == 0:
+        return
+    if use_ori and (ori_key not in msg_dict or len(msg_dict[ori_key]) == 0):
+        return
+    if use_ori:
+        assert len(msg_dict[pos_key]) == len(msg_dict[ori_key]), (
+            f"Expected {pos_key} and {ori_key} to be the same length, got {len(msg_dict[pos_key])} and {len(msg_dict[ori_key])}"
         )
-        print(err)
-        exit()
-    viz.loadViewerModel(rootNodeName="draco3")
-    vis_q = pin.neutral(model)
+    for i, pos in enumerate(msg_dict[pos_key]):
+        name = f"{label}_{i}" if not use_ori else f"{label}_pos_{i}"
+        ori_name = f"{label}_ori_{i}"
+        if not has_initialized:
+            meshcat_shapes.point(
+                viz.viewer[name],
+                color=color,
+                opacity=0.8,
+                radius=0.01,
+            )
+            if use_ori:
+                meshcat_shapes.frame(
+                    viz.viewer[ori_name],
+                    axis_length=0.1,
+                    axis_thickness=0.005,
+                    opacity=0.8,
+                    origin_radius=0.01,
+                )
+        z = pos["z"] if not project_z else 0.0
+        trans = meshcat.transformations.translation_matrix([pos["x"], pos["y"], z])
+        viz.viewer[name].set_transform(trans)
+        if use_ori:
+            ori = msg_dict[ori_key][i]
+            rot = meshcat.transformations.euler_matrix(ori["x"], ori["y"], ori["z"], axes="sxyz")
+            viz.viewer[ori_name].set_transform(trans.dot(rot))
+    # return true to indicate initialization is complete
+    return True
 
-    # add other visualizations to viewer
-    meshcat_shapes.point(
-        viz.viewer["com_des"], color=vis_tools.Color.RED, opacity=1.0, radius=0.01
-    )
 
-    meshcat_shapes.point(
-        viz.viewer["com"], color=vis_tools.Color.BLUE, opacity=1.0, radius=0.01
-    )
+if __name__ == "__main__":
+    # YAML parse
+    with open("config/draco/sim/pybullet/wbic/pnc.yaml", "r") as yaml_file:
+        try:
+            config = yaml.safe_load(yaml_file)
+            ip_address = config["ip_address"]
+        except yaml.YAMLError as exc:
+            print(exc)
 
-    meshcat_shapes.point(
-        viz.viewer["com_projected"],
-        color=vis_tools.Color.BLACK,
-        opacity=1.0,
-        radius=0.01,
-    )
+    socket.connect(ip_address)
+    socket.setsockopt_string(zmq.SUBSCRIBE, "")
 
-    # add arrows visualizers to viewer
-    vis_tools.add_arrow(viz.viewer, "grf_lf", color=[0, 0, 1])  ## BLUE
-    vis_tools.add_arrow(viz.viewer, "grf_rf", color=[1, 0, 0])  ## RED
+    if args.b_use_plotjuggler:
+        pj_context = zmq.Context()
+        pj_socket = pj_context.socket(zmq.PUB)
+        pj_socket.bind("tcp://*:9872")
 
-while True:
-    ##receive msg trough socket
-    encoded_msg = socket.recv()
-    msg.ParseFromString(encoded_msg)
-
-    # save data in pkl file
-    # data_saver.add('time', msg.time)
-    # data_saver.add('phase', msg.phase)
-
-    # save proto msg for python plotting
-    # data_saver.advance()
-
-    ## publish back to plot juggler
-    # if args.b_use_plotjuggler:
-    # pj_socket.send_string(json.dumps(data_saver.history))
-
+    # meshcat visualizer
     if args.b_visualize:
-        check_if_kf_estimator(msg.kf_base_joint_pos, msg.est_base_joint_pos)
-
-        base_pos = (
-            msg.kf_base_joint_pos if b_using_kf_estimator else msg.est_base_joint_pos
+        model, collision_model, visual_model = pin.buildModelsFromUrdf(
+            "robot_model/draco/draco_modified.urdf",
+            "robot_model/draco",
+            pin.JointModelFreeFlyer(),
         )
-        base_ori = (
-            msg.kf_base_joint_ori if b_using_kf_estimator else msg.est_base_joint_ori
+        viz = MeshcatVisualizer(model, collision_model, visual_model)
+        try:
+            viz.initViewer(open=True)
+        except ImportError as err:
+            print("Error while initializing the viewer. It seems you should install python meshcat")
+            print(err)
+            exit()
+        viz.loadViewerModel(rootNodeName="draco3")
+        vis_q = pin.neutral(model)
+
+        # add other visualizations to viewer
+        meshcat_shapes.point(viz.viewer["com_des"], color=vis_tools.Color.RED, opacity=1.0, radius=0.01)
+
+        meshcat_shapes.point(viz.viewer["com"], color=vis_tools.Color.BLUE, opacity=1.0, radius=0.01)
+
+        meshcat_shapes.point(
+            viz.viewer["com_projected"],
+            color=vis_tools.Color.BLACK,
+            opacity=1.0,
+            radius=0.01,
         )
 
-        vis_q[0:3] = np.array(base_pos)
-        vis_q[3:7] = np.array(base_ori)  # quaternion [x,y,z,w]
-        vis_q[7:] = np.array(msg.joint_positions)
+        # add arrows visualizers to viewer
+        vis_tools.add_arrow(viz.viewer, "grf_lf", color=[0, 0, 1])  #  BLUE
+        vis_tools.add_arrow(viz.viewer, "grf_rf", color=[1, 0, 0])  #  RED
 
-        viz.display(vis_q)
+    if args.b_play:
+        data = load_pkl_data(args.filename if args.filename is not None else "pnc.pkl")
 
-        trans = meshcat.transformations.translation_matrix(
-            [msg.des_com_pos[0], msg.des_com_pos[1], msg.des_com_pos[2]]
-        )
-        viz.viewer["com_des"].set_transform(trans)
+    msg = pnc_msg()
+    msg_dict = {}
+    if not args.b_play:
+        data_saver = DataSaver()
 
-        trans = meshcat.transformations.translation_matrix(
-            [msg.act_com_pos[0], msg.act_com_pos[1], msg.act_com_pos[2]]
-        )
-        viz.viewer["com"].set_transform(trans)
+    b_com_pos_init = False
+    b_com_proj_init = False
+    b_lf_traj_init = False
+    b_rf_traj_init = False
 
-        trans = meshcat.transformations.translation_matrix(
-            [msg.des_com_pos[0], msg.des_com_pos[1], 0.0]
-        )
-        viz.viewer["com_projected"].set_transform(trans)
+    while not args.b_play or len(data) > 0:
+        if args.b_play:
+            msg_dict = data.pop(0)
+        else:
+            # receive msg trough socket
+            encoded_msg = socket.recv()
+            msg.ParseFromString(encoded_msg)
+            msg_dict = process_data(msg, msg_dict)
 
-        # visualize GRFs
-        if msg.phase != 1:
-            vis_tools.grf_display(
-                viz.viewer["grf_lf"], msg.lfoot_pos, msg.lfoot_ori, msg.lfoot_rf_cmd
+        #  publish back to plot juggler
+        # if args.b_use_plotjuggler:
+        # pj_socket.send_string(json.dumps(data_saver.history))
+
+        if args.b_visualize:
+            check_if_kf_estimator(msg_dict["kf_base_joint_pos"], msg_dict["est_base_joint_pos"])
+
+            base_pos = msg_dict["kf_base_joint_pos" if b_using_kf_estimator else "est_base_joint_pos"]
+            base_ori = msg_dict["kf_base_joint_ori" if b_using_kf_estimator else "est_base_joint_ori"]
+
+            vis_q[0:3] = np.array(base_pos)
+            vis_q[3:7] = np.array(base_ori)  # quaternion [x,y,z,w]
+            vis_q[7:] = np.array(msg_dict["joint_positions"])
+
+            viz.display(vis_q)
+
+            trans = meshcat.transformations.translation_matrix(
+                [msg_dict["des_com_pos"][0], msg_dict["des_com_pos"][1], msg_dict["des_com_pos"][2]]
             )
-            vis_tools.grf_display(
-                viz.viewer["grf_rf"], msg.rfoot_pos, msg.rfoot_ori, msg.rfoot_rf_cmd
+            viz.viewer["com_des"].set_transform(trans)
+
+            trans = meshcat.transformations.translation_matrix(
+                [msg_dict["act_com_pos"][0], msg_dict["act_com_pos"][1], msg_dict["act_com_pos"][2]]
+            )
+            viz.viewer["com"].set_transform(trans)
+
+            trans = meshcat.transformations.translation_matrix(
+                [msg_dict["des_com_pos"][0], msg_dict["des_com_pos"][1], 0.0]
+            )
+            viz.viewer["com_projected"].set_transform(trans)
+
+            # visualize GRFs
+            if msg_dict["phase"] != 1:
+                vis_tools.grf_display(
+                    viz.viewer["grf_lf"], msg_dict["lfoot_pos"], msg_dict["lfoot_ori"], msg_dict["lfoot_rf_cmd"]
+                )
+                vis_tools.grf_display(
+                    viz.viewer["grf_rf"], msg_dict["rfoot_pos"], msg_dict["rfoot_ori"], msg_dict["rfoot_rf_cmd"]
+                )
+
+            b_com_pos_init = plot_trajectory(
+                msg_dict,
+                "des_com_traj",
+                "des_com",
+                b_com_pos_init,
+                ori_key="des_torso_ori_traj",
+                color=vis_tools.Color.GREEN,
+            )
+            b_com_proj_init = plot_trajectory(
+                msg_dict,
+                "des_com_traj",
+                "des_com_projected",
+                b_com_proj_init,
+                project_z=True,
+                color=vis_tools.Color.BLUE,
+            )
+            b_lf_traj_init = plot_trajectory(
+                msg_dict,
+                "des_lf_pos_traj",
+                "des_lf",
+                b_lf_traj_init,
+                ori_key="des_lf_ori_traj",
+                color=vis_tools.Color.CYAN,
+            )
+            b_rf_traj_init = plot_trajectory(
+                msg_dict,
+                "des_rf_pos_traj",
+                "des_rf",
+                b_rf_traj_init,
+                ori_key="des_rf_ori_traj",
+                color=vis_tools.Color.YELLOW,
             )
 
-        ## visualize des CoM trajectory
-        if len(msg.des_com_traj) > 0:
-            if len(des_com_traj_label) == 0:
-                for i in range(len(msg.des_com_traj)):
-                    des_com_traj_label.append(f"des_com_{i}")
-                    des_com_traj_proj_label.append(f"des_com_projected_{i}")
-                for name in des_com_traj_label:
-                    meshcat_shapes.point(
-                        viz.viewer[name],
-                        color=vis_tools.Color.GREEN,
-                        opacity=0.8,
-                        radius=0.01,
-                    )
-                for name in des_com_traj_proj_label:
-                    meshcat_shapes.point(
-                        viz.viewer[name],
-                        color=vis_tools.Color.BLUE,
-                        opacity=0.8,
-                        radius=0.01,
-                    )
-            else:
-                for com, name, name_proj in zip(
-                    msg.des_com_traj, des_com_traj_label, des_com_traj_proj_label
-                ):
-                    trans = meshcat.transformations.translation_matrix(
-                        [com.x, com.y, com.z]
-                    )
-                    trans_projected = meshcat.transformations.translation_matrix(
-                        [com.x, com.y, 0.0]
-                    )
-                    viz.viewer[name].set_transform(trans)
-                    viz.viewer[name_proj].set_transform(trans_projected)
-
-        ## visualize des orientation trajectory
-        if len(msg.des_torso_ori_traj) > 0:
-            if len(des_ori_traj_label) == 0:
-                for i in range(len(msg.des_torso_ori_traj)):
-                    label = "des_ori_" + str(i)
-                    des_ori_traj_label.append(label)
-                for name in des_ori_traj_label:
-                    meshcat_shapes.frame(
-                        viz.viewer[name],
-                        axis_length=0.1,
-                        axis_thickness=0.005,
-                        opacity=0.8,
-                        origin_radius=0.01,
-                    )
-            else:
-                for com, torso_ori, name in zip(
-                    msg.des_com_traj, msg.des_torso_ori_traj, des_ori_traj_label
-                ):
-                    rotation = meshcat.transformations.euler_matrix(
-                        torso_ori.x, torso_ori.y, torso_ori.z, axes="sxyz"
-                    )
-                    trans = meshcat.transformations.translation_matrix(
-                        [com.x, com.y, com.z]
-                    )
-                    viz.viewer[name].set_transform(trans.dot(rotation))
-
-        ## visualize left foot position trajectory
-        if len(msg.des_lf_pos_traj) > 0:
-            if len(des_lf_pos_traj_label) == 0:
-                for i in range(len(msg.des_lf_pos_traj)):
-                    label = "des_lf_pos_" + str(i)
-                    des_lf_pos_traj_label.append(label)
-                for name in des_lf_pos_traj_label:
-                    meshcat_shapes.point(
-                        viz.viewer[name],
-                        color=vis_tools.Color.CYAN,
-                        opacity=0.8,
-                        radius=0.01,
-                    )
-            else:
-                for lf_pos, name in zip(msg.des_lf_pos_traj, des_lf_pos_traj_label):
-                    trans = meshcat.transformations.translation_matrix(
-                        [lf_pos.x, lf_pos.y, lf_pos.z]
-                    )
-                    viz.viewer[name].set_transform(trans)
-
-        ## visualize right foot position trajectory
-        if len(msg.des_rf_pos_traj) > 0:
-            if len(des_rf_pos_traj_label) == 0:
-                for i in range(len(msg.des_rf_pos_traj)):
-                    label = "des_rf_pos_" + str(i)
-                    des_rf_pos_traj_label.append(label)
-                for name in des_rf_pos_traj_label:
-                    meshcat_shapes.point(
-                        viz.viewer[name],
-                        color=vis_tools.Color.YELLOW,
-                        opacity=0.8,
-                        radius=0.01,
-                    )
-            else:
-                for rf_pos, name in zip(msg.des_rf_pos_traj, des_rf_pos_traj_label):
-                    trans = meshcat.transformations.translation_matrix(
-                        [rf_pos.x, rf_pos.y, rf_pos.z]
-                    )
-                    viz.viewer[name].set_transform(trans)
-
-        ## visualize left foot orientation trajectory
-        if len(msg.des_lf_ori_traj) > 0:
-            if len(des_lf_ori_traj_label) == 0:
-                for i in range(len(msg.des_lf_ori_traj)):
-                    label = "des_lf_ori_" + str(i)
-                    des_lf_ori_traj_label.append(label)
-                for name in des_lf_ori_traj_label:
-                    meshcat_shapes.frame(
-                        viz.viewer[name],
-                        axis_length=0.1,
-                        axis_thickness=0.005,
-                        opacity=0.8,
-                        origin_radius=0.01,
-                    )
-            else:
-                for lf_pos, lf_ori, name in zip(
-                    msg.des_lf_pos_traj, msg.des_lf_ori_traj, des_lf_ori_traj_label
-                ):
-                    rotation = meshcat.transformations.euler_matrix(
-                        lf_ori.x, lf_ori.y, lf_ori.z, axes="sxyz"
-                    )
-                    trans = meshcat.transformations.translation_matrix(
-                        [lf_pos.x, lf_pos.y, lf_pos.z]
-                    )
-                    viz.viewer[name].set_transform(trans.dot(rotation))
-
-        ## visualize right foot orientation trajectory
-        if len(msg.des_rf_ori_traj) > 0:
-            if len(des_rf_ori_traj_label) == 0:
-                for i in range(len(msg.des_rf_ori_traj)):
-                    label = "des_rf_ori_" + str(i)
-                    des_rf_ori_traj_label.append(label)
-                for name in des_rf_ori_traj_label:
-                    meshcat_shapes.frame(
-                        viz.viewer[name],
-                        axis_length=0.1,
-                        axis_thickness=0.005,
-                        opacity=0.8,
-                        origin_radius=0.01,
-                    )
-            else:
-                for rf_pos, rf_ori, name in zip(
-                    msg.des_rf_pos_traj, msg.des_rf_ori_traj, des_rf_ori_traj_label
-                ):
-                    rotation = meshcat.transformations.euler_matrix(
-                        rf_ori.x, rf_ori.y, rf_ori.z, axes="sxyz"
-                    )
-                    trans = meshcat.transformations.translation_matrix(
-                        [rf_pos.x, rf_pos.y, rf_pos.z]
-                    )
-                    viz.viewer[name].set_transform(trans.dot(rotation))
+            if args.b_play:
+                if SAVE_FREQ > 0:
+                    time.sleep(1.0 / SAVE_FREQ)
+                else:
+                    # timestep on Enter
+                    input()

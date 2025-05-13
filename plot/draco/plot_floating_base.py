@@ -5,10 +5,11 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-from plot.helper import plot_vector_traj
-
 cwd = os.getcwd()
 sys.path.append(cwd)
+
+from plot.helper import plot_vector_traj
+
 matplotlib.use("TkAgg")
 
 st_idx = 10
@@ -31,14 +32,15 @@ est_base_joint_ori = []
 est_base_joint_lin_vel = []
 est_base_joint_ang_vel = []
 
+
 with open("experiment_data/pnc.pkl", "rb") as file:
     while True:
         try:
             data = pickle.load(file)
             time.append(data["time"])
 
-            base_joint_pos.append(data["base_joint_pos"])
-            base_joint_ori.append(data["base_joint_ori"])
+            base_joint_pos.append(data["kf_base_joint_pos"])
+            base_joint_ori.append(data["kf_base_joint_ori"])
             base_joint_lin_vel.append(data["base_joint_lin_vel"])
             base_joint_ang_vel.append(data["base_joint_ang_vel"])
 
@@ -61,23 +63,15 @@ est_base_joint_ori = np.stack(est_base_joint_ori, axis=0)[st_idx:, :]
 est_base_joint_lin_vel = np.stack(est_base_joint_lin_vel, axis=0)[st_idx:, :]
 est_base_joint_ang_vel = np.stack(est_base_joint_ang_vel, axis=0)[st_idx:, :]
 
-axes = plot_vector_traj(
-    time, base_joint_pos, None, ["x", "y", "z"], "g", "base_joint_pos"
-)
+axes = plot_vector_traj(time, base_joint_pos, None, ["x", "y", "z"], "g", "base_joint_pos")
 plot_vector_traj(time, est_base_joint_pos, None, ["x", "y", "z"], "k", None, axes)
 
-axes = plot_vector_traj(
-    time, base_joint_ori, None, ["x", "y", "z", "w"], "g", "base_joint_ori"
-)
+axes = plot_vector_traj(time, base_joint_ori, None, ["x", "y", "z", "w"], "g", "base_joint_ori")
 plot_vector_traj(time, est_base_joint_ori, None, ["x", "y", "z", "w"], "k", None, axes)
 
-axes = plot_vector_traj(
-    time, base_joint_lin_vel, None, ["x", "y", "z"], "g", "base_joint_lin_vel"
-)
+axes = plot_vector_traj(time, base_joint_lin_vel, None, ["x", "y", "z"], "g", "base_joint_lin_vel")
 plot_vector_traj(time, est_base_joint_lin_vel, None, ["x", "y", "z"], "k", None, axes)
 
-axes = plot_vector_traj(
-    time, base_joint_ang_vel, None, ["x", "y", "z"], "g", "base_joint_ang_vel"
-)
+axes = plot_vector_traj(time, base_joint_ang_vel, None, ["x", "y", "z"], "g", "base_joint_ang_vel")
 plot_vector_traj(time, est_base_joint_ang_vel, None, ["x", "y", "z"], "k", None, axes)
 plt.show()

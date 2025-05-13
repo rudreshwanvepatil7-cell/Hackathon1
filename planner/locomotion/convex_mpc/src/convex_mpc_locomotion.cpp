@@ -13,11 +13,8 @@ ConvexMPCLocomotion::ConvexMPCLocomotion(const double dt,
                                          bool b_save_mpc_solution,
                                          MPCParams *mpc_params,
                                          CompositeRigidBodyInertia *crbi)
-    : dt_(dt),
-      iterations_btw_mpc_(iterations_btw_mpc),
-      n_horizon_(10),
-      robot_(robot),
-      iteration_counter_(0),
+    : dt_(dt), iterations_btw_mpc_(iterations_btw_mpc), n_horizon_(10),
+      robot_(robot), iteration_counter_(0),
       standing_(n_horizon_, Eigen::Vector2i(0, 0), Eigen::Vector2i(10, 10),
                 "standing"),
       walking_(n_horizon_, Eigen::Vector2i(0, 5), Eigen::Vector2i(5, 5),
@@ -119,20 +116,20 @@ void ConvexMPCLocomotion::Solve() {
   // check if transitioning to standing --> for later use
   if (gait_number_ == gait::kStand && current_gait_number_ != gait::kStand ||
       b_first_visit_) {
-    stand_traj_[0] = 0.0;                         // roll
-    stand_traj_[1] = 0.0;                         // pitch
-    stand_traj_[2] = robot_->GetBodyOriYPR()[0];  // yaw
+    stand_traj_[0] = 0.0;                        // roll
+    stand_traj_[1] = 0.0;                        // pitch
+    stand_traj_[2] = robot_->GetBodyOriYPR()[0]; // yaw
     stand_traj_.tail<3>() = robot_->GetRobotComPos();
     stand_traj_[5] = des_body_height_;
 
     des_com_pos_in_world_ = stand_traj_.tail<3>();
 
     // for CRBI computation
-    stand_base_traj_[0] = 0.0;                         // roll
-    stand_base_traj_[1] = 0.0;                         // pitch
-    stand_base_traj_[2] = robot_->GetBodyOriYPR()[0];  // yaw
+    stand_base_traj_[0] = 0.0;                        // roll
+    stand_base_traj_[1] = 0.0;                        // pitch
+    stand_base_traj_[2] = robot_->GetBodyOriYPR()[0]; // yaw
     stand_base_traj_.tail<3>(),
-        des_base_com_pos_in_world_ = robot_->GetBodyPos();  // base com x,y,z
+        des_base_com_pos_in_world_ = robot_->GetBodyPos(); // base com x,y,z
   }
 
   // pick gait
@@ -145,7 +142,7 @@ void ConvexMPCLocomotion::Solve() {
 
   // User commands (linear & angular velocities)
   des_com_vel_in_body_ =
-      Eigen::Vector3d(x_vel_des_, y_vel_des_, 0.0);  // in local body frame
+      Eigen::Vector3d(x_vel_des_, y_vel_des_, 0.0); // in local body frame
 
   des_com_vel_in_world_ =
       yaw_rate_des_ == 0.0
@@ -169,12 +166,18 @@ void ConvexMPCLocomotion::Solve() {
 
   // set com position desired
   if (gait != &standing_) {
-    des_com_pos_in_world_ += dt_ * Eigen::Vector3d(des_com_vel_in_world_[0],
-                                                   des_com_vel_in_world_[1],
-                                                   des_com_vel_in_world_[2]);
+    des_com_pos_in_world_ += dt_ * des_com_vel_in_world_;
+
     des_base_com_pos_in_world_ +=
         dt_ * Eigen::Vector3d(des_com_vel_in_world_[0],
                               des_com_vel_in_world_[1], 0.0);
+  }
+
+  //===================================================================
+  // foot placement with Raibert Hueristic
+  //===================================================================
+  for (int foot = 0; foot < foot_side::NumFoot; ++foot) {
+    swing_time_[foot] = gait->getSwingDuration(dt_mpc_, foot);
   }
 
   // first visit initialization for CoM pos, swing foot trajectory
@@ -209,25 +212,7 @@ void ConvexMPCLocomotion::Solve() {
     }
   }
 
-  //===================================================================
-  // foot placement with Raibert Hueristic
-  //===================================================================
-  for (int foot = 0; foot < foot_side::NumFoot; ++foot) {
-    swing_time_[foot] = gait->getSwingDuration(dt_mpc_, foot);
-  }
-
-  /*
-  // TODO: figure what do these variables mean?
-  double side_sign[2] = {-1, 1};
-  double interleave_y[2] = {-0.08, 0.08};
-  // double interleave_gain = -0.13;
-  double interleave_gain = -0.2;
-  // double v_abs = std::fabs(robot_->GetBodyVel[0]);
-  double v_abs = std::fabs(des_com_vel_in_body_[0]);
-  */
-
   // foot placement strategy
-  double side_sign[foot_side::NumFoot] = {1, -1};
   for (int foot = 0; foot < foot_side::NumFoot; ++foot) {
     if (b_first_swing_[foot])
       swing_time_remaining_[foot] = swing_time_[foot];
@@ -235,7 +220,7 @@ void ConvexMPCLocomotion::Solve() {
       swing_time_remaining_[foot] -= dt_;
 
     // landing foot offest
-    landing_foot_offset_[1] *= side_sign[foot];  // offset y
+    landing_foot_offset_[1] *= side_sign_[foot]; // offset y
 
     double stance_time = gait->getStanceDuration(dt_mpc_, foot);
     Eigen::Vector3d foot_pos_from_body =
@@ -247,8 +232,10 @@ void ConvexMPCLocomotion::Solve() {
 
     Eigen::Vector3d des_vel;
     des_vel << x_vel_des_, y_vel_des_, 0.0;
+#if B_LEANING
     // Adjust des_vel for yaw rate
     des_vel = util::SO3FromRPY(0.0, 0.0, yaw_rate_des_ * stance_time) * des_vel;
+#endif
 
     Eigen::Vector3d des_foot_pos =
         robot_->GetBodyPos() +
@@ -271,25 +258,28 @@ void ConvexMPCLocomotion::Solve() {
             (-com_vel_in_world[0] * yaw_rate_des_);
 
     double p_rel_max = 0.3;
-    pfx_rel = fmin(fmax(pfx_rel, -p_rel_max), p_rel_max);
-    pfy_rel = fmin(fmax(pfy_rel, -p_rel_max), p_rel_max);
-    des_foot_pos[0] += pfx_rel;
-    des_foot_pos[1] += pfy_rel;
+    des_foot_pos[0] += util::Clamp(pfx_rel, -p_rel_max, p_rel_max);
+    des_foot_pos[1] += util::Clamp(pfy_rel, -p_rel_max, p_rel_max);
     des_foot_pos[2] = -0.003;
-    // des_foot_pos[2] = 0.0;
     foot_swing_pos_trajectory_[foot].SetFinalPosition(des_foot_pos);
 
-    // Foot orienation desired design
+    // Foot orientation desired design
     Eigen::Matrix3d world_R_body_yaw =
         yaw_rate_des_ == 0
             ? util::SO3FromRPY(0.0, 0.0, stand_traj_[2])
             : util::SO3FromRPY(0.0, 0.0, robot_->GetBodyOriYPR()[0]);
-    //: util::SO3FromRPY(0.0, 0.0, wbo_ypr_[0]);
+#if B_LEANING
     Eigen::Matrix3d des_foot_ori =
-        util::CoordinateRotation(
-            util::CoordinateAxis::Z,
-            yaw_rate_des_ * swing_time_remaining_[foot] / 2.0) *
+        util::CoordinateRotation(util::CoordinateAxis::Z,
+                                 yaw_rate_des_ * swing_time_remaining_[foot]) *
         world_R_body_yaw;
+#else
+    Eigen::Matrix3d des_foot_ori =
+        util::CoordinateRotation(util::CoordinateAxis::Z,
+                                 yaw_rate_des_ * swing_time_remaining_[foot] /
+                                     2.0) *
+        world_R_body_yaw;
+#endif
     foot_swing_ori_trajectory_[foot].SetDesired(
         Eigen::Quaterniond(des_foot_ori).normalized(), Eigen::Vector3d::Zero());
 
@@ -341,23 +331,12 @@ void ConvexMPCLocomotion::Solve() {
       // foot is in swing
       if (b_first_swing_[foot]) {
         b_first_swing_[foot] = false;
-        // swing foot pos
-        foot_swing_pos_trajectory_[foot].SetInitialPosition(foot_pos_[foot]);
-        // swing foot ori
-        foot_swing_ori_trajectory_[foot].SetInitial(
-            Eigen::Quaterniond(foot_ori_[foot]).normalized(),
-            Eigen::Vector3d::Zero());
-
-        // for CRBI computation
-        foot_swing_pos_trajectory_for_inertia_[foot].SetInitialPosition(
-            foot_pos_[foot]);
-        foot_swing_ori_trajectory_for_inertia_[foot].SetInitial(
-            Eigen::Quaterniond(foot_ori_[foot]).normalized(),
-            Eigen::Vector3d::Zero());
+        // CoM states
+        _SetInitialFootStates(foot);
       }
 
       foot_swing_pos_trajectory_[foot].ComputeSwingTrajectoryBezier(
-          swing_state, swing_time_[foot]);
+          swing_states_[foot], swing_time_[foot]);
 
       // save desired for WBC foot task
       des_foot_pos_[foot] = foot_swing_pos_trajectory_[foot].GetPosition();
@@ -494,15 +473,13 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
   //=====================================================
   // set desired state trajectory
   //=====================================================
-  // design desired state trajectory
-  Vector12d des_state_traj_initial = Vector12d::Zero();
-
   if (current_gait_number_ == gait::kStand) {
+    Vector12d des_state_traj_initial = Vector12d::Zero();
     // initial state
     des_state_traj_initial.head<3>() =
-        Eigen::Vector3d(roll_des_, pitch_des_, stand_traj_[2]);  // rpy
+        Eigen::Vector3d(roll_des_, pitch_des_, stand_traj_[2]); // rpy
     des_state_traj_initial.segment<3>(3) =
-        Eigen::Vector3d(stand_traj_[3], stand_traj_[4], stand_traj_[5]);  // xyz
+        Eigen::Vector3d(stand_traj_[3], stand_traj_[4], stand_traj_[5]); // xyz
 
     // desired state trajectory
     fill(des_state_traj_.begin(), des_state_traj_.end(),
@@ -511,44 +488,26 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
     // when not standing
 
     // initial state compensation strategy
-    // Eigen::Vector3d curr_body_pos_in_world = robot_->GetBodyPos();
-    Eigen::Vector3d curr_body_pos_in_world = robot_->GetRobotComPos();
-    // curr_body_pos_in_world[2] = robot_->GetBodyPos()[2]; // base height
-
-    const double max_pos_error = 0.05;
-    double x_start = des_com_pos_in_world_[0];
-    double y_start = des_com_pos_in_world_[1];
-
-    if (x_start - curr_body_pos_in_world[0] > max_pos_error)
-      x_start = curr_body_pos_in_world[0] + max_pos_error;
-    if (curr_body_pos_in_world[0] - x_start > max_pos_error)
-      x_start = curr_body_pos_in_world[0] - max_pos_error;
-
-    if (y_start - curr_body_pos_in_world[1] > max_pos_error)
-      y_start = curr_body_pos_in_world[1] + max_pos_error;
-    if (curr_body_pos_in_world[1] - y_start > max_pos_error)
-      y_start = curr_body_pos_in_world[1] - max_pos_error;
+    Eigen::Vector2d cur_pos_in_world = robot_->GetRobotComPos().head<2>();
+    const Eigen::Vector2d max_pos_error(0.05, 0.05);
 
     // save des xy pos for wbc
-    des_com_pos_in_world_[0] = x_start;
-    des_com_pos_in_world_[1] = y_start;
-    des_com_pos_in_world_[2] = stand_traj_[5];
+    des_com_pos_in_world_ << util::Clamp2DVector(
+        des_com_pos_in_world_.head<2>(), cur_pos_in_world - max_pos_error,
+        cur_pos_in_world + max_pos_error),
+        stand_traj_[5];
 
     // initial state
     // rpy
-    des_state_traj_initial.head<3>() =
+    des_state_traj_[0].head<3>() =
         Eigen::Vector3d(roll_des_, pitch_des_, yaw_des_);
     // x,y,z
-    des_state_traj_initial.segment<3>(3) =
-        Eigen::Vector3d(x_start, y_start, des_body_height_);
+    des_state_traj_[0].segment<3>(3) = des_com_pos_in_world_;
     // wx, wy, wz
-    des_state_traj_initial.segment<3>(6) << 0., 0., yaw_rate_des_;
+    des_state_traj_[0].segment<3>(6) << 0., 0., yaw_rate_des_;
     // vx, vy, vz
-    des_state_traj_initial.segment<3>(9) = Eigen::Vector3d(
-        des_com_vel_in_world_[0], des_com_vel_in_world_[1], 0.0);
+    des_state_traj_[0].segment<3>(9) << des_com_vel_in_world_.head<2>(), 0.0;
 
-    // initial desired state traj
-    des_state_traj_[0] = des_state_traj_initial;
     Eigen::Vector3d cur_com_vel_in_world(des_com_vel_in_world_);
 
     for (int i = 1; i < n_horizon_ + 1; ++i) {
@@ -623,24 +582,13 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
                              : Eigen::Vector3d(roll_des_, pitch_des_, yaw_des_);
 
     // initial state compensation strategy
-    Eigen::Vector3d curr_base_com_pos_in_world = robot_->GetBodyPos();
-
-    const double max_pos_error = 0.05;
-    double x_start = des_base_com_pos_in_world_[0];
-    double y_start = des_base_com_pos_in_world_[1];
-
-    if (x_start - curr_base_com_pos_in_world[0] > max_pos_error)
-      x_start = curr_base_com_pos_in_world[0] + max_pos_error;
-    if (curr_base_com_pos_in_world[0] - x_start > max_pos_error)
-      x_start = curr_base_com_pos_in_world[0] - max_pos_error;
-
-    if (y_start - curr_base_com_pos_in_world[1] > max_pos_error)
-      y_start = curr_base_com_pos_in_world[1] + max_pos_error;
-    if (curr_base_com_pos_in_world[1] - y_start > max_pos_error)
-      y_start = curr_base_com_pos_in_world[1] - max_pos_error;
+    Eigen::Vector2d cur_pos_in_world = robot_->GetBodyPos().head<2>();
+    const Eigen::Vector2d max_pos_error(0.05, 0.05);
 
     // save des xy pos for wbc
-    des_base_com_pos_in_world_.head<2>() << x_start, y_start;
+    des_base_com_pos_in_world_.head<2>() << util::Clamp2DVector(
+        des_base_com_pos_in_world_.head<2>(), cur_pos_in_world - max_pos_error,
+        cur_pos_in_world + max_pos_error);
 
     des_base_pos_traj[0] = des_base_com_pos_in_world_.head<3>();
 
@@ -675,11 +623,7 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
         swing_states_old << 0.0, 0.0;
 
         for (int foot = 0; foot < foot_side::NumFoot; foot++) {
-          foot_swing_pos_trajectory_for_inertia_[foot].SetInitialPosition(
-              foot_pos_[foot]);
-          foot_swing_ori_trajectory_for_inertia_[foot].SetInitial(
-              Eigen::Quaterniond(foot_ori_[foot]).normalized(),
-              Eigen::Vector3d::Zero());
+          _SetInitialFootStates(foot);
         }
 
         b_first_visit_inertia_gen_ = false;
@@ -700,10 +644,10 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
 
         // foot linear position prediction
         if (swing_states_old[foot] > 0.0 && swing_states[foot] > 0.0) {
+          foot_swing_pos_trajectory_for_inertia_[foot]
+              .ComputeSwingTrajectoryBezier(swing_states[foot]);
           // swing -> swing
           if (foot_swing_state_change_count == 0) {
-            foot_swing_pos_trajectory_for_inertia_[foot]
-                .ComputeSwingTrajectoryBezier(swing_states[foot]);
             des_foot_pos_traj_[foot][i] =
                 foot_swing_pos_trajectory_for_inertia_[foot].GetPosition();
 
@@ -713,8 +657,6 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
                     swing_states[foot]));
 
           } else if (foot_swing_state_change_count == 1) {
-            foot_swing_pos_trajectory_for_inertia_[foot]
-                .ComputeSwingTrajectoryBezier(swing_states[foot]);
             des_foot_pos_traj_[foot][i] =
                 foot_swing_pos_trajectory_for_inertia_[foot].GetPosition();
 
@@ -725,8 +667,6 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
 
           } else if (foot_swing_state_change_count == 2) {
             des_foot_pos_traj_[foot][i] = prev_contact_foot_pos;
-            foot_swing_pos_trajectory_for_inertia_[foot]
-                .ComputeSwingTrajectoryBezier(swing_states[foot]);
             des_foot_pos_traj_[foot][i] +=
                 foot_swing_pos_trajectory_for_inertia_[foot].GetPosition();
             des_foot_pos_traj_[foot][i] -=
@@ -857,7 +797,8 @@ void ConvexMPCLocomotion::_SolveConvexMPC(int *contact_schedule_table) {
   if (b_save_mpc_solution_) {
     // save mpc solution data for prediction horizon
     logger_->add("time", mpc_solution.time());
-    for (const auto &pos : mpc_solution.pos()) logger_->add("com_pos", pos);
+    for (const auto &pos : mpc_solution.pos())
+      logger_->add("com_pos", pos);
     for (const auto &euler_angle : mpc_solution.euler())
       logger_->add("euler_ang", euler_angle);
     for (const auto &com_vel : mpc_solution.v())
@@ -912,6 +853,7 @@ void ConvexMPCLocomotion::_SetupBodyCommand() {
 void ConvexMPCLocomotion::_SetLeanAngle() {
   yaw_des_ = robot_->GetBodyOriYPR()[0] + yaw_rate_des_ * dt_;
 
+#if B_LEANING
   if (gait_number_ == gait::kWalking) {
     // Base pos = avg(contact feet)
     Eigen::Vector3d base_pos(0., 0., 0.);
@@ -927,11 +869,12 @@ void ConvexMPCLocomotion::_SetLeanAngle() {
 
     // calculate axis of rotation (desired direction of movement)
     Eigen::Vector3d axis(x_vel_des_, y_vel_des_, 0.);
-    axis.normalize();
-    if (yaw_rate_des_ > 0.) axis *= -1;
-    // lean = arctan(yaw_rate^2 * r/g)
-    Eigen::Quaterniond ori_quat(Eigen::AngleAxisd(
-        atan(yaw_rate_des_ * yaw_rate_des_ * r / 9.81), axis));
+    double v = axis.norm();
+    if (yaw_rate_des_ > 0.)
+      axis *= -1;
+    // lean = arctan(yaw_rate * |v|/g)
+    Eigen::Quaterniond ori_quat(
+        Eigen::AngleAxisd(atan(yaw_rate_des_ * v / 9.81), axis));
     Eigen::Vector3d rpy = util::QuatToEulerXYZ(ori_quat);
     roll_des_ = rpy[0];
     pitch_des_ = rpy[1];
@@ -939,18 +882,40 @@ void ConvexMPCLocomotion::_SetLeanAngle() {
     roll_des_ = 0.0;
     pitch_des_ = 0.0;
   }
+#endif
 }
 
 Vector6d ConvexMPCLocomotion::_ComputeNextComState(
     const Eigen::Vector3d &cur_ori, const Eigen::Vector3d &cur_pos,
-    Eigen::Vector3d &world_com_vel) {
+    Eigen::Vector3d &world_com_vel, double dt) {
   Vector6d com_state;
-  com_state.head<3>() =
-      cur_ori + dt_mpc_ * Eigen::Vector3d(0.0, 0.0, yaw_rate_des_);
-  com_state.tail<3>() = cur_pos + dt_mpc_ * world_com_vel;
+  com_state.head<3>() = cur_ori + dt * Eigen::Vector3d(0.0, 0.0, yaw_rate_des_);
   world_com_vel =
-      util::SO3FromRPY(0.0, 0.0, yaw_rate_des_ * dt_mpc_) * world_com_vel;
+      util::SO3FromRPY(0.0, 0.0, yaw_rate_des_ * dt) * world_com_vel;
+  com_state.tail<3>() = cur_pos + dt * world_com_vel;
   return com_state;
+}
+
+Vector6d
+ConvexMPCLocomotion::_ComputeNextComState(const Eigen::Vector3d &cur_ori,
+                                          const Eigen::Vector3d &cur_pos,
+                                          Eigen::Vector3d &world_com_vel) {
+  return _ComputeNextComState(cur_ori, cur_pos, world_com_vel, dt_mpc_);
+}
+
+void ConvexMPCLocomotion::_SetInitialFootStates(int foot) {
+  // swing foot pos, com states, and ori
+  foot_swing_pos_trajectory_[foot].SetInitialPosition(foot_pos_[foot]);
+  foot_swing_ori_trajectory_[foot].SetInitial(
+      Eigen::Quaterniond(foot_ori_[foot]).normalized(),
+      Eigen::Vector3d::Zero());
+
+  // for CRBI computation
+  foot_swing_pos_trajectory_for_inertia_[foot].SetInitialPosition(
+      foot_pos_[foot]);
+  foot_swing_ori_trajectory_for_inertia_[foot].SetInitial(
+      Eigen::Quaterniond(foot_ori_[foot]).normalized(),
+      Eigen::Vector3d::Zero());
 }
 
 void ConvexMPCLocomotion::_InitializeConvexMPC() {
@@ -964,19 +929,19 @@ void ConvexMPCLocomotion::_InitializeConvexMPC() {
   Eigen::MatrixXd Qvv = Eigen::MatrixXd::Zero(6, 6);
   Eigen::MatrixXd Quu = Eigen::MatrixXd::Zero(6, 6);
 
-  Qqq(0, 0) = 100;   // roll
-  Qqq(1, 1) = 100;   // pitch
-  Qqq(2, 2) = 150;   // yaw
-  Qqq(3, 3) = 200;   // x
-  Qqq(4, 4) = 200;   // y
-  Qqq(5, 5) = 1000;  // z
+  Qqq(0, 0) = 100;  // roll
+  Qqq(1, 1) = 100;  // pitch
+  Qqq(2, 2) = 150;  // yaw
+  Qqq(3, 3) = 200;  // x
+  Qqq(4, 4) = 200;  // y
+  Qqq(5, 5) = 1000; // z
 
-  Qvv(0, 0) = 1;    // wx
-  Qvv(1, 1) = 1;    // wy
-  Qvv(2, 2) = 1;    // wz
-  Qvv(3, 3) = 1;    // xdot
-  Qvv(4, 4) = 1;    // ydot
-  Qvv(5, 5) = 100;  // zdot
+  Qvv(0, 0) = 1;   // wx
+  Qvv(1, 1) = 1;   // wy
+  Qvv(2, 2) = 1;   // wz
+  Qvv(3, 3) = 1;   // xdot
+  Qvv(4, 4) = 1;   // ydot
+  Qvv(5, 5) = 100; // zdot
 
   Quu(0, 0) = 1e-3;
   Quu(1, 1) = 1e-3;

@@ -25,7 +25,7 @@ constexpr int kMagneta = 8;
 constexpr int kBoldMagneta = 9;
 constexpr int kCyan = 10;
 constexpr int kBoldCyan = 11;
-};  // namespace color
+}; // namespace color
 
 namespace util {
 // =========================================================================
@@ -39,7 +39,7 @@ void SaveVector(const std::vector<double> &_vec, std::string _name,
                 bool b_param = false);
 void SaveValue(double _value, std::string _name, bool b_param = false);
 void CleaningFile(std::string file_name_, std::string &ret_file_, bool b_param);
-static std::list<std::string> gs_fileName_string;  // global & static
+static std::list<std::string> gs_fileName_string; // global & static
 
 template <typename YamlType>
 YamlType ReadParameter(const YAML::Node &node, const std::string &name) {
@@ -143,6 +143,8 @@ void WrapYawToPi(Eigen::Vector3d &rpy);
 void AvoidQuatJump(const Eigen::Quaternion<double> &des_ori,
                    Eigen::Quaternion<double> &act_ori);
 
+template <typename T> T Sign(T n) { return (n > 0) - (n < 0); }
+
 double Clamp(const double s_in, const double lo = 0.0, const double hi = 1.0);
 
 Eigen::VectorXd ClampVector(const Eigen::VectorXd &vec_in,
@@ -174,4 +176,4 @@ Eigen::MatrixXd HStack(const Eigen::MatrixXd &a, const Eigen::MatrixXd &b);
 Eigen::MatrixXd VStack(const Eigen::MatrixXd &a, const Eigen::MatrixXd &b);
 Eigen::MatrixXd BlockDiagonalMatrix(const Eigen::MatrixXd &a,
                                     const Eigen::MatrixXd &b);
-}  // namespace util
+} // namespace util

@@ -177,6 +177,10 @@ public:
   double y_vel_cmd_; // from yaml
   double yaw_rate_cmd_;
 
+  double roll_des_ = 0.0;
+  double pitch_des_ = 0.0;
+  double yaw_des_ = 0.0;
+
 private:
   // robot states
   PinocchioRobotSystem *robot_;
@@ -203,19 +207,22 @@ private:
 
   bool b_save_mpc_solution_;
 
-  // gaits
   void _SetupBodyCommand();
   void _SetLeanAngle();
   Vector6d _ComputeNextComState(const Eigen::Vector3d &cur_ori,
                                 const Eigen::Vector3d &cur_pos,
+                                Eigen::Vector3d &world_com_vel, double dt);
+  Vector6d _ComputeNextComState(const Eigen::Vector3d &cur_ori,
+                                const Eigen::Vector3d &cur_pos,
                                 Eigen::Vector3d &world_com_vel);
+  void _SetInitialFootStates(int foot);
+
   double x_vel_des_ = 0.0;
   double y_vel_des_ = 0.0;
   double yaw_rate_des_ = 0.0;
-  double roll_des_ = 0.0;
-  double pitch_des_ = 0.0;
-  double yaw_des_ = 0.0;
 
+  // gaits
+  const double side_sign_[foot_side::NumFoot] = {1, -1};
   OffsetDurationGait standing_, walking_;
   OffsetDurationGait gait_for_inertia_;
 

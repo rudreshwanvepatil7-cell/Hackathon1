@@ -35,6 +35,7 @@ option(BUILD_WITH_FOXGLOVE "compile with foxglove" OFF)
 
 option(BUILD_WITH_TELEOP "compile with teleop" OFF)
 
+option(ENABLE_LEANING "enable leaning (TOVI-MPC)" ON)
 option(BUILD_WITH_HPIPM "compile with HPIPM" ON)
 
 # unit-testing tools
@@ -118,6 +119,13 @@ if (BUILD_WITH_TELEOP)
     set(B_USE_TELEOP true)
 else()
     set(B_USE_TELEOP false)
+endif()
+
+#tovi-mpc
+if (ENABLE_LEANING)
+    set(B_LEANING true)
+else()
+    set(B_LEANING false)
 endif()
 
 #hpipm-cpp
